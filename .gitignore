@@ -1,0 +1,9 @@
+# 运行数据与备份(不入库,可随时重建)
+data/db.json
+data/backups/
+# 敏感配置
+.env
+# 系统文件
+.DS_Store
+Thumbs.db
+*.log

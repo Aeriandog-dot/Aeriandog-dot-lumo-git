@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumo 管理后台</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{background:var(--bg)}
+  .admin-wrap{max-width:960px;margin:0 auto;padding:40px 20px}
+  .admin-top{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+  .admin-top h1{font-size:22px;font-weight:800}
+  .admin-top .tag{font-size:12px;color:var(--dim)}
+  .admin-login{max-width:420px;margin:60px auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px}
+  .queue-head{display:flex;align-items:baseline;gap:14px;margin:18px 0 14px}
+  .queue-head h2{font-size:17px}
+  .queue-head span{font-size:12px;color:var(--dim)}
+  .adm-sub{display:flex;flex-direction:column;gap:10px}
+  .adm-sub-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .adm-sub-row.done{opacity:.55}
+  .adm-sub-row .g{flex:1;min-width:240px}
+  .adm-sub-row .an{font-weight:650}
+  .adm-sub-row .ad{font-family:var(--mono);font-size:12px;color:var(--info)}
+  .adm-sub-row .ac{font-size:12px;color:var(--dim);margin-top:2px}
+  .adm-sub-row input{width:76px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 9px}
+  .st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .st.pending{color:var(--mid);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3)}
+  .st.approved{color:var(--good);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3)}
+  .st.rejected{color:var(--bad);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3)}
+
+  .tabs{display:flex;gap:8px;margin:14px 0 6px;border-bottom:1px solid var(--line-soft);padding-bottom:10px}
+  .tabs button{background:none;border:1px solid var(--line);border-radius:8px 8px 0 0;color:var(--muted);padding:8px 16px;font-size:14px}
+  .tabs button.on{background:var(--panel-2);color:var(--text);border-color:#34343c;border-bottom-color:transparent}
+  .bar{display:flex;gap:10px;align-items:center;margin:12px 0}
+  .bar input{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 12px;min-width:240px}
+  .it-row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .it-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .it-top .nm{font-weight:650}
+  .it-top .dm{font-family:var(--mono);font-size:12px;color:var(--info)}
+  .it-top .mt{margin-left:auto;font-size:12px;color:var(--dim)}
+  .it-forms{margin-top:10px;border-top:1px dashed #2a2a31;padding-top:12px;display:none}
+  .it-forms.show{display:block}
+  .frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:8px}
+  .frow label{font-size:12px;color:var(--dim);display:flex;flex-direction:column;gap:5px}
+  .frow input,.frow select,.frow textarea{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 10px}
+  .frow textarea{min-height:54px}
+  .live-box{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted)}
+  .mini{font-size:12px;color:var(--dim)}</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="admin-top">
+    <h1>Lumo · 管理后台</h1>
+    <span class="tag" id="who"></span>
+    <a class="btn btn-ghost btn-sm" id="logoutBtn" style="margin-left:auto;display:none" href="#">退出</a>
+  </div>
+  <div id="box"></div>
+</div>
+<script src="admin.js"></script>
+</body>
+</html>
