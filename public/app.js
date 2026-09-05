@@ -1131,6 +1131,29 @@
     ], '2026-09-05');
   }
 
+  function renderWatchlist() {
+    view.innerHTML = '<div class="page-head"><h1>Risk watchlist</h1>' +
+      '<p class="lede">Telegram / social-only projects flagged as high risk. They have no website to check, so they are tracked here instead of the Live or Dead lists.</p>' +
+      '<p class="filter-hint">For reference only — not an official judgement. Open with care; never send money to these channels.</p></div>' +
+      '<div id="watchBox" class="watch-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px"><p style="color:var(--dim)">Loading…</p></div>';
+    fetch('/api/watch').then(function (r) { return r.json(); }).then(function (j) {
+      var list = j.watch || [];
+      var box = document.getElementById('watchBox');
+      if (!box) return;
+      if (!list.length) { box.innerHTML = '<p style="color:var(--dim)">No flagged channels yet.</p>'; return; }
+      var catLabel = { crypto: 'Crypto & Exchanges', trading: 'Trading & Investment Platforms', shop: 'E-commerce', loan: 'Finance & Lending', job: 'Jobs & Gig Work', dating: 'Dating & Social', news: 'News & Content', game: 'Games & Entertainment' };
+      box.innerHTML = list.map(function (w) {
+        var added = w.added ? String(w.added).slice(0, 10) : (w.at ? new Date(w.at).toISOString().slice(0, 10) : '');
+        return '<div class="card" style="margin:0">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b>' + esc(w.name) + '</b><span class="live-tag off">Flagged</span><span class="tag">' + esc(catLabel[w.cat] || w.cat) + '</span></div>' +
+          '<p style="margin:9px 0;font-size:13.5px;color:var(--muted)">' + esc(w.reason) + '</p>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<a class="btn btn-ghost btn-sm" href="' + esc(w.url) + '" target="_blank" rel="noopener nofollow">Open Telegram @' + esc(w.handle) + ' &#8599;</a>' +
+          '<span style="color:var(--dim);font-size:12px">added ' + esc(added) + '</span></div></div>';
+      }).join('');
+    }).catch(function () { var box = document.getElementById('watchBox'); if (box) box.innerHTML = '<p style="color:var(--bad)">Failed to load.</p>'; });
+  }
+
   function render() {
     var raw = (location.hash || '#/').slice(2);
     var qIdx = raw.indexOf('?');
@@ -1147,6 +1170,7 @@
     else if (parts[0] === 'terms') route = 'terms';
     else if (parts[0] === 'privacy') route = 'privacy';
     else if (parts[0] === 'appeals') route = 'appeals';
+    else if (parts[0] === 'watchlist') route = 'watchlist';
     else if (parts[0] === 'about') route = 'about';
 
     if (route === 'home') renderHome();
@@ -1157,6 +1181,7 @@
     else if (route === 'terms') renderTerms();
     else if (route === 'privacy') renderPrivacy();
     else if (route === 'appeals') renderAppeals();
+    else if (route === 'watchlist') renderWatchlist();
     else if (route === 'about') renderAbout();
 
     setActiveNav(route);

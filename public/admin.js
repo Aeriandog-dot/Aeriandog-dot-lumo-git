@@ -62,6 +62,7 @@
       '<div class="tabs" id="tabs">' +
       '<button data-tab="queue">审核队列</button>' +
       '<button data-tab="reports">举报 / 反馈</button>' +
+      '<button data-tab="watch">风险线索</button>' +
       '<button data-tab="items">条目管理</button>' +
       '<button data-tab="users">用户评分</button>' +
       '<button data-tab="logs">操作日志</button>' +
@@ -132,6 +133,7 @@
     });
     if (curTab === 'queue') renderQueue();
     else if (curTab === 'reports') renderReports();
+    else if (curTab === 'watch') renderWatchAdmin();
     else if (curTab === 'items') renderItems();
     else if (curTab === 'users') renderUsers();
     else renderLogs();
@@ -283,6 +285,46 @@
         };
       });
     }).catch(function () { body.innerHTML = '<p style="color:var(--bad)">加载失败(需要管理员登录)。</p>'; });
+  }
+
+  /* ---------- 风险线索(Telegram/无官网) ---------- */
+  function renderWatchAdmin() {
+    var body = document.getElementById('body');
+    var cats = [['trading','Trading & Investment Platforms'],['crypto','Crypto & Exchanges'],['shop','E-commerce'],['loan','Finance & Lending'],['job','Jobs & Gig'],['dating','Dating & Social'],['news','News & Content'],['game','Games & Entertainment'],['other','Other']];
+    var opts = cats.map(function (c) { return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('');
+    body.innerHTML =
+      '<div class="queue-head"><h2>风险线索 Watchlist</h2><span>只收录“没有官网、仅在 Telegram/社交私域运营”的高危项目。Telegram 交易/量化骗局默认归入「交易与投资平台」(不参与探活/运营/DEAD)</span></div>' +
+      '<div class="bar" style="flex-wrap:wrap"><input id="wName" placeholder="项目/频道名称(如 FAI / FAITRADE)"><input id="wHandle" placeholder="电报账号(如 FAITRADEBOT)"><select id="wCat" class="select">' + opts + '</select>' +
+      '<button class="btn btn-primary btn-sm" id="wAdd">添加线索</button></div>' +
+      '<div class="bar"><input id="wReason" style="flex:1;min-width:280px" placeholder="风险理由/证据(必填,可多行,会展示在前台)"></div>' +
+      '<div id="watchList"></div>';
+    document.getElementById('wAdd').onclick = function () {
+      var name = document.getElementById('wName').value.trim();
+      var handle = document.getElementById('wHandle').value.trim();
+      var cat = document.getElementById('wCat').value;
+      var reason = document.getElementById('wReason').value.trim();
+      jpost('/api/admin/watch', { name: name, handle: handle, cat: cat, reason: reason }).then(function () { toast('已添加线索 ✓'); renderWatchAdmin(); }).catch(function (e) { toast(e.message || '添加失败', true); });
+    };
+    var load = function () {
+      jget('/api/watch').then(function (d) {
+        var list = d.watch || [];
+        document.getElementById('watchList').innerHTML = list.length
+          ? '<div class="adm-sub">' + list.map(function (w) {
+              return '<div class="adm-sub-row"><div class="g"><div class="an">' + esc(w.name) + ' <span class="ad">@' + esc(w.handle) + '</span> <span class="tag">' + esc(w.cat) + '</span></div>' +
+                '<div class="ac">' + esc(w.reason) + '</div><div class="ac">' + fmt(w.at) + '</div></div>' +
+                '<button class="btn btn-ghost btn-sm" data-wdel="' + w.id + '" style="color:var(--bad)">删除</button></div>';
+            }).join('') + '</div>'
+          : '<p style="color:var(--dim)">暂无风险线索。</p>';
+        document.querySelectorAll('[data-wdel]').forEach(function (b) {
+          b.onclick = function () {
+            var id = b.getAttribute('data-wdel');
+            if (!confirm('确认删除该线索?')) return;
+            jpost('/api/admin/watch/' + id + '/delete', {}).then(function () { toast('已删除'); load(); }).catch(function (e) { toast(e.message || '删除失败', true); });
+          };
+        });
+      });
+    };
+    load();
   }
 
   /* ---------- 条目管理 ---------- */

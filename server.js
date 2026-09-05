@@ -126,6 +126,7 @@ function loadDB() {
   if (!db.emailCodes) db.emailCodes = {};
   if (!db.reports) db.reports = [];
   if (!db.checks) db.checks = {};
+  if (!db.watch) db.watch = [];
 }
 function saveDB() {
   const tmp = DB_FILE + '.tmp';
@@ -378,6 +379,9 @@ function routes() {
     res.end('{}');
   };
 
+  r.GET['/api/watch'] = (req, res) => {
+    send(res, 200, { watch: (db.watch || []).slice(0, 300) });
+  };
   r.GET['/api/categories'] = (req, res) => send(res, 200, { categories: db.categories });
   r.GET['/api/items'] = (req, res) => send(res, 200, { items: db.items });
 
@@ -609,6 +613,32 @@ function routes() {
     if (db.logs.length > 500) db.logs.length = 500;
     saveDB();
     send(res, 200, out);
+  };
+
+  // ---- 风险线索 Watchlist(仅管理员)----
+  r.POST['/api/admin/watch'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const name = String(b.name || '').trim().slice(0, 120);
+    const handle = String(b.handle || '').trim().replace(/^@/, '').replace(/^t\.me\//, '').slice(0, 80);
+    const cat = String(b.cat || 'crypto').slice(0, 30);
+    const reason = String(b.reason || '').trim().slice(0, 800);
+    if (!name || !handle || !reason) return send(res, 400, { error: '名称/账号/理由必填' });
+    if (!db.watch) db.watch = [];
+    db.watch.unshift({ id: 'w' + Date.now() + Math.floor(Math.random() * 900), at: Date.now(), name: name, handle: handle, cat: cat, url: 'https://t.me/' + handle, reason: reason, status: 'flagged' });
+    audit(req, 'add_watch', name + ' (@' + handle + ')', reason.slice(0, 160));
+    saveDB();
+    send(res, 200, { ok: true });
+  };
+  r.POST['/api/admin/watch/:id/delete'] = (req, res, id) => {
+    if (!adminOnly(req, res)) return;
+    const i = (db.watch || []).findIndex((x) => x.id === id);
+    if (i < 0) return send(res, 404, { error: '记录不存在' });
+    const rec = db.watch[i];
+    db.watch.splice(i, 1);
+    audit(req, 'delete_watch', rec.name + ' (@' + rec.handle + ')', '');
+    saveDB();
+    send(res, 200, { ok: true });
   };
 
   // ---- 条目管理(仅管理员)----
