@@ -12,6 +12,8 @@
   window.ITEMS = d.items;
   window.LIVE = d.live || {};
   window.CHECKED = d.checked || '2026-09-05';
+  window.CONTACT = d.contact || '';
+  window.CHECKS = d.checks || {};
   window.BOOT_USER = d.user || null;
   window.BOOT_MY_RATES = d.myRates || {};
 })();

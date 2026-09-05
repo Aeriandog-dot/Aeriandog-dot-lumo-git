@@ -54,8 +54,13 @@ lumo-app/
 | POST | /api/items/:id/rate   | 评分(1–5,每账号一票) | 会话 |
 | POST | /api/submissions      | 提交收录(进入待审核) | 会话 |
 | GET  | /api/submissions/mine | 我的提交进度 | 会话 |
+| POST | /api/reports          | 提交举报/反馈(错信息/疑似诈骗/无法访问/申诉) | 会话 |
+| GET  | /api/reports/mine     | 我的举报进度 | 会话 |
+| POST | /api/items/:id/check  | 实时探测该网站当前是否可访问(只读,不自动改判) | 会话 |
 | GET  | /api/admin/subs        | 后台:提交队列 | 管理员 |
 | GET  | /api/admin/stats       | 后台:统计     | 管理员 |
+| GET  | /api/admin/reports     | 后台:举报/反馈列表 | 管理员 |
+| POST | /api/admin/reports/:id/resolve | 后台:标记已处理/忽略(带备注) | 管理员 |
 | POST | /api/admin/subs/:id/approve | 通过收录(写入初始评分) | 管理员 |
 | POST | /api/admin/subs/:id/reject  | 拒绝(记录原因) | 管理员 |
 

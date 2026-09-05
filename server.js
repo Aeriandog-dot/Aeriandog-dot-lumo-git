@@ -6,6 +6,7 @@ const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const dns = require('dns');
 
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
@@ -123,6 +124,8 @@ function loadDB() {
   if (!db.logs) db.logs = [];
   if (!db.evidence) db.evidence = {};
   if (!db.emailCodes) db.emailCodes = {};
+  if (!db.reports) db.reports = [];
+  if (!db.checks) db.checks = {};
 }
 function saveDB() {
   const tmp = DB_FILE + '.tmp';
@@ -233,13 +236,76 @@ function serveStatic(req, res, urlPath) {
   });
 }
 
+// ---- reachability probe (zero-dependency; used by /api/items/:id/check) ----
+function isPrivateIp(ip) {
+  const parts = String(ip || '').split('.');
+  if (parts.length !== 4) return false;
+  const a = parseInt(parts[0], 10), b = parseInt(parts[1], 10), c = parseInt(parts[2], 10);
+  if (a === 10 || a === 127) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 0 || a >= 224) return true;
+  return c === undefined;
+}
+function probeHttps(host, timeoutMs) {
+  return new Promise((resolve) => {
+    const req = require('https').get({
+      host: host, servername: host, path: '/', method: 'GET',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LumoBot/1.0)', 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'en', 'Connection': 'close' },
+      timeout: timeoutMs, agent: false
+    }, (res) => {
+      const code = res.statusCode || 0;
+      res.resume();
+      res.destroy();
+      resolve({ reachable: code >= 100 && code < 500, status: code, scheme: 'https' });
+    });
+    req.on('timeout', () => { req.destroy(); });
+    req.on('error', () => { resolve({ reachable: false, status: 0 }); });
+  });
+}
+function probeHttp(host, timeoutMs) {
+  return new Promise((resolve) => {
+    const req = require('http').get({
+      host: host, path: '/', method: 'GET',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LumoBot/1.0)', 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'en', 'Connection': 'close' },
+      timeout: timeoutMs, agent: false
+    }, (res) => {
+      const code = res.statusCode || 0;
+      res.resume();
+      res.destroy();
+      resolve({ reachable: code >= 100 && code < 500, status: code, scheme: 'http' });
+    });
+    req.on('timeout', () => { req.destroy(); });
+    req.on('error', () => { resolve({ reachable: false, status: 0 }); });
+  });
+}
+function probeDomain(domain, timeoutMs) {
+  return new Promise((resolve) => {
+    const host = String(domain || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(host)) return resolve({ online: false, reason: 'invalid host' });
+    dns.lookup(host, { family: 4 }, (err, addr) => {
+      if (err) return resolve({ online: false, reason: 'dns lookup failed' });
+      if (isPrivateIp(addr)) return resolve({ online: false, reason: 'non-public address' });
+      const t = timeoutMs || 12000;
+      probeHttps(host, t).then((r) => {
+        if (r.reachable) return resolve({ online: true, status: r.status, scheme: r.scheme });
+        probeHttp(host, t).then((r2) => {
+          if (r2.reachable) return resolve({ online: true, status: r2.status, scheme: r2.scheme });
+          resolve({ online: false, reason: 'no response over https/http' });
+        });
+      });
+    });
+  });
+}
+
 function routes() {
   const r = { GET: {}, POST: {} };
 
   r.GET['/api/bootstrap'] = (req, res) => {
     const me = sessionUser(req);
     const myRates = me ? (userOf(me.email).rates || {}) : {};
-    send(res, 200, { categories: db.categories, items: db.items, live: db.live, checked: db.checked, myRates, user: me ? me.email : null });
+    send(res, 200, { categories: db.categories, items: db.items, live: db.live, checked: db.checked, myRates: myRates, user: me ? me.email : null, contact: process.env.LUMO_CONTACT || '', checks: db.checks || {} });
   };
 
   r.POST['/api/auth/send-code'] = async (req, res) => {
@@ -260,7 +326,7 @@ function routes() {
     } catch (e) {
       return send(res, 502, { error: '验证码发送失败,请稍后重试(' + e.message.slice(0, 80) + ')' });
     }
-    send(res, 200, { ok: true, dev: dev, note: note, hint: dev ? ('验证码:' + code) : '验证码已发送,请查收邮箱' });
+    send(res, 200, { ok: true, dev: dev, note: note, hint: dev ? ('Code: ' + code) : 'Code sent — check your inbox.' });
   };
 
   r.POST['/api/auth/verify'] = async (req, res) => {
@@ -339,6 +405,55 @@ function routes() {
     send(res, 200, { submission: rec });
   };
 
+  // ---- 报告 / 反馈(登录用户)----
+  const REPORT_KINDS = ['wrong', 'scam', 'offline', 'appeal', 'other'];
+  r.POST['/api/reports'] = async (req, res) => {
+    const me = sessionUser(req);
+    if (!me) return send(res, 401, { error: '请先登录' });
+    if (!rateLimit(req, 6, 3600000)) return send(res, 429, { error: '提交过于频繁,请稍后再试' });
+    const body = JSON.parse((await readBody(req)) || '{}');
+    const kind = String(body.kind || 'other');
+    if (REPORT_KINDS.indexOf(kind) === -1) return send(res, 400, { error: '报告类型无效' });
+    const detail = String(body.detail || '').trim().slice(0, 1000);
+    const itemId = String(body.itemId || '').trim();
+    let it = itemId ? db.items.find((x) => x.id === itemId) : null;
+    if (!it) {
+      const rawUrl = String(body.url || '').trim();
+      if (!rawUrl) return send(res, 400, { error: '请提供条目或网址' });
+      it = { id: '', name: rawUrl, domain: rawUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '') };
+    }
+    if (!db.reports) db.reports = [];
+    const rec = { id: 'rep' + Date.now() + Math.floor(Math.random() * 900), at: Date.now(), email: me.email, kind: kind, itemId: it.id, itemName: it.name || it.domain, domain: it.domain, detail: detail, status: 'open', note: '' };
+    db.reports.unshift(rec);
+    if (!db.logs) db.logs = [];
+    db.logs.unshift({ at: Date.now(), actor: me.email, action: 'report', target: rec.domain, detail: kind + (detail ? ' — ' + detail.slice(0, 160) : '') });
+    if (db.logs.length > 500) db.logs.length = 500;
+    saveDB();
+    send(res, 200, { report: rec });
+  };
+  r.GET['/api/reports/mine'] = (req, res) => {
+    const me = sessionUser(req);
+    if (!me) return send(res, 401, { error: '请先登录' });
+    send(res, 200, { reports: (db.reports || []).filter((x) => x.email === me.email).slice(0, 50) });
+  };
+
+  // ---- 实时可访问性检测(登录用户)----
+  r.POST['/api/items/:id/check'] = async (req, res, id) => {
+    const me = sessionUser(req);
+    if (!me) return send(res, 401, { error: '请先登录' });
+    if (!rateLimit(req, 12, 60000)) return send(res, 429, { error: '检测过于频繁,请稍后再试' });
+    const it = db.items.find((x) => x.id === id);
+    if (!it) return send(res, 404, { error: '条目不存在' });
+    const out = await probeDomain(it.domain, 12000);
+    if (!db.checks) db.checks = {};
+    db.checks[id] = { at: Date.now(), online: !!out.online, status: out.status || 0, scheme: out.scheme || '', note: out.reason || '', by: me.email };
+    if (!db.logs) db.logs = [];
+    db.logs.unshift({ at: Date.now(), actor: me.email, action: 'recheck', target: it.name + ' / ' + it.domain, detail: (out.online ? 'reachable' : 'unreachable') + (out.status ? ' HTTP ' + out.status : '') + (out.reason ? ' (' + out.reason + ')' : '') });
+    if (db.logs.length > 500) db.logs.length = 500;
+    saveDB();
+    send(res, 200, { online: !!out.online, status: out.status || 0, scheme: out.scheme || '', note: out.reason || '', at: db.checks[id].at });
+  };
+
   r.POST['/api/items/:id/rate'] = async (req, res, id) => {
     const me = sessionUser(req);
     if (!me) return send(res, 401, { error: '请先登录' });
@@ -386,7 +501,9 @@ function routes() {
       risk: items.filter((x) => x.status === 'risk').length,
       pending: db.subs.filter((x) => x.status === 'pending').length,
       submissions: db.subs.length,
-      users: Object.keys(db.users || {}).length
+      users: Object.keys(db.users || {}).length,
+      reports: (db.reports || []).length,
+      openReports: (db.reports || []).filter((x) => x.status === 'open').length
     });
   };
   r.POST['/api/admin/subs/:id/approve'] = async (req, res, id) => {
@@ -427,6 +544,28 @@ function routes() {
     rec.reason = String(body.reason || '').trim().slice(0, 200);
     rec.reviewedAt = Date.now();
     audit(req, 'reject_submission', rec.name + ' / ' + rec.domain, '原因:' + (rec.reason || '无'));
+    saveDB();
+    send(res, 200, { ok: true });
+  };
+
+  // ---- 举报 / 反馈管理(仅管理员)----
+  r.GET['/api/admin/reports'] = (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const list = (db.reports || []).map(function (x) {
+      const it = x.itemId ? db.items.find((y) => y.id === x.itemId) : null;
+      return { id: x.id, at: x.at, email: x.email, kind: x.kind, itemId: x.itemId, itemName: x.itemName, domain: x.domain, detail: x.detail, status: x.status, note: x.note || '', linked: !!(it && it.id) };
+    }).sort((a, b) => b.at - a.at);
+    send(res, 200, { reports: list.slice(0, 200) });
+  };
+  r.POST['/api/admin/reports/:id/resolve'] = async (req, res, id) => {
+    if (!adminOnly(req, res)) return;
+    const rec = (db.reports || []).find((x) => x.id === id);
+    if (!rec) return send(res, 404, { error: '报告不存在' });
+    const b = JSON.parse((await readBody(req)) || '{}');
+    rec.status = b.status === 'dismissed' ? 'dismissed' : 'resolved';
+    rec.note = String(b.note || '').trim().slice(0, 500);
+    rec.updatedAt = Date.now();
+    audit(req, 'resolve_report', rec.domain + ' / ' + rec.id, rec.status + (rec.note ? ' — ' + rec.note : ''));
     saveDB();
     send(res, 200, { ok: true });
   };

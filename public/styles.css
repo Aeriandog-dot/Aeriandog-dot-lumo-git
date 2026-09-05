@@ -670,3 +670,8 @@ button.chip.on{color:#0a0a0c}
 .btn-ghost,.btn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);backdrop-filter:blur(10px)}
 .dead-panel{background:linear-gradient(180deg,rgba(248,113,113,.06),rgba(255,255,255,.02));border:1px solid rgba(248,113,113,.28)}
 .demo-banner{background:rgba(255,255,255,.04);backdrop-filter:blur(10px)}
+
+.check-note{margin-top:12px;font-size:12.5px;line-height:1.55;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2)}
+.check-note.ok{color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.06)}
+.check-note.bad{color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)}
+.check-note.dim{color:var(--dim)}

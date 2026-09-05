@@ -10,11 +10,6 @@
 </head>
 <body>
 
-<div class="demo-banner" id="demoBanner">
-  <span><strong>Prototype data</strong> — sample entries are fictional except shark-trades.com (a real high-risk example). The live build adds verified sources.</span>
-  <button class="demo-banner-x" data-dismiss-banner aria-label="Close">&times;</button>
-</div>
-
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a class="brand" href="#/" aria-label="Lumo Home">
@@ -60,14 +55,13 @@
       <h4>Learn</h4>
       <a href="#/about" data-scroll-to="submit">How sites are listed</a>
       <a href="#/about" data-scroll-to="disclaimer">Disclaimer</a>
-      <a href="#" data-demo="Contact email">Contact</a>
+      <a href="#/about" data-scroll-to="contact">Contact</a>
     </div>
     <div class="footer-col footer-note">
       <p><strong>Disclaimer:</strong> Lumo scores are based on public information and user feedback. They are not official certifications and are not a substitute for your own judgment.</p>
-      <p class="footer-sample">Prototype demo — 2026 · sample data</p>
     </div>
   </div>
-  <div class="container footer-bottom">&copy; 2026 Lumo. Prototype build — not a live service.</div>
+  <div class="container footer-bottom">&copy; 2026 Lumo &middot; For reference only — not investment advice.</div>
 </footer>
 
 <div class="modal-backdrop" id="authModal" hidden>
@@ -89,17 +83,16 @@
       <form id="authCodeForm">
         <label class="field">
           <span>6-digit code</span>
-          <input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456" required autocomplete="one-time-code">
+          <input type="text" id="authCode" inputmode="numeric" maxlength="6" required autocomplete="one-time-code">
         </label>
         <button class="btn btn-primary btn-block" type="submit">Verify &amp; sign in</button>
       </form>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-ghost btn-sm" type="button" data-auth-back>Change email</button>
-        <span class="modal-hint" style="margin:0">Demo code:<b>123456</b></span>
       </div>
     </div>
 
-    <p class="modal-hint" id="authHint">Demo: any email; code shown below.</p>
+    <p class="modal-hint" id="authHint">We&#8217;ll email you a 6-digit code.</p>
   </div>
 </div>
 
@@ -114,6 +107,34 @@
       <button class="btn btn-ghost btn-block" type="button" data-risk-cancel>Cancel</button>
       <button class="btn btn-primary btn-block" type="button" data-risk-go>Continue anyway</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="reportModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle" style="max-width:520px">
+    <button class="modal-x" data-close-modal aria-label="Close">&times;</button>
+    <h3 id="reportTitle">Report a listing</h3>
+    <p class="modal-sub" id="reportItem"></p>
+    <form id="reportForm">
+      <label class="field">
+        <span>Reason</span>
+        <select id="reportKind">
+          <option value="wrong">Wrong or outdated information</option>
+          <option value="scam">Suspected scam or fraud</option>
+          <option value="offline">Site is offline / cannot open</option>
+          <option value="appeal">Appeal this listing</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="field full">
+        <span>Details <span class="req">*</span></span>
+        <textarea id="reportDetail" rows="4" required maxlength="1000" placeholder="What should we check? Add links or describe the problem."></textarea>
+      </label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-ghost" type="button" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" type="submit">Submit report</button>
+      </div>
+    </form>
   </div>
 </div>
 

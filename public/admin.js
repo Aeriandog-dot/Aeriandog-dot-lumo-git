@@ -61,6 +61,7 @@
       '<div id="restoreBox" style="display:none"></div>' +
       '<div class="tabs" id="tabs">' +
       '<button data-tab="queue">审核队列</button>' +
+      '<button data-tab="reports">举报 / 反馈</button>' +
       '<button data-tab="items">条目管理</button>' +
       '<button data-tab="users">用户评分</button>' +
       '<button data-tab="logs">操作日志</button>' +
@@ -122,7 +123,7 @@
     });
     jget('/api/admin/stats').then(function (s) {
       document.getElementById('statTitle').textContent = '运营数据';
-      document.getElementById('statSub').textContent = '条目 ' + s.items + ' · 活跃 ' + s.alive + ' · DEAD ' + s.dead + ' · 风险 ' + s.risk + ' · 待审核 ' + s.pending + ' · 注册用户 ' + s.users;
+      document.getElementById('statSub').textContent = '条目 ' + s.items + ' · 活跃 ' + s.alive + ' · DEAD ' + s.dead + ' · 风险 ' + s.risk + ' · 待审核 ' + s.pending + ' · 举报 ' + (s.openReports || 0) + ' · 注册用户 ' + s.users;
     }).catch(function () {
       var st = document.getElementById('statTitle');
       var sb = document.getElementById('statSub');
@@ -130,6 +131,7 @@
       if (sb) sb.textContent = '请先登录管理员账号。';
     });
     if (curTab === 'queue') renderQueue();
+    else if (curTab === 'reports') renderReports();
     else if (curTab === 'items') renderItems();
     else if (curTab === 'users') renderUsers();
     else renderLogs();
@@ -189,6 +191,49 @@
         };
       });
     });
+  }
+
+  /* ---------- 举报 / 反馈 ---------- */
+  function renderReports() {
+    var body = document.getElementById('body');
+    jget('/api/admin/reports').then(function (data) {
+      var list = data.reports || [];
+      var open = list.filter(function (x) { return x.status === 'open'; });
+      var done = list.filter(function (x) { return x.status !== 'open'; });
+      var kindMap = { wrong: '信息有误', scam: '疑似诈骗', offline: '无法访问', appeal: '申诉', other: '其他' };
+      function row(r) {
+        var st = r.status;
+        var statusHtml = '<span class="st ' + (st === 'open' ? 'pending' : (st === 'resolved' ? 'approved' : 'rejected')) + '">' + (st === 'open' ? '待处理' : (st === 'resolved' ? '已处理' : '已忽略')) + '</span>';
+        var actions = st === 'open'
+          ? '<button class="btn btn-primary btn-sm" data-rres="' + r.id + '">标记已处理</button>' +
+            '<button class="btn btn-ghost btn-sm" data-rdismiss="' + r.id + '">忽略</button>'
+          : '<span style="font-size:12px;color:var(--dim)">' + esc(r.note || (st === 'resolved' ? '已处理' : '已忽略')) + '</span>';
+        var link = r.linked && r.itemId ? ' <a href="#/item/' + esc(r.itemId) + '" target="_blank">查看条目</a>' : '';
+        return '<div class="adm-sub-row ' + (st !== 'open' ? 'done' : '') + '"><div class="g"><div class="an">' + esc(r.itemName || r.domain) + ' <span class="ad">' + esc(r.domain) + '</span> ' + statusHtml + ' <span class="ad">' + (kindMap[r.kind] || r.kind) + '</span>' + link + '</div>' +
+          '<div class="ac">举报人:' + esc(r.email) + ' · ' + fmt(r.at) + '</div>' +
+          (r.detail ? '<div class="ac">' + esc(r.detail) + '</div>' : '') +
+          '</div><div class="rr" style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;min-width:150px">' + actions + '</div></div>';
+      }
+      body.innerHTML =
+        '<div class="queue-head"><h2>举报 / 反馈</h2><span>' + open.length + ' 条待处理 · 提交者在前台只会看到「已收到」,处理结果用于内部复核</span></div>' +
+        (open.length ? '<div class="adm-sub">' + open.map(row).join('') + '</div>' : '<p style="color:var(--dim)">暂无待处理举报。</p>') +
+        (done.length ? '<div class="queue-head" style="margin-top:26px"><h2>已处理</h2><span>' + done.length + ' 条</span></div><div class="adm-sub">' + done.map(row).join('') + '</div>' : '');
+      document.querySelectorAll('[data-rres]').forEach(function (b) {
+        b.onclick = function () {
+          var id = b.getAttribute('data-rres');
+          var note = prompt('处理备注(可选,会写入日志):');
+          if (note === null) return;
+          jpost('/api/admin/reports/' + id + '/resolve', { status: 'resolved', note: note || '' }).then(function () { toast('已标记处理 ✓'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
+        };
+      });
+      document.querySelectorAll('[data-rdismiss]').forEach(function (b) {
+        b.onclick = function () {
+          var id = b.getAttribute('data-rdismiss');
+          if (!confirm('确认忽略该举报?')) return;
+          jpost('/api/admin/reports/' + id + '/resolve', { status: 'dismissed', note: '忽略' }).then(function () { toast('已忽略'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
+        };
+      });
+    }).catch(function () { body.innerHTML = '<p style="color:var(--bad)">加载失败(需要管理员登录)。</p>'; });
   }
 
   /* ---------- 条目管理 ---------- */

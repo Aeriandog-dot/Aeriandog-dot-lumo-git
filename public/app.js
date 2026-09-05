@@ -1,4 +1,4 @@
-/* Lumo prototype — 前端逻辑(示例数据)。 */
+/* Lumo — front-end application logic. */
 
 (function () {
   'use strict';
@@ -228,7 +228,7 @@
   '我们只收集提供服务所必需的信息,并说明其用途、存储与你的权利。':'We only collect what is needed to run the service, and explain how it is used and stored.',
   '1. 我们收集什么':'1. What we collect',
   '登录邮箱(用于Send code、识别身份与Score记账);':'Login email (to send codes, identify you and record votes);',
-  '你主动Submit的Content(Listings建议、评价、Score、留言);':'Content you submit (suggestions, ratings, scores, messages);',
+  '你主动Submit的Content(Listings建议、评价、Score、留言);':'Content you submit (suggestions, ratings, scores, reports, messages);',
   '必要运行Data(IP、访问日志、会话Status,用于安全与防滥用);':'Necessary operational data (IP, access logs, session state) for security and anti-abuse;',
   '2. 如何使用':'2. How it is used',
   '3. 存储与第三方':'3. Storage & third parties',
@@ -436,7 +436,7 @@
 
   function openAuth(subText) {
     var sub = document.getElementById('authSub');
-    if (sub) sub.textContent = subText || '登录后即可查看完整域名、给网站打分与提交收录。';
+    if (sub) sub.textContent = subText || 'Sign in to see full domains, rate sites and submit entries.';
     var em = document.getElementById('authEmailForm');
     var cs = document.getElementById('authStepCode');
     var hint = document.getElementById('authHint');
@@ -444,7 +444,7 @@
     if (cs) cs.hidden = true;
     var ac = document.getElementById('authCode');
     if (ac) ac.value = '';
-    if (hint) hint.textContent = '演示环境:任意邮箱均可,验证码统一为 123456。';
+    if (hint) hint.textContent = 'We\u2019ll email you a 6-digit code.';
     var m = document.getElementById('authModal');
     if (m) m.hidden = false;
     setTimeout(function () {
@@ -673,18 +673,28 @@
     }).join('');
 
     var la = liveArr(it);
+    var lchk = (window.CHECKS || {})[it.id];
+    var lchkTxt = lchk ? new Date(lchk.at).toLocaleString('en-GB', { hour12: false, day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : String(CHECKED);
+    var noteHtml;
+    if (lchk) {
+      noteHtml = lchk.online
+        ? '<div id="checkNote" class="check-note ok">Last live check: reachable' + (lchk.status ? ' (HTTP ' + lchk.status + ')' : '') + '.</div>'
+        : '<div id="checkNote" class="check-note bad">Last live check: unreachable' + (lchk.note ? ' \u2014 ' + esc(lchk.note) : '') + '. If this persists, report it or flag it for review.</div>';
+    } else {
+      noteHtml = '<div id="checkNote" class="check-note dim">Confirmed status last checked ' + esc(String(CHECKED)) + '. Run a live check to verify it still opens.</div>';
+    }
     var cells = [
-      ['&#127760;', '网站可访问', la.online ? '可以打开' : '无法访问', la.online],
-      ['&#128221;', '可注册 / 开户', la.signup ? '开放注册' : '已暂停注册', la.signup],
-      ['&#128227;', '仍在推广', la.promo ? '仍在推广' : '未见推广', la.promo]
+      ['&#127760;', 'Website opens', la.online ? 'Yes' : 'No', la.online],
+      ['&#128221;', 'Registration open', la.signup ? 'Yes' : 'No', la.signup],
+      ['&#128227;', 'Still promoted', la.promo ? 'Yes' : 'No', la.promo]
     ].map(function (cell) {
       return '<div class="live-cell ' + (cell[3] ? 'ok' : 'no') + '"><div class="ic">' + cell[0] + '</div><b>' + cell[1] + '</b><p>' + cell[2] + '</p></div>';
     }).join('');
-    var liveCard = '<div class="card"><h2>运营状态核验 <span class="h2-note">最近核验 ' + CHECKED + '</span></h2>' +
-      '<div class="live-check">' + cells + '</div>' +
+    var liveCard = '<div class="card"><h2>Operational check <span class="h2-note" id="liveLastChecked">' + lchkTxt + '</span></h2>' +
+      '<div class="live-check">' + cells + '</div>' + noteHtml +
       '<div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">' + liveBadge(it) +
-      '<span style="color:var(--dim);font-size:12.5px">仅“运营中”表示三项全部通过</span>' +
-      '<button class="btn btn-ghost btn-sm" type="button" data-recheck style="margin-left:auto">重新检测</button></div></div>';
+      '<span style="color:var(--dim);font-size:12.5px">Live = website opens + registration open + still promoted</span>' +
+      '<button class="btn btn-ghost btn-sm" type="button" data-recheck style="margin-left:auto">Run live check</button></div></div>';
 
     var icons = { good: ['✓', 'lv-good'], info: ['✓', 'lv-good'], warn: ['!', 'lv-mid'], bad: ['⚠', 'lv-bad'] };
     var reasons = it.reasons.map(function (r) {
@@ -836,6 +846,58 @@
     it.userScore = n ? Math.round(total / n * 10) / 10 : 0;
   }
 
+  function openReport(itemId) {
+    var it = itemId ? itemById(itemId) : null;
+    if (!it) { showToast('Open a listing to report it.'); return; }
+    state.reportItemId = itemId;
+    var m = document.getElementById('reportModal');
+    if (m) m.hidden = false;
+    var ri = document.getElementById('reportItem');
+    if (ri) ri.textContent = it.name + ' \u2014 ' + it.domain;
+    var rd = document.getElementById('reportDetail');
+    if (rd) rd.value = '';
+    var rk = document.getElementById('reportKind');
+    if (rk) rk.value = 'wrong';
+  }
+  function submitReport(e) {
+    e.preventDefault();
+    var id = state.reportItemId;
+    if (!id) { showToast('Open a listing to report it.'); return; }
+    var kind = document.getElementById('reportKind').value;
+    var detail = document.getElementById('reportDetail').value.trim();
+    if (!detail) { showToast('Please describe the issue.'); return; }
+    fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ itemId: id, kind: kind, detail: detail }) })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        if (json.error) { showToast(json.error); return; }
+        closeModals();
+        showToast('Report received \u2014 our team will review it.');
+      }).catch(function () { showToast('Report failed \u2014 try again.'); });
+  }
+  function runRecheck(id, btn) {
+    if (!id) return;
+    var oldTxt = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Checking\u2026';
+    fetch('/api/items/' + encodeURIComponent(id) + '/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        btn.disabled = false;
+        btn.textContent = oldTxt;
+        if (json.error) { showToast(json.error); return; }
+        if (!window.CHECKS) window.CHECKS = {};
+        window.CHECKS[id] = { at: json.at || Date.now(), online: json.online, status: json.status, note: json.note || '' };
+        var note = document.getElementById('checkNote');
+        if (note) {
+          if (json.online) { note.textContent = 'Last live check: reachable' + (json.status ? ' (HTTP ' + json.status + ')' : '') + '.'; note.className = 'check-note ok'; }
+          else { note.textContent = 'Last live check: unreachable' + (json.note ? ' \u2014 ' + json.note : '') + '. If this persists, report it.'; note.className = 'check-note bad'; }
+        }
+        var lc = document.getElementById('liveLastChecked');
+        if (lc) lc.textContent = new Date(json.at).toLocaleString('en-GB', { hour12: false, day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        showToast(json.online ? 'Live check: reachable \u2014 it opens.' : 'Live check: unreachable right now.');
+      }).catch(function () { btn.disabled = false; btn.textContent = oldTxt; showToast('Live check failed \u2014 try again later.'); });
+  }
+
     function renderAbout() {
     var sources = SOURCES.map(function (s2) { return '<div class="source-tile"><b>' + esc(s2.name) + '</b><span>' + esc(s2.note) + '</span></div>'; }).join('');
     var method = METHOD.map(function (m) {
@@ -868,18 +930,19 @@
           '<p><b>User rating (1–5 stars):</b> logged-in users vote once per account; Lumo only tallies the results.</p>' +
           '<h2 id="disclaimer">Disclaimer</h2>' +
           '<div class="note"><b>For reference only.</b> Lumo aggregates publicly available information for research purposes. Scores and listings are not endorsements, offers, certifications or investment/trading/legal advice. Always verify contract addresses and primary sources, and do your own research before making any decision.</div>' +
-          '<h2>Contact</h2>' +
-          '<p>Corrections, appeals or partnerships: <a href="#" data-demo="Contact email" style="color:var(--info)">hello@lumo.example</a></p>' +
+          '<h2 id="contact">Contact &amp; corrections</h2>' +
+          '<p>Spot a mistake or want to appeal a listing? Use the <b>Report issue</b> button on any listing — it goes straight to our review queue.</p>' +
+          (window.CONTACT ? '<p>Prefer email? Write to <a href="mailto:' + esc(window.CONTACT) + '" style="color:var(--info)">' + esc(window.CONTACT) + '</a>.</p>' : '') +
         '</div>' +
         '<aside class="side-col">' +
-          '<div class="side-card"><h3>Prototype notes</h3>' +
-            '<p style="color:var(--muted);font-size:13px">Most listings are fictional sample data (except shark-trades.com, a real high-risk example). The live build adds verified sources and a review workflow.</p>' +
+          '<div class="side-card"><h3>Current dataset</h3>' +
+            '<p style="color:var(--muted);font-size:13px">This launch build ships a starter set of 16 listings that is being expanded from verified public sources. Most entries are illustrative; shark-trades.com is a real high-risk example already flagged with external evidence. New entries added via Submit are human-reviewed before publishing.</p>' +
           '</div>' +
-          '<div class="side-card"><h3>Roadmap</h3>' +
+          '<div class="side-card"><h3>Review workflow</h3>' +
             '<div class="steps">' +
-              '<div class="step"><span class="n">1</span><div><b>Prototype (this build)</b><p>Directory, scoring and review flows.</p></div></div>' +
-              '<div class="step"><span class="n">2</span><div><b>Live checks</b><p>Automated reachability and source feeds.</p></div></div>' +
-              '<div class="step"><span class="n">3</span><div><b>Community</b><p>Accounts, appeals and moderation tooling.</p></div></div>' +
+              '<div class="step"><span class="n">1</span><div><b>Submit or report</b><p>Anyone can suggest a site or report an issue.</p></div></div>' +
+              '<div class="step"><span class="n">2</span><div><b>Human review</b><p>Editors verify evidence; no automatic pass or fail.</p></div></div>' +
+              '<div class="step"><span class="n">3</span><div><b>Published with a score</b><p>Approved entries list with an editor score and live status.</p></div></div>' +
             '</div>' +
           '</div>' +
         '</aside>' +
@@ -1052,7 +1115,7 @@
   }
   function renderPrivacy() {
     legalPage('Privacy Policy', 'We only collect what is needed to run the service, and we explain how it is used and stored.', [
-      { h: '1. What we collect', ul: ['Login email (to send codes, identify you and record votes);', 'Content you submit (suggestions, ratings, scores, messages);', 'Necessary operational data (IP, access logs, session state) for security and anti-abuse;'] },
+      { h: '1. What we collect', ul: ['Login email (to send codes, identify you and record votes);', 'Content you submit (suggestions, ratings, scores, reports, messages);', 'Necessary operational data (IP, access logs, session state) for security and anti-abuse;'] },
       { h: '2. How it is used', p: ['Code login and sessions, one-vote-per-account tallies, submission progress, spam prevention and site security. We never sell your data.'] },
       { h: '3. Storage & third parties', p: ['Data is stored on our servers/persistent disk. Verification emails are sent via a third-party mail service (e.g. Resend). Evidence archiving may query the Internet Archive (Wayback). Each third party processes only what is necessary under its own policy.'] },
       { h: '4. Your rights', p: ['Use “Sign out” to end your session. To correct or delete your account data, contact us and we will act after verifying your identity.'] },
@@ -1062,7 +1125,7 @@
   function renderAppeals() {
     legalPage('Appeals', 'If you or your organization believe a listing is wrong, misses evidence, or was wrongly marked high risk or DEAD, you can appeal.', [
       { h: '1. When to appeal', ul: ['Listing content conflicts with facts or misquotes a source;', 'Wrongly marked high risk or DEAD and you can provide counter-evidence;', 'Identity misuse, or material that infringes your rights.'] },
-      { h: '2. How to appeal', p: ['Prepare: (a) who you are; (b) the listing link or domain; (c) point-by-point evidence (official sites, registrations, licences, audits, statements).', 'Send these via the contact email on this page with the subject line “Appeal”.'] },
+      { h: '2. How to appeal', p: ['Prepare: (a) who you are; (b) the listing link or domain; (c) point-by-point evidence (official sites, registrations, licences, audits, statements).', 'Submit these through the “Report issue” button on the listing and choose “Appeal this listing”.'] },
       { h: '3. Process', ul: ['Your appeal is reviewed by humans (no automatic decisions);', 'We contact you via the email you provide if more evidence is needed;', 'The outcome (correction / downgrade / removal / keep) is confirmed by email and logged on the entry.'] },
       { h: '4. Notes', p: ['An appeal does not guarantee removal. To balance credibility and fairness we prefer correcting with evidence and only remove or downgrade when the evidence is sufficient. Abusive appeals are rejected.'] }
     ], '2026-09-05');
@@ -1104,14 +1167,13 @@
   document.addEventListener('click', function (e) {
     var t = e.target;
 
-    var demo = t.closest('[data-demo]');
-    if (demo) { e.preventDefault(); showToast(demo.getAttribute('data-demo') + ' — 原型中为示例,正式版会接通真实流程。'); return; }
-
-    var dismiss = t.closest('[data-dismiss-banner]');
-    if (dismiss) { var b = document.getElementById('demoBanner'); if (b) b.classList.add('hidden'); return; }
-
     var report = t.closest('[data-report]');
-    if (report) { showToast('已记录 — 报告/收录建议功能将在正式版上线。'); return; }
+    if (report) {
+      e.preventDefault();
+      if (!state.signedIn) { openAuth('Sign in to report an issue.'); return; }
+      openReport(state.currentItemId);
+      return;
+    }
 
     var catnav = t.closest('[data-catnav]');
     if (catnav) { location.hash = '#/cat/' + catnav.getAttribute('data-catnav'); return; }
@@ -1155,7 +1217,12 @@
     if (livef) { state.live = livef.getAttribute('data-livefilter'); render(); return; }
 
     var recheck = t.closest('[data-recheck]');
-    if (recheck) { showToast('正在重新检测运营状态(原型演示)——正式版将实时检查网站可访问性、注册页与推广记录。'); return; }
+    if (recheck) {
+      e.preventDefault();
+      if (!state.signedIn) { openAuth('Sign in to run a live check.'); return; }
+      runRecheck(state.currentItemId, recheck);
+      return;
+    }
 
     var need = t.closest('[data-need-login]');
     if (need) { e.preventDefault(); openAuth('Sign in to see full domains and open official sites.'); return; }
@@ -1167,7 +1234,7 @@
       var hint = document.getElementById('authHint');
       if (ef) ef.style.display = '';
       if (cs) cs.hidden = true;
-      if (hint) hint.textContent = '演示环境:任意邮箱均可,验证码统一为 123456。';
+      if (hint) hint.textContent = 'We\u2019ll email you a 6-digit code.';
       return;
     }
 
@@ -1226,6 +1293,7 @@
   document.addEventListener('submit', function (e) {
     if (e.target.id === 'searchForm') { e.preventDefault(); doSearch(); }
     if (e.target.id === 'submitForm') { e.preventDefault(); handleSubmitNew(e); }
+    if (e.target.id === 'reportForm') { submitReport(e); }
     if (e.target.id === 'authEmailForm') {
       e.preventDefault();
       var email = document.getElementById('authEmail').value.trim();
@@ -1235,7 +1303,7 @@
         .then(function (j) {
           var hint = document.getElementById('authHint');
           if (hint && j && j.hint) hint.textContent = j.hint;
-          else if (hint) hint.textContent = '验证码已发送,请查收邮箱。';
+          else if (hint) hint.textContent = 'Code sent \u2014 check your inbox.';
         }).catch(function () {});
       var mshow = document.getElementById('authMailShow');
       var cs = document.getElementById('authStepCode');
