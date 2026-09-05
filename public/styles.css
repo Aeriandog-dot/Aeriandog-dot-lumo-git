@@ -641,3 +641,32 @@ button.chip.on{color:#0a0a0c}
 
 .st-pill.off{color:#a0a0aa;background:rgba(140,140,150,.08);border:1px solid #3a3a42}
 .st-pill.off .dot{background:#a0a0aa}
+
+
+/* ---------- Liquid Glass (Apple-style) ----------
+   不改变布局/结构,只增加玻璃质感 */
+:root{
+  --glass-bg: rgba(255,255,255,.045);
+  --glass-bg-strong: rgba(255,255,255,.08);
+  --glass-line: rgba(255,255,255,.12);
+  --glass-hi: rgba(255,255,255,.18);
+}
+.site-header{background:rgba(16,16,20,.55);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.08)}
+.cat-card,.row-item,.it-row,.adm-sub-row,.dead-sec .row-item,.thread,.side-card,.form-card,.admin-login,.card,.proj-row,.dead-cardlist .row-item{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 12px 34px rgba(0,0,0,.28);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.cat-card:hover,.row-item:hover,.it-row:hover,.proj-row:hover{
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
+  border-color:rgba(255,255,255,.18)
+}
+.brand-mark,.cat-ico,.modal,.toast{filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+.search-input,.field input,.field select,.field textarea,.select{
+  background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);backdrop-filter:blur(10px)
+}
+.btn-primary{background:rgba(255,255,255,.92);color:#0a0a0c;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.btn-ghost,.btn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);backdrop-filter:blur(10px)}
+.dead-panel{background:linear-gradient(180deg,rgba(248,113,113,.06),rgba(255,255,255,.02));border:1px solid rgba(248,113,113,.28)}
+.demo-banner{background:rgba(255,255,255,.04);backdrop-filter:blur(10px)}

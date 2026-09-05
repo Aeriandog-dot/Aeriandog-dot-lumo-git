@@ -303,7 +303,7 @@
     view.innerHTML =
       '<section class="hero">' +
         '<span class="kicker">Lumo</span>' +
-        '<h1>找你想找的</h1>' +
+        '<h1>Find what you are looking for</h1>' +
         '<form class="search-wrap" id="searchForm">' +
           '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>' +
           '<input class="search-input" id="searchInput" type="search" placeholder="输入网址或名称,如 shark-trades.com" autocomplete="off">' +
@@ -908,7 +908,7 @@
     if (recheck) { showToast('正在重新检测运营状态(原型演示)——正式版将实时检查网站可访问性、注册页与推广记录。'); return; }
 
     var need = t.closest('[data-need-login]');
-    if (need) { e.preventDefault(); openAuth('登录后即可查看完整域名与访问官网。'); return; }
+    if (need) { e.preventDefault(); openAuth('Sign in to see full domains and open official sites.'); return; }
 
     var back = t.closest('[data-auth-back]');
     if (back) {

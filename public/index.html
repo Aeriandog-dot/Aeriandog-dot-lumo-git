@@ -11,7 +11,7 @@
 <body>
 
 <div class="demo-banner" id="demoBanner">
-  <span><strong>原型预览</strong> — 除 shark-trades.com 为真实高危示例外,其余网站均为虚构示例数据。正式版接入实时收录与核验。</span>
+  <span><strong>Prototype data</strong> — sample entries are fictional except shark-trades.com (a real high-risk example). The live build adds verified sources.</span>
   <button class="demo-banner-x" data-dismiss-banner aria-label="关闭">&times;</button>
 </div>
 
@@ -22,13 +22,13 @@
       <img class="brand-word" src="assets/lumo-word-light.png" alt="Lumo">
     </a>
     <nav class="site-nav" id="siteNav" aria-label="主导航">
-      <a href="#/" data-route>首页</a>
-      <a href="#/submit" data-route>提交收录</a>
-      <a href="#/about" data-route>关于 Lumo</a>
+      <a href="#/" data-route>Home</a>
+      <a href="#/submit" data-route>Submit</a>
+      <a href="#/about" data-route>About</a>
     </nav>
     <div class="nav-actions">
-      <button class="btn btn-ghost" id="authBtn" type="button">登录</button>
-      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="菜单" aria-expanded="false">
+      <button class="btn btn-ghost" id="authBtn" type="button">Sign in</button>
+      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
     </div>
@@ -47,20 +47,20 @@
       <p class="footer-blurb">Lumo 汇聚公开信息与用户反馈,帮你快速了解一个网站或平台是什么、靠不靠谱、别人怎么评价。评分仅供参考,不构成投资或交易建议。</p>
     </div>
     <div class="footer-col">
-      <h4>浏览</h4>
-      <a href="#/">网站搜索</a>
-      <a href="#/submit">提交收录</a>
-      <a href="#/about">关于 Lumo</a>
-      <a href="#/terms">服务条款</a>
-      <a href="#/privacy">隐私政策</a>
-      <a href="#/appeals">收录申诉</a>
-      <a href="#/about" data-scroll-to="method">评分规则</a>
+      <h4>Explore</h4>
+      <a href="#/">Directory</a>
+      <a href="#/submit">Submit a site</a>
+      <a href="#/about">About Lumo</a>
+      <a href="#/terms">Terms</a>
+      <a href="#/privacy">Privacy</a>
+      <a href="#/appeals">Appeals</a>
+      <a href="#/about" data-scroll-to="method">How scoring works</a>
     </div>
     <div class="footer-col">
-      <h4>帮助</h4>
+      <h4>Learn</h4>
       <a href="#/about" data-scroll-to="submit">如何收录</a>
-      <a href="#/about" data-scroll-to="disclaimer">免责声明</a>
-      <a href="#" data-demo="联系邮箱">联系我们</a>
+      <a href="#/about" data-scroll-to="disclaimer">Disclaimer</a>
+      <a href="#" data-demo="联系邮箱">Contact</a>
     </div>
     <div class="footer-col footer-note">
       <p><strong>重要提示:</strong>Lumo 上的评分基于公开信息和用户反馈,不是官方认证,也不能替代你自己的判断。遇到疑似诈骗,请立即停止转账并联系银行或警方。</p>
@@ -73,46 +73,46 @@
 <div class="modal-backdrop" id="authModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <button class="modal-x" data-close-modal aria-label="关闭">&times;</button>
-    <h3 id="authTitle">登录 Lumo</h3>
-    <p class="modal-sub" id="authSub">登录后即可查看完整域名、给网站打分与提交收录。</p>
+    <h3 id="authTitle">Sign in to Lumo</h3>
+    <p class="modal-sub" id="authSub">Sign in to see full domains, rate sites and submit entries.</p>
 
     <form id="authEmailForm">
       <label class="field">
-        <span>邮箱</span>
+        <span>Email</span>
         <input type="email" id="authEmail" placeholder="you@example.com" required autocomplete="email">
       </label>
-      <button class="btn btn-primary btn-block" type="submit">发送验证码</button>
+      <button class="btn btn-primary btn-block" type="submit">Send code</button>
     </form>
 
     <div id="authStepCode" hidden>
       <p class="modal-sub" style="margin-bottom:6px">验证码已发送至 <b id="authMailShow" style="color:var(--text)"></b></p>
       <form id="authCodeForm">
         <label class="field">
-          <span>6 位验证码</span>
+          <span>6-digit code</span>
           <input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456" required autocomplete="one-time-code">
         </label>
-        <button class="btn btn-primary btn-block" type="submit">验证并登录</button>
+        <button class="btn btn-primary btn-block" type="submit">Verify &amp; sign in</button>
       </form>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
-        <button class="btn btn-ghost btn-sm" type="button" data-auth-back>更换邮箱</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-auth-back>Change email</button>
         <span class="modal-hint" style="margin:0">演示验证码:<b>123456</b></span>
       </div>
     </div>
 
-    <p class="modal-hint" id="authHint">演示环境:任意邮箱均可,验证码统一为 123456。</p>
+    <p class="modal-hint" id="authHint">Demo: any email; code shown below.</p>
   </div>
 </div>
 
 <div class="modal-backdrop" id="riskModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="riskTitle" style="max-width:460px">
     <button class="modal-x" data-close-modal aria-label="关闭">&times;</button>
-    <h3 id="riskTitle">&#9888; 风险二次确认</h3>
-    <p class="modal-sub">你即将离开 Lumo,访问一个已被标记为「<b style="color:var(--bad)">风险提示</b>」的外部网站:</p>
+    <h3 id="riskTitle">&#9888; Confirm before you leave</h3>
+    <p class="modal-sub">You are about to leave Lumo and open an external site marked as <b style="color:var(--bad)">high risk</b>:</p>
     <p id="riskUrl" class="modal-sub" style="font-family:var(--mono);color:var(--bad);word-break:break-all;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px"></p>
-    <p class="modal-sub" style="font-size:12.5px">请勿向其转账、充值或连接钱包。仅在确认安全后访问。</p>
+    <p class="modal-sub" style="font-size:12.5px">Do not transfer funds, top up or connect a wallet. Only continue if you are sure it is safe.</p>
     <div style="display:flex;gap:10px;margin-top:16px">
-      <button class="btn btn-ghost btn-block" type="button" data-risk-cancel>取消</button>
-      <button class="btn btn-primary btn-block" type="button" data-risk-go>仍然访问</button>
+      <button class="btn btn-ghost btn-block" type="button" data-risk-cancel>Cancel</button>
+      <button class="btn btn-primary btn-block" type="button" data-risk-go>Continue anyway</button>
     </div>
   </div>
 </div>

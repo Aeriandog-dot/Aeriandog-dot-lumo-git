@@ -16,19 +16,19 @@
   window.BOOT_MY_RATES = d.myRates || {};
 })();
 
-// 关于页等所需静态文案数据(由服务端种子定义,此处补齐避免变量缺失)
+// static copy used by About etc. (English)
 window.SOURCES = window.SOURCES || [
-  { name: '公开信息核验', note: '官网、工商、牌照与媒体报道' },
-  { name: '安全黑名单', note: 'ScamAdviser、ScamDoc、Google 安全浏览等' },
-  { name: '域名与主体', note: '注册时间、注册人与运营方' },
-  { name: '用户评价投诉', note: '平台内评分与投诉记录' },
-  { name: '社区讨论', note: '论坛、社交媒体的公开讨论' },
-  { name: '人工复核', note: '编辑对关键结论逐条复核' }
+  { name: 'Public records', note: 'official sites, registries, licences, media' },
+  { name: 'Security blacklists', note: 'ScamAdviser, ScamDoc, Google Safe Browsing' },
+  { name: 'Domain & operator', note: 'registration age, registrant, operator' },
+  { name: 'User reports', note: 'ratings and complaints on Lumo' },
+  { name: 'Community discussion', note: 'public forums and social chatter' },
+  { name: 'Human review', note: 'editors verify each conclusion' }
 ];
 window.METHOD = window.METHOD || [
-  { name: '公开信息核验', desc: '官网、工商、牌照、媒体报道等可核实程度。', val: '30%' },
-  { name: '风险与黑名单记录', desc: '安全检测站黑名单、诈骗投诉记录。', val: '25%' },
-  { name: '用户评价与投诉', desc: '平台内用户评分、投诉数量与处理情况。', val: '25%' },
-  { name: '运营透明度', desc: '主体公开、收费透明、退款与客服机制。', val: '20%' }
+  { name: 'Public records', desc: 'how verifiable official info is.', val: '30%' },
+  { name: 'Risk & blacklists', desc: 'scanner blacklists and fraud complaints.', val: '25%' },
+  { name: 'User feedback', desc: 'ratings, complaint volume and handling.', val: '25%' },
+  { name: 'Operating transparency', desc: 'public entity, clear fees, refunds & support.', val: '20%' }
 ];
 window.STATS = window.STATS || { websites: '1,204', categories: '8', ratings: '38,621' };

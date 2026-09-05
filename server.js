@@ -653,6 +653,18 @@ function routes() {
     send(res, 200, { ok: true, record: rec });
   };
 
+  r.POST['/api/admin/localize'] = (req, res) => {
+    if (!adminOnly(req, res)) return;
+    try {
+      const en = JSON.parse(fs.readFileSync(SEED_FILE, 'utf8'));
+      db.categories = en.categories;
+      db.items = en.items;
+      if (en.live) db.live = en.live;
+      audit(req, 'localize_en', 'all', '重设为英文种子内容(' + en.items.length + ' items)');
+      saveDB();
+      send(res, 200, { ok: true, items: en.items.length });
+    } catch (e) { send(res, 500, { error: 'localize failed: ' + e.message }); }
+  };
   r.GET['/api/admin/logs'] = (req, res) => {
     if (!adminOnly(req, res)) return;
     send(res, 200, { logs: (db.logs || []).slice(0, 200) });
