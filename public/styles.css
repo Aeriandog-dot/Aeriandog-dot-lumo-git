@@ -47,7 +47,10 @@ button{font-family:inherit;cursor:pointer}
 .site-nav a:hover{color:var(--text);background:var(--panel-2)}
 .site-nav a.active{color:var(--text);background:var(--panel-2)}
 .nav-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.nav-contact{white-space:nowrap;display:inline-flex;align-items:center}
 .menu-btn{display:none}
+
+@media (max-width:400px){#authBtn{max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:9px;padding:9px 16px;font-size:14px;font-weight:500;transition:border-color .15s,background .15s,transform .05s}
@@ -346,6 +349,7 @@ button{font-family:inherit;cursor:pointer}
   .detail-actions{width:100%;justify-content:flex-start}
   .form-grid{grid-template-columns:1fr}
 }
+@media (max-width:560px){.nav-contact span.lbl{display:none}}
 @media (max-width:560px){
   .container{padding:0 16px}
   .hero{padding:40px 0 26px}
@@ -675,3 +679,4 @@ button.chip.on{color:#0a0a0c}
 .check-note.ok{color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.06)}
 .check-note.bad{color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)}
 .check-note.dim{color:var(--dim)}
+@media (max-width:349px){.nav-actions .nav-contact{display:none!important}}

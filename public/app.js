@@ -432,6 +432,8 @@
 
   function updateAuthButton() {
     authBtn.textContent = state.signedIn ? 'Sign out (' + userHandle() + ')' : 'Sign in';
+    var ct = document.getElementById('contactTop');
+    if (ct) ct.hidden = !state.signedIn;
   }
 
   function openAuth(subText) {
@@ -932,6 +934,7 @@
           '<div class="note"><b>For reference only.</b> Lumo aggregates publicly available information for research purposes. Scores and listings are not endorsements, offers, certifications or investment/trading/legal advice. Always verify contract addresses and primary sources, and do your own research before making any decision.</div>' +
           '<h2 id="contact">Contact &amp; corrections</h2>' +
           '<p>Spot a mistake or want to appeal a listing? Use the <b>Report issue</b> button on any listing — it goes straight to our review queue.</p>' +
+          '<p><b>Contact us on Telegram:</b> <a href="https://t.me/aerian00123" target="_blank" rel="noopener nofollow" style="color:var(--info)">@aerian00123</a> — fastest for questions, corrections and appeals.</p>' +
           (window.CONTACT ? '<p>Prefer email? Write to <a href="mailto:' + esc(window.CONTACT) + '" style="color:var(--info)">' + esc(window.CONTACT) + '</a>.</p>' : '') +
         '</div>' +
         '<aside class="side-col">' +
