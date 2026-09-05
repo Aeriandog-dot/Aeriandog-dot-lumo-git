@@ -570,6 +570,18 @@ function routes() {
     send(res, 200, { ok: true });
   };
 
+  // ---- 收录前域名探测(仅管理员,走服务器出口,避免在无法访问时误收录)----
+  r.POST['/api/admin/probe'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    if (!rateLimit(req, 30, 60000)) return send(res, 429, { error: '检测过于频繁,请稍后再试' });
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const domain = String(b.domain || '').trim();
+    if (!domain) return send(res, 400, { error: '缺少域名' });
+    const out = await probeDomain(domain, 12000);
+    audit(req, 'probe_domain', domain, (out.online ? 'reachable' : 'unreachable') + (out.status ? ' HTTP ' + out.status : '') + (out.reason ? ' (' + out.reason + ')' : ''));
+    send(res, 200, { online: !!out.online, status: out.status || 0, scheme: out.scheme || '', note: out.reason || '' });
+  };
+
   // ---- 条目管理(仅管理员)----
   r.GET['/api/admin/items'] = (req, res) => {
     if (!adminOnly(req, res)) return;

@@ -149,9 +149,13 @@
         var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>';
         var actions;
         if (st === 'pending') {
-          actions = '<label style="font-size:12px;color:var(--dim)">人工评分(必填)<input id="rate_' + sub.id + '" type="number" min="0.5" max="10" step="0.1" placeholder="如 8.2" required></label>' +
+          actions = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
+            '<label style="font-size:12px;color:var(--dim)">人工评分(必填)<input id="rate_' + sub.id + '" type="number" min="0.5" max="10" step="0.1" placeholder="如 8.2" required></label>' +
+            '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-ghost btn-sm" data-probe="' + esc(sub.domain) + '" title="收录前先探测该域名当前能否打开">探测能否打开</button>' +
             '<button class="btn btn-primary btn-sm" data-ok="' + sub.id + '" disabled>通过并上架</button>' +
-            '<button class="btn btn-ghost btn-sm" data-no="' + sub.id + '">拒绝</button>';
+            '<button class="btn btn-ghost btn-sm" data-no="' + sub.id + '">拒绝</button>' +
+            '</div></div>';
         } else if (st === 'approved') {
           actions = '<span style="font-size:12px;color:var(--dim)">已收录 → <a href="#/item/' + esc(sub.itemId) + '">查看条目</a></span>';
         } else {
@@ -165,6 +169,18 @@
         '<div class="queue-head"><h2>待审核提交</h2><span>' + pending.length + ' 条 · 全部人工审核(系统不做自动判定)</span></div>' +
         (pending.length ? '<div class="adm-sub">' + pending.map(row).join('') + '</div>' : '<p style="color:var(--dim)">暂无待审核提交。</p>') +
         (rest.length ? '<div class="queue-head" style="margin-top:26px"><h2>已处理记录</h2><span>' + rest.length + ' 条</span></div><div class="adm-sub">' + rest.map(row).join('') + '</div>' : '');
+      document.querySelectorAll('[data-probe]').forEach(function (b) {
+        b.onclick = function () {
+          var dom = b.getAttribute('data-probe');
+          b.disabled = true; b.textContent = '探测中…';
+          jpost('/api/admin/probe', { domain: dom }).then(function (j) {
+            b.disabled = false; b.textContent = '探测能否打开';
+            if (j.error) toast(j.error, true);
+            else if (j.online) toast('✓ ' + dom + ' 可访问' + (j.status ? ' (HTTP ' + j.status + ')' : ''));
+            else toast('✗ ' + dom + ' 当前打不开' + (j.note ? ' — ' + j.note : ''), true);
+          }).catch(function (e) { b.disabled = false; b.textContent = '探测能否打开'; toast(e.message || '探测失败', true); });
+        };
+      });
       document.querySelectorAll('[data-ok]').forEach(function (b) {
         b.onclick = function () {
           var id = b.getAttribute('data-ok');
