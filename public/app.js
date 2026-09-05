@@ -935,8 +935,8 @@
           (window.CONTACT ? '<p>Prefer email? Write to <a href="mailto:' + esc(window.CONTACT) + '" style="color:var(--info)">' + esc(window.CONTACT) + '</a>.</p>' : '') +
         '</div>' +
         '<aside class="side-col">' +
-          '<div class="side-card"><h3>Current dataset</h3>' +
-            '<p style="color:var(--muted);font-size:13px">This launch build ships a starter set of 16 listings that is being expanded from verified public sources. Most entries are illustrative; shark-trades.com is a real high-risk example already flagged with external evidence. New entries added via Submit are human-reviewed before publishing.</p>' +
+          '<div class="side-card"><h3>How listings are verified</h3>' +
+            '<p style="color:var(--muted);font-size:13px">Every entry is researched from public sources and checked for reachability from our servers before it is published. High-risk and DEAD listings carry their evidence. Spot something wrong? Use Report issue on the entry — it goes straight to our human review queue.</p>' +
           '</div>' +
           '<div class="side-card"><h3>Review workflow</h3>' +
             '<div class="steps">' +

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-04T23:57:43.058Z",
+ "generatedAt": "2026-09-05T13:23:10.363391Z",
  "categories": [
   {
    "id": "crypto",
@@ -13,7 +13,7 @@
    "title": "Trading & Investment Platforms",
    "en": "trading",
    "icon": "📈",
-   "desc": "Forex, futures and investment platforms"
+   "desc": "Brokers, forex, CFDs and investment platforms"
   },
   {
    "id": "shop",
@@ -27,7 +27,7 @@
    "title": "Finance & Lending",
    "en": "loan",
    "icon": "🏦",
-   "desc": "Loans, credit cards and wealth products"
+   "desc": "Loans, credit cards, banking and wealth products"
   },
   {
    "id": "job",
@@ -55,950 +55,1917 @@
    "title": "Games & Entertainment",
    "en": "game",
    "icon": "🎮",
-   "desc": "Gaming, streaming and raffles"
+   "desc": "Gaming, streaming and entertainment platforms"
   }
  ],
  "items": [
   {
-   "id": "fireflywallet",
-   "name": "Firefly Wallet",
-   "domain": "fireflywallet.io",
+   "id": "binance",
+   "name": "Binance",
+   "domain": "binance.com",
    "cat": "crypto",
-   "tagline": "Self-custody crypto wallet supporting multiple chains; open-source and audited.",
-   "intro": "Self-custody crypto wallet supporting multiple chains; open-source and audited.",
+   "tagline": "One of the largest crypto exchanges worldwide, offering spot, futures and an ecosystem of products.",
+   "intro": "One of the largest crypto exchanges worldwide, offering spot, futures and an ecosystem of products.",
    "facts": [
     [
      "Type",
-     "Crypto wallet"
-    ],
-    [
-     "Launched",
-     "2022"
+     "Crypto exchange"
     ],
     [
      "Operator",
-     "Firefly Labs (doxxed)"
-    ],
-    [
-     "Open source",
-     "github.com/fireflywallet"
+     "Public company"
     ],
     [
      "Audit",
-     "Two audits in 2025"
+     "Proof of reserves published"
     ]
    ],
-   "rating": 8.7,
-   "userScore": 4.7,
-   "userCount": 231,
+   "rating": 8.6,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    148,
-    61,
-    15,
-    5,
-    2
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "good",
-     "txt": "Open-source code; public audit reports."
+     "txt": "Large, long-running platform with broad liquidity."
     },
     {
      "t": "good",
-     "txt": "Doxxed team; verifiable operator."
+     "txt": "Proof of reserves and public reporting."
     },
     {
      "t": "warn",
-     "txt": "New-chain support can lag behind."
+     "txt": "Not available in all regions; check local rules."
     }
-   ],
-   "added": "2026-08-12",
-   "status": "ok"
+   ]
   },
   {
-   "id": "metawaretoken",
-   "name": "MetaWear Token",
-   "domain": "metawaretoken.io",
+   "id": "coinbase",
+   "name": "Coinbase",
+   "domain": "coinbase.com",
    "cat": "crypto",
-   "tagline": "Presale token for a metaverse wearables project; team anonymous and unaudited.",
-   "intro": "Presale token for a metaverse wearables project; team anonymous and unaudited.",
+   "tagline": "US-listed crypto exchange for buying, selling and storing digital assets.",
+   "intro": "US-listed crypto exchange for buying, selling and storing digital assets.",
    "facts": [
     [
      "Type",
-     "Token project"
-    ],
-    [
-     "Launched",
-     "2025"
+     "Crypto exchange"
     ],
     [
      "Operator",
-     "Anonymous"
+     "NASDAQ-listed public company"
     ],
     [
      "Audit",
-     "None found"
+     "Public financial reports"
+    ]
+   ],
+   "rating": 8.5,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "US-regulated and publicly reported."
+    },
+    {
+     "t": "warn",
+     "txt": "Fees can be higher than global rivals."
+    }
+   ]
+  },
+  {
+   "id": "okx",
+   "name": "OKX",
+   "domain": "okx.com",
+   "cat": "crypto",
+   "tagline": "Global crypto exchange with spot, derivatives, DeFi and wallet products.",
+   "intro": "Global crypto exchange with spot, derivatives, DeFi and wallet products.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves published"
+    ]
+   ],
+   "rating": 8.2,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Deep liquidity and broad product range."
+    },
+    {
+     "t": "warn",
+     "txt": "Regional restrictions apply."
+    }
+   ]
+  },
+  {
+   "id": "bybit",
+   "name": "Bybit",
+   "domain": "bybit.com",
+   "cat": "crypto",
+   "tagline": "Crypto exchange focused on derivatives and perpetual futures, with spot and earn products.",
+   "intro": "Crypto exchange focused on derivatives and perpetual futures, with spot and earn products.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange (derivatives)"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 8.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Leading derivatives liquidity."
+    },
+    {
+     "t": "warn",
+     "txt": "Regional restrictions apply."
+    }
+   ]
+  },
+  {
+   "id": "kucoin",
+   "name": "KuCoin",
+   "domain": "kucoin.com",
+   "cat": "crypto",
+   "tagline": "Global crypto exchange with a large altcoin selection.",
+   "intro": "Global crypto exchange with a large altcoin selection.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 7.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Wide altcoin coverage."
+    },
+    {
+     "t": "warn",
+     "txt": "Regulatory scrutiny in some jurisdictions; verify local status."
+    }
+   ]
+  },
+  {
+   "id": "kraken",
+   "name": "Kraken",
+   "domain": "kraken.com",
+   "cat": "crypto",
+   "tagline": "Long-running crypto exchange with spot, futures and staking, strong on security history.",
+   "intro": "Long-running crypto exchange with spot, futures and staking, strong on security history.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 8.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Long track record and strong security reputation."
+    },
+    {
+     "t": "warn",
+     "txt": "Regional restrictions apply."
+    }
+   ]
+  },
+  {
+   "id": "gateio",
+   "name": "Gate.io",
+   "domain": "gate.io",
+   "cat": "crypto",
+   "tagline": "Global crypto exchange with spot, margin, futures and an altcoin-heavy listing.",
+   "intro": "Global crypto exchange with spot, margin, futures and an altcoin-heavy listing.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 7.2,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Broad token coverage and active listings."
+    },
+    {
+     "t": "warn",
+     "txt": "Check local regulatory status."
+    }
+   ]
+  },
+  {
+   "id": "mexc",
+   "name": "MEXC",
+   "domain": "mexc.com",
+   "cat": "crypto",
+   "tagline": "Global crypto exchange popular for early altcoin listings and low fees.",
+   "intro": "Global crypto exchange popular for early altcoin listings and low fees.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 7.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Early access to many new tokens."
+    },
+    {
+     "t": "warn",
+     "txt": "Research newer listings carefully; volatility is high."
+    }
+   ]
+  },
+  {
+   "id": "bitget",
+   "name": "Bitget",
+   "domain": "bitget.com",
+   "cat": "crypto",
+   "tagline": "Global crypto exchange offering spot, derivatives and copy trading.",
+   "intro": "Global crypto exchange offering spot, derivatives and copy trading.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ],
+    [
+     "Audit",
+     "Proof of reserves"
+    ]
+   ],
+   "rating": 7.3,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Active copy-trading and derivatives products."
+    },
+    {
+     "t": "warn",
+     "txt": "Regional restrictions apply."
+    }
+   ]
+  },
+  {
+   "id": "hyperliquid",
+   "name": "Hyperliquid",
+   "domain": "hyperliquid.xyz",
+   "cat": "crypto",
+   "tagline": "On-chain perpetuals exchange with an order book running on its own L1.",
+   "intro": "On-chain perpetuals exchange with an order book running on its own L1.",
+   "facts": [
+    [
+     "Type",
+     "On-chain perpetuals exchange"
+    ],
+    [
+     "Operator",
+     "Decentralised / protocol-governed"
+    ],
+    [
+     "Audit",
+     "On-chain activity public"
+    ]
+   ],
+   "rating": 7.8,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Transparent on-chain order book."
+    },
+    {
+     "t": "warn",
+     "txt": "Newer protocol; high leverage products carry risk."
+    }
+   ]
+  },
+  {
+   "id": "mtgox",
+   "name": "Mt. Gox",
+   "domain": "mtgox.com",
+   "cat": "crypto",
+   "tagline": "Historic Bitcoin exchange that collapsed after the 2014 hack; domain is now offline.",
+   "intro": "Historic Bitcoin exchange that collapsed after the 2014 hack; domain is now offline.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "History",
+     "2014 hack; insolvency"
+    ],
+    [
+     "Status",
+     "Domain offline (DNS dead)"
     ]
    ],
    "rating": 1.3,
-   "userScore": 1.4,
-   "userCount": 87,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    3,
-    2,
-    4,
-    15,
-    63
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "risk",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "bad",
-     "txt": "Anonymous team with no verifiable entity."
+     "txt": "Lost most user funds in the 2014 breach."
     },
     {
      "t": "bad",
-     "txt": "No third-party audit found."
+     "txt": "Domain currently does not resolve."
+    }
+   ],
+   "evid": [
+    {
+     "label": "Wikipedia: Mt. Gox",
+     "url": "https://en.wikipedia.org/wiki/Mt._Gox"
+    }
+   ]
+  },
+  {
+   "id": "bitconnect",
+   "name": "BitConnect",
+   "domain": "bitconnect.co",
+   "cat": "crypto",
+   "tagline": "Infamous lending/'trading bot' scheme that shut down in 2018; domain is now offline.",
+   "intro": "Infamous lending/'trading bot' scheme that shut down in 2018; domain is now offline.",
+   "facts": [
+    [
+     "Type",
+     "Lending / trading-bot scheme"
+    ],
+    [
+     "History",
+     "Shut down 2018; regulatory action"
+    ],
+    [
+     "Status",
+     "Domain offline"
+    ]
+   ],
+   "rating": 0.9,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "risk",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "bad",
+     "txt": "Classic Ponzi structure with promised high returns."
     },
     {
      "t": "bad",
-     "txt": "Paid promotions and high-return hints."
+     "txt": "Domain currently offline."
+    }
+   ],
+   "evid": [
+    {
+     "label": "Wikipedia: BitConnect",
+     "url": "https://en.wikipedia.org/wiki/BitConnect"
+    }
+   ]
+  },
+  {
+   "id": "wex",
+   "name": "WEX (BTC-e)",
+   "domain": "wex.nz",
+   "cat": "crypto",
+   "tagline": "BTC-e successor exchange that collapsed in 2018 amid a fraud investigation; domain offline.",
+   "intro": "BTC-e successor exchange that collapsed in 2018 amid a fraud investigation; domain offline.",
+   "facts": [
+    [
+     "Type",
+     "Crypto exchange"
+    ],
+    [
+     "History",
+     "Collapsed 2018; fraud probe"
+    ],
+    [
+     "Status",
+     "Domain offline (DNS dead)"
+    ]
+   ],
+   "rating": 1.2,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "risk",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "bad",
+     "txt": "Users reported frozen funds during collapse."
+    },
+    {
+     "t": "bad",
+     "txt": "Domain currently does not resolve."
+    }
+   ],
+   "evid": [
+    {
+     "label": "Wikipedia: BTC-e",
+     "url": "https://en.wikipedia.org/wiki/BTC-e"
+    }
+   ]
+  },
+  {
+   "id": "figureai",
+   "name": "FAI / Figure AI (clone)",
+   "domain": "figureai.me",
+   "cat": "crypto",
+   "tagline": "Fake 'AI quantitative trading' site that impersonates Figure; flagged as fraud and now offline.",
+   "intro": "Fake 'AI quantitative trading' site that impersonates Figure; flagged as fraud and now offline.",
+   "facts": [
+    [
+     "Type",
+     "Fake AI trading platform"
+    ],
+    [
+     "Flagged",
+     "Security scanners — fraud pattern"
+    ],
+    [
+     "Status",
+     "Domain offline (DNS dead)"
+    ]
+   ],
+   "rating": 1.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "risk",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "bad",
+     "txt": "Security scanners flag Ponzi/prepaid-fee fraud patterns."
+    },
+    {
+     "t": "bad",
+     "txt": "Impersonates a known brand name."
+    },
+    {
+     "t": "bad",
+     "txt": "Domain currently offline."
+    }
+   ],
+   "evid": [
+    {
+     "label": "Gridinsoft: fraud pattern",
+     "url": "https://zh.gridinsoft.com/online-virus-scanner/url/figureai-me"
+    }
+   ]
+  },
+  {
+   "id": "faitrade",
+   "name": "FAITrade",
+   "domain": "faitrade.one",
+   "cat": "crypto",
+   "tagline": "Trading platform flagged with a very low trust score; domain is now offline.",
+   "intro": "Trading platform flagged with a very low trust score; domain is now offline.",
+   "facts": [
+    [
+     "Type",
+     "Unverified trading platform"
+    ],
+    [
+     "Flagged",
+     "ScamAdviser — very low trust"
+    ],
+    [
+     "Status",
+     "Domain offline (DNS dead)"
+    ]
+   ],
+   "rating": 1.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "risk",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "bad",
+     "txt": "Very low trust score on public scanners."
+    },
+    {
+     "t": "bad",
+     "txt": "Domain currently offline."
+    }
+   ],
+   "evid": [
+    {
+     "label": "ScamAdviser: very low trust",
+     "url": "https://www.scamadviser.com/check-website/faitrade.one"
+    }
+   ]
+  },
+  {
+   "id": "interactivebrokers",
+   "name": "Interactive Brokers",
+   "domain": "interactivebrokers.com",
+   "cat": "trading",
+   "tagline": "Global online broker for stocks, options, futures and forex with multi-jurisdiction licensing.",
+   "intro": "Global online broker for stocks, options, futures and forex with multi-jurisdiction licensing.",
+   "facts": [
+    [
+     "Type",
+     "Online broker"
+    ],
+    [
+     "Regulation",
+     "Licensed in multiple jurisdictions"
+    ],
+    [
+     "Operator",
+     "NASDAQ-listed public company"
+    ]
+   ],
+   "rating": 8.2,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Multi-jurisdiction regulation and long track record."
     },
     {
      "t": "warn",
-     "txt": "Unclear unlock schedule."
+     "txt": "Interface is advanced; steeper learning curve."
     }
+   ]
+  },
+  {
+   "id": "robinhood",
+   "name": "Robinhood",
+   "domain": "robinhood.com",
+   "cat": "trading",
+   "tagline": "US brokerage app for stocks, ETFs, options and crypto.",
+   "intro": "US brokerage app for stocks, ETFs, options and crypto.",
+   "facts": [
+    [
+     "Type",
+     "Brokerage app"
+    ],
+    [
+     "Regulation",
+     "US-regulated (SEC / FINRA)"
+    ],
+    [
+     "Operator",
+     "NASDAQ-listed public company"
+    ]
    ],
-   "added": "2026-07-21",
-   "status": "risk"
+   "rating": 7.5,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Simple, low-cost US brokerage."
+    },
+    {
+     "t": "warn",
+     "txt": "Crypto and options carry real risk; gamified UX has drawn criticism."
+    }
+   ]
+  },
+  {
+   "id": "etoro",
+   "name": "eToro",
+   "domain": "etoro.com",
+   "cat": "trading",
+   "tagline": "Multi-asset investing and social-trading platform offering stocks, ETFs and crypto.",
+   "intro": "Multi-asset investing and social-trading platform offering stocks, ETFs and crypto.",
+   "facts": [
+    [
+     "Type",
+     "Multi-asset investment platform"
+    ],
+    [
+     "Regulation",
+     "Licensed in multiple jurisdictions"
+    ],
+    [
+     "Operator",
+     "Public company"
+    ]
+   ],
+   "rating": 7.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Widely regulated and transparent about fees."
+    },
+    {
+     "t": "warn",
+     "txt": "CFD products are high risk."
+    }
+   ]
+  },
+  {
+   "id": "plus500",
+   "name": "Plus500",
+   "domain": "plus500.com",
+   "cat": "trading",
+   "tagline": "Global CFD broker offering contracts on forex, shares, crypto and commodities.",
+   "intro": "Global CFD broker offering contracts on forex, shares, crypto and commodities.",
+   "facts": [
+    [
+     "Type",
+     "CFD broker"
+    ],
+    [
+     "Regulation",
+     "Licensed in multiple jurisdictions"
+    ],
+    [
+     "Operator",
+     "LSE-listed company"
+    ]
+   ],
+   "rating": 6.8,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Regulated in multiple jurisdictions."
+    },
+    {
+     "t": "warn",
+     "txt": "CFDs are leveraged and high-risk; most retail accounts lose money."
+    }
+   ]
   },
   {
    "id": "shark-trades",
    "name": "Shark Trades",
    "domain": "shark-trades.com",
    "cat": "trading",
-   "tagline": "Claims crypto futures trading up to 200x leverage; flagged by multiple blacklists (real example).",
-   "intro": "Claims crypto futures trading up to 200x leverage; flagged by multiple blacklists (real example).",
+   "tagline": "Platform advertising high-leverage crypto futures via referral links; multiple warnings on record.",
+   "intro": "Platform advertising high-leverage crypto futures via referral links; multiple warnings on record.",
    "facts": [
     [
      "Type",
-     "Trading platform"
+     "Crypto futures platform"
     ],
     [
      "Domain age",
-     "~7 months, WHOIS hidden"
+     "~recent, registrant hidden"
     ],
     [
      "Licence",
-     "None found"
+     "No valid licence found"
     ],
     [
      "Promotion",
-     "Affiliate ref links"
+     "Referral (ref/promo) links"
     ]
    ],
    "rating": 1.1,
-   "userScore": 1.2,
-   "userCount": 64,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    1,
-    1,
-    2,
-    8,
-    52
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "risk",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "bad",
+     "txt": "Very low trust scores on public scanners."
+    },
+    {
+     "t": "bad",
+     "txt": "Withdrawal complaints reported."
+    },
+    {
+     "t": "bad",
+     "txt": "New domain with hidden registrant."
+    }
    ],
    "evid": [
     {
-     "label": "ScamAdviser 低信任分",
+     "label": "ScamAdviser",
      "url": "https://www.scamadviser.com/check-website/shark-trades.com"
     },
     {
-     "label": "ScamDoc 8% 信任分",
+     "label": "ScamDoc 8% trust",
      "url": "https://fr.scamdoc.com/view/2473086"
     },
     {
-     "label": "Gridinsoft 黑名单警告",
+     "label": "Gridinsoft blacklist",
      "url": "https://fr.gridinsoft.com/online-virus-scanner/url/shark_trades-com"
     },
     {
-     "label": "Trustpilot 提现投诉",
+     "label": "Trustpilot complaints",
      "url": "https://uk.trustpilot.com/review/shark-trades.com"
     }
-   ],
-   "reasons": [
-    {
-     "t": "bad",
-     "txt": "Very low trust on ScamAdviser / ScamDoc / Gridinsoft."
-    },
-    {
-     "t": "bad",
-     "txt": "Fresh domain with hidden registrant."
-    },
-    {
-     "t": "bad",
-     "txt": "Reports of blocked withdrawals."
-    },
-    {
-     "t": "warn",
-     "txt": "Pushed via affiliate links."
-    }
-   ],
-   "added": "2026-08-14",
-   "status": "risk"
+   ]
   },
   {
-   "id": "steadycap",
-   "name": "SteadyCap",
-   "domain": "steadycap.com",
-   "cat": "trading",
-   "tagline": "Licensed online brokerage for stocks, ETFs and funds.",
-   "intro": "Licensed online brokerage for stocks, ETFs and funds.",
-   "facts": [
-    [
-     "Type",
-     "Brokerage"
-    ],
-    [
-     "Launched",
-     "2019"
-    ],
-    [
-     "Operator",
-     "SteadyCap Securities (licensed)"
-    ],
-    [
-     "Licence",
-     "Verifiable online"
-    ]
-   ],
-   "rating": 7.9,
-   "userScore": 4.4,
-   "userCount": 156,
-   "dist": [
-    82,
-    49,
-    17,
-    6,
-    2
-   ],
-   "reasons": [
-    {
-     "t": "good",
-     "txt": "Licence verifiable on the regulator register."
-    },
-    {
-     "t": "good",
-     "txt": "Transparent deposits/withdrawals."
-    },
-    {
-     "t": "warn",
-     "txt": "Support wait times can be long."
-    }
-   ],
-   "added": "2026-08-02",
-   "status": "ok"
-  },
-  {
-   "id": "auroramall",
-   "name": "Aurora Mall",
-   "domain": "auroramall.com",
+   "id": "amazon",
+   "name": "Amazon",
+   "domain": "amazon.com",
    "cat": "shop",
-   "tagline": "E-commerce for electronics and home goods with verified products.",
-   "intro": "E-commerce for electronics and home goods with verified products.",
+   "tagline": "Global online marketplace and retailer.",
+   "intro": "Global online marketplace and retailer.",
    "facts": [
     [
      "Type",
-     "E-commerce"
-    ],
-    [
-     "Launched",
-     "2018"
-    ],
-    [
-     "Operator",
-     "Aurora Mall Ltd."
-    ],
-    [
-     "Returns",
-     "7-day returns"
+     "E-commerce marketplace"
     ]
    ],
-   "rating": 8.4,
-   "userScore": 4.6,
-   "userCount": 402,
+   "rating": 8.6,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    276,
-    92,
-    24,
-    7,
-    3
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "good",
-     "txt": "Public company info and returns policy."
-    },
-    {
-     "t": "good",
-     "txt": "Most orders delivered normally."
+     "txt": "Established marketplace with buyer protections."
     },
     {
      "t": "warn",
-     "txt": "Shipping delays during sales."
+     "txt": "Third-party sellers vary; check seller reviews."
     }
-   ],
-   "added": "2026-07-30",
-   "status": "ok"
+   ]
   },
   {
-   "id": "luxurysale",
-   "name": "LuxurySale",
-   "domain": "luxurysale.shop",
+   "id": "ebay",
+   "name": "eBay",
+   "domain": "ebay.com",
    "cat": "shop",
-   "tagline": "Sells luxury goods at 80-90% discounts; strong fake-shop signals.",
-   "intro": "Sells luxury goods at 80-90% discounts; strong fake-shop signals.",
+   "tagline": "Online auction and marketplace platform.",
+   "intro": "Online auction and marketplace platform.",
    "facts": [
     [
      "Type",
-     "E-commerce (luxury)"
-    ],
-    [
-     "Domain age",
-     "Days"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Payment",
-     "Personal accounts"
-    ]
-   ],
-   "rating": 2.4,
-   "userScore": 2,
-   "userCount": 41,
-   "dist": [
-    1,
-    1,
-    2,
-    9,
-    28
-   ],
-   "reasons": [
-    {
-     "t": "bad",
-     "txt": "Very new domain, no company info."
-    },
-    {
-     "t": "bad",
-     "txt": "Payments to personal accounts."
-    },
-    {
-     "t": "bad",
-     "txt": "Prices far below market."
-    }
-   ],
-   "added": "2026-08-18",
-   "status": "risk"
-  },
-  {
-   "id": "quickcash",
-   "name": "QuickCash",
-   "domain": "quickcash-loan.com",
-   "cat": "loan",
-   "tagline": "Licensed consumer lender with clear fees and fast approval.",
-   "intro": "Licensed consumer lender with clear fees and fast approval.",
-   "facts": [
-    [
-     "Type",
-     "Consumer lending"
-    ],
-    [
-     "Operator",
-     "Licensed lender"
-    ],
-    [
-     "Fees",
-     "APR shown upfront"
-    ],
-    [
-     "Support",
-     "Official channels"
-    ]
-   ],
-   "rating": 8.1,
-   "userScore": 4.5,
-   "userCount": 289,
-   "dist": [
-    178,
-    78,
-    22,
-    8,
-    3
-   ],
-   "reasons": [
-    {
-     "t": "good",
-     "txt": "Licensed; fees disclosed upfront."
-    },
-    {
-     "t": "good",
-     "txt": "No pre-payment-fee complaints."
-    },
-    {
-     "t": "warn",
-     "txt": "Approval limits can be strict."
-    }
-   ],
-   "added": "2026-07-11",
-   "status": "ok"
-  },
-  {
-   "id": "cashnow",
-   "name": "CashNow Finance",
-   "domain": "cashnow-finance.net",
-   "cat": "loan",
-   "tagline": "\"No check, guaranteed approval\" loan site that asks an upfront fee.",
-   "intro": "\"No check, guaranteed approval\" loan site that asks an upfront fee.",
-   "facts": [
-    [
-     "Type",
-     "Loans (suspected fraud)"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Licence",
-     "None found"
-    ],
-    [
-     "Fee",
-     "Upfront before payout"
-    ]
-   ],
-   "rating": 1.8,
-   "userScore": 1.5,
-   "userCount": 58,
-   "dist": [
-    1,
-    1,
-    2,
-    7,
-    47
-   ],
-   "reasons": [
-    {
-     "t": "bad",
-     "txt": "Upfront fee before loan = advance-fee fraud."
-    },
-    {
-     "t": "bad",
-     "txt": "No lending licence found."
-    },
-    {
-     "t": "bad",
-     "txt": "Guaranteed approval is a red flag."
-    }
-   ],
-   "added": "2026-07-12",
-   "status": "risk"
-  },
-  {
-   "id": "haohuojobs",
-   "name": "HaoHuo Jobs",
-   "domain": "haohuojobs.com",
-   "cat": "job",
-   "tagline": "Gig-work platform with verified employers and escrow payouts.",
-   "intro": "Gig-work platform with verified employers and escrow payouts.",
-   "facts": [
-    [
-     "Type",
-     "Gig platform"
-    ],
-    [
-     "Launched",
-     "2020"
-    ],
-    [
-     "Employers",
-     "Verified"
-    ],
-    [
-     "Pay",
-     "Escrow"
+     "E-commerce marketplace"
     ]
    ],
    "rating": 7.8,
-   "userScore": 4.4,
-   "userCount": 176,
-   "dist": [
-    96,
-    55,
-    18,
-    5,
-    2
-   ],
-   "reasons": [
-    {
-     "t": "good",
-     "txt": "Employer verification; low scam rate."
-    },
-    {
-     "t": "good",
-     "txt": "Timely escrow payouts."
-    },
-    {
-     "t": "warn",
-     "txt": "Check offline gigs yourself."
-    }
-   ],
-   "added": "2026-08-06",
-   "status": "ok"
-  },
-  {
-   "id": "globalrecruit",
-   "name": "GlobalRecruit Pro",
-   "domain": "globalrecruitpro.com",
-   "cat": "job",
-   "tagline": "\"High-pay remote jobs\" that ask for a training fee before hiring.",
-   "intro": "\"High-pay remote jobs\" that ask for a training fee before hiring.",
-   "facts": [
-    [
-     "Type",
-     "Jobs (suspected fraud)"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Fee",
-     "Training fee upfront"
-    ],
-    [
-     "Outreach",
-     "Social DMs"
-    ]
-   ],
-   "rating": 2,
-   "userScore": 1.6,
-   "userCount": 33,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
     0,
-    1,
-    2,
-    5,
-    25
+    0,
+    0,
+    0,
+    0
    ],
-   "reasons": [
-    {
-     "t": "bad",
-     "txt": "Charges applicants upfront fees."
-    },
-    {
-     "t": "bad",
-     "txt": "No real entity or interviews."
-    },
-    {
-     "t": "bad",
-     "txt": "Check-overpayment fraud patterns."
-    }
-   ],
-   "added": "2026-08-05",
-   "status": "risk"
-  },
-  {
-   "id": "heartmeet",
-   "name": "HeartMeet",
-   "domain": "heartmeet.app",
-   "cat": "dating",
-   "tagline": "Dating app with verified profiles and safety tools.",
-   "intro": "Dating app with verified profiles and safety tools.",
-   "facts": [
-    [
-     "Type",
-     "Dating"
-    ],
-    [
-     "Launched",
-     "2021"
-    ],
-    [
-     "Verification",
-     "ID + face check"
-    ],
-    [
-     "Safety",
-     "Meeting tips"
-    ]
-   ],
-   "rating": 8,
-   "userScore": 4.5,
-   "userCount": 194,
-   "dist": [
-    110,
-    60,
-    18,
-    4,
-    2
-   ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "good",
-     "txt": "Strict profile verification."
-    },
-    {
-     "t": "good",
-     "txt": "Actively blocks scam outreach."
+     "txt": "Established marketplace with buyer protections."
     },
     {
      "t": "warn",
-     "txt": "Many paid features; mind auto-renewal."
+     "txt": "Third-party sellers vary; check seller reviews."
     }
-   ],
-   "added": "2026-07-19",
-   "status": "ok"
+   ]
   },
   {
-   "id": "tangodate",
-   "name": "TangoDate Connect",
-   "domain": "tangodate-connect.com",
-   "cat": "dating",
-   "tagline": "Platform used in dating apps to lure victims into fake investments.",
-   "intro": "Platform used in dating apps to lure victims into fake investments.",
+   "id": "aliexpress",
+   "name": "AliExpress",
+   "domain": "aliexpress.com",
+   "cat": "shop",
+   "tagline": "Global cross-border marketplace, mostly direct-from-factory goods.",
+   "intro": "Global cross-border marketplace, mostly direct-from-factory goods.",
    "facts": [
     [
      "Type",
-     "Romance-investment fraud"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Pattern",
-     "Grooming then investing"
-    ],
-    [
-     "Withdrawals",
-     "Blocked reports"
+     "E-commerce marketplace"
     ]
    ],
-   "rating": 1.5,
-   "userScore": 1.3,
-   "userCount": 72,
+   "rating": 7.0,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    1,
-    1,
-    2,
-    10,
-    58
+    0,
+    0,
+    0,
+    0,
+    0
    ],
-   "reasons": [
-    {
-     "t": "bad",
-     "txt": "Pig-butchering pattern via dating apps."
-    },
-    {
-     "t": "bad",
-     "txt": "Many blocked-withdrawal reports."
-    },
-    {
-     "t": "bad",
-     "txt": "Avoids video calls."
-    }
-   ],
-   "added": "2026-07-28",
-   "status": "risk"
-  },
-  {
-   "id": "blockflash",
-   "name": "BlockFlash News",
-   "domain": "blockflash.news",
-   "cat": "news",
-   "tagline": "Blockchain industry news with clear ad/news separation.",
-   "intro": "Blockchain industry news with clear ad/news separation.",
-   "facts": [
-    [
-     "Type",
-     "Industry news"
-    ],
-    [
-     "Launched",
-     "2022"
-    ],
-    [
-     "Team",
-     "Public editors"
-    ],
-    [
-     "Ads",
-     "Clearly labelled"
-    ]
-   ],
-   "rating": 7.6,
-   "userScore": 4.3,
-   "userCount": 128,
-   "dist": [
-    66,
-    43,
-    14,
-    4,
-    1
-   ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "good",
-     "txt": "Ads separated from news."
-    },
-    {
-     "t": "good",
-     "txt": "Sources cited; team public."
+     "txt": "Established marketplace with buyer protections."
     },
     {
      "t": "warn",
-     "txt": "Opinion pieces need your own judgment."
+     "txt": "Third-party sellers vary; check seller reviews."
     }
-   ],
-   "added": "2026-07-09",
-   "status": "ok"
+   ]
   },
   {
-   "id": "bitbridge",
-   "name": "BitBridge News",
-   "domain": "bitbridge-news.io",
-   "cat": "news",
-   "tagline": "Publishes token promotion articles; possible undisclosed paid content (under review).",
-   "intro": "Publishes token promotion articles; possible undisclosed paid content (under review).",
+   "id": "etsy",
+   "name": "Etsy",
+   "domain": "etsy.com",
+   "cat": "shop",
+   "tagline": "Marketplace for handmade, vintage and craft goods.",
+   "intro": "Marketplace for handmade, vintage and craft goods.",
    "facts": [
     [
      "Type",
-     "Content site"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Status",
-     "Under review"
+     "E-commerce marketplace"
     ]
    ],
-   "rating": 5.8,
-   "userScore": 3.4,
-   "userCount": 26,
+   "rating": 7.9,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    5,
-    8,
-    6,
-    4,
-    3
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
-     "t": "warn",
-     "txt": "Undisclosed paid promotion suspected."
-    },
-    {
-     "t": "warn",
-     "txt": "Authors not identifiable."
-    },
-    {
      "t": "good",
-     "txt": "No direct-loss reports yet."
+     "txt": "Established marketplace with buyer protections."
+    },
+    {
+     "t": "warn",
+     "txt": "Third-party sellers vary; check seller reviews."
     }
-   ],
-   "added": "2026-08-25",
-   "status": "review"
+   ]
   },
   {
-   "id": "starvalley",
-   "name": "Star Valley",
-   "domain": "starvalley.gg",
-   "cat": "game",
-   "tagline": "Legit game storefront with strong child-safety controls.",
-   "intro": "Legit game storefront with strong child-safety controls.",
+   "id": "sofi",
+   "name": "SoFi",
+   "domain": "sofi.com",
+   "cat": "loan",
+   "tagline": "US digital bank offering banking, loans and investing.",
+   "intro": "US digital bank offering banking, loans and investing.",
    "facts": [
     [
      "Type",
-     "Game platform"
-    ],
+     "Consumer finance / BNPL"
+    ]
+   ],
+   "rating": 8.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Mainstream licensed consumer-finance provider."
+    },
+    {
+     "t": "warn",
+     "txt": "Read terms; late fees and credit impact apply."
+    }
+   ]
+  },
+  {
+   "id": "klarna",
+   "name": "Klarna",
+   "domain": "klarna.com",
+   "cat": "loan",
+   "tagline": "Buy-now-pay-later and payments platform.",
+   "intro": "Buy-now-pay-later and payments platform.",
+   "facts": [
     [
-     "Launched",
-     "2019"
-    ],
+     "Type",
+     "Consumer finance / BNPL"
+    ]
+   ],
+   "rating": 7.2,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Mainstream licensed consumer-finance provider."
+    },
+    {
+     "t": "warn",
+     "txt": "Read terms; late fees and credit impact apply."
+    }
+   ]
+  },
+  {
+   "id": "affirm",
+   "name": "Affirm",
+   "domain": "affirm.com",
+   "cat": "loan",
+   "tagline": "Buy-now-pay-later lender with transparent terms.",
+   "intro": "Buy-now-pay-later lender with transparent terms.",
+   "facts": [
     [
-     "Parental",
-     "Time limits"
-    ],
+     "Type",
+     "Consumer finance / BNPL"
+    ]
+   ],
+   "rating": 7.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Mainstream licensed consumer-finance provider."
+    },
+    {
+     "t": "warn",
+     "txt": "Read terms; late fees and credit impact apply."
+    }
+   ]
+  },
+  {
+   "id": "linkedin",
+   "name": "LinkedIn",
+   "domain": "linkedin.com",
+   "cat": "job",
+   "tagline": "Professional network and job platform.",
+   "intro": "Professional network and job platform.",
+   "facts": [
     [
-     "Payments",
-     "Official"
+     "Type",
+     "Jobs / gig platform"
+    ]
+   ],
+   "rating": 8.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Widely used with escrow/payment protection."
+    },
+    {
+     "t": "warn",
+     "txt": "Watch for off-platform payment requests."
+    }
+   ]
+  },
+  {
+   "id": "indeed",
+   "name": "Indeed",
+   "domain": "indeed.com",
+   "cat": "job",
+   "tagline": "Global job-search aggregator.",
+   "intro": "Global job-search aggregator.",
+   "facts": [
+    [
+     "Type",
+     "Jobs / gig platform"
     ]
    ],
    "rating": 8.2,
-   "userScore": 4.6,
-   "userCount": 217,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    128,
-    66,
-    18,
-    4,
-    1
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
      "t": "good",
-     "txt": "Legit payments and refunds."
-    },
-    {
-     "t": "good",
-     "txt": "Strong child-protection controls."
+     "txt": "Widely used with escrow/payment protection."
     },
     {
      "t": "warn",
-     "txt": "Content moderation can lag."
+     "txt": "Watch for off-platform payment requests."
     }
-   ],
-   "added": "2026-07-26",
-   "status": "ok"
+   ]
   },
   {
-   "id": "sweetlucky",
-   "name": "SweetLucky",
-   "domain": "sweetlucky.fun",
-   "cat": "game",
-   "tagline": "Recharge-and-win raffle site with near-zero payouts.",
-   "intro": "Recharge-and-win raffle site with near-zero payouts.",
+   "id": "upwork",
+   "name": "Upwork",
+   "domain": "upwork.com",
+   "cat": "job",
+   "tagline": "Freelance marketplace connecting clients and freelancers.",
+   "intro": "Freelance marketplace connecting clients and freelancers.",
    "facts": [
     [
      "Type",
-     "Online raffle (suspected fraud)"
-    ],
-    [
-     "Operator",
-     "None disclosed"
-    ],
-    [
-     "Licence",
-     "None found"
-    ],
-    [
-     "Payouts",
-     "Many complaints"
+     "Jobs / gig platform"
     ]
    ],
-   "rating": 2.6,
-   "userScore": 2.1,
-   "userCount": 55,
+   "rating": 7.6,
+   "userScore": 0,
+   "userCount": 0,
    "dist": [
-    1,
-    2,
-    3,
-    12,
-    37
+    0,
+    0,
+    0,
+    0,
+    0
    ],
+   "status": "ok",
+   "added": "2026-09-05",
    "reasons": [
     {
-     "t": "bad",
-     "txt": "Win rates differ from claims."
+     "t": "good",
+     "txt": "Widely used with escrow/payment protection."
     },
     {
-     "t": "bad",
-     "txt": "Strict payout terms; complaints."
-    },
-    {
-     "t": "bad",
-     "txt": "No licence or company info."
+     "t": "warn",
+     "txt": "Watch for off-platform payment requests."
     }
+   ]
+  },
+  {
+   "id": "fiverr",
+   "name": "Fiverr",
+   "domain": "fiverr.com",
+   "cat": "job",
+   "tagline": "Freelance services marketplace by gig.",
+   "intro": "Freelance services marketplace by gig.",
+   "facts": [
+    [
+     "Type",
+     "Jobs / gig platform"
+    ]
    ],
-   "added": "2026-08-21",
-   "status": "risk"
+   "rating": 7.3,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Widely used with escrow/payment protection."
+    },
+    {
+     "t": "warn",
+     "txt": "Watch for off-platform payment requests."
+    }
+   ]
+  },
+  {
+   "id": "tinder",
+   "name": "Tinder",
+   "domain": "tinder.com",
+   "cat": "dating",
+   "tagline": "Popular dating app for meeting new people.",
+   "intro": "Popular dating app for meeting new people.",
+   "facts": [
+    [
+     "Type",
+     "Dating app"
+    ]
+   ],
+   "rating": 7.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Large user base with profile verification options."
+    },
+    {
+     "t": "warn",
+     "txt": "Beware romance-scam patterns; never send money to matches."
+    }
+   ]
+  },
+  {
+   "id": "bumble",
+   "name": "Bumble",
+   "domain": "bumble.com",
+   "cat": "dating",
+   "tagline": "Dating and networking app where women message first.",
+   "intro": "Dating and networking app where women message first.",
+   "facts": [
+    [
+     "Type",
+     "Dating app"
+    ]
+   ],
+   "rating": 7.3,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Large user base with profile verification options."
+    },
+    {
+     "t": "warn",
+     "txt": "Beware romance-scam patterns; never send money to matches."
+    }
+   ]
+  },
+  {
+   "id": "hinge",
+   "name": "Hinge",
+   "domain": "hinge.co",
+   "cat": "dating",
+   "tagline": "Dating app designed to be deleted, profile-focused.",
+   "intro": "Dating app designed to be deleted, profile-focused.",
+   "facts": [
+    [
+     "Type",
+     "Dating app"
+    ]
+   ],
+   "rating": 7.5,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Large user base with profile verification options."
+    },
+    {
+     "t": "warn",
+     "txt": "Beware romance-scam patterns; never send money to matches."
+    }
+   ]
+  },
+  {
+   "id": "coindesk",
+   "name": "CoinDesk",
+   "domain": "coindesk.com",
+   "cat": "news",
+   "tagline": "Long-running crypto and digital-asset news outlet.",
+   "intro": "Long-running crypto and digital-asset news outlet.",
+   "facts": [
+    [
+     "Type",
+     "News / content site"
+    ]
+   ],
+   "rating": 7.5,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Editorial newsroom with named journalists."
+    },
+    {
+     "t": "warn",
+     "txt": "Advertorial and opinion content exists; read critically."
+    }
+   ]
+  },
+  {
+   "id": "cointelegraph",
+   "name": "Cointelegraph",
+   "domain": "cointelegraph.com",
+   "cat": "news",
+   "tagline": "Crypto news and analysis site.",
+   "intro": "Crypto news and analysis site.",
+   "facts": [
+    [
+     "Type",
+     "News / content site"
+    ]
+   ],
+   "rating": 7.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Editorial newsroom with named journalists."
+    },
+    {
+     "t": "warn",
+     "txt": "Advertorial and opinion content exists; read critically."
+    }
+   ]
+  },
+  {
+   "id": "theblock",
+   "name": "The Block",
+   "domain": "theblock.co",
+   "cat": "news",
+   "tagline": "Digital-asset news, data and research.",
+   "intro": "Digital-asset news, data and research.",
+   "facts": [
+    [
+     "Type",
+     "News / content site"
+    ]
+   ],
+   "rating": 7.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Editorial newsroom with named journalists."
+    },
+    {
+     "t": "warn",
+     "txt": "Advertorial and opinion content exists; read critically."
+    }
+   ]
+  },
+  {
+   "id": "decrypt",
+   "name": "Decrypt",
+   "domain": "decrypt.co",
+   "cat": "news",
+   "tagline": "Crypto and Web3 news outlet.",
+   "intro": "Crypto and Web3 news outlet.",
+   "facts": [
+    [
+     "Type",
+     "News / content site"
+    ]
+   ],
+   "rating": 7.1,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Editorial newsroom with named journalists."
+    },
+    {
+     "t": "warn",
+     "txt": "Advertorial and opinion content exists; read critically."
+    }
+   ]
+  },
+  {
+   "id": "steam",
+   "name": "Steam",
+   "domain": "store.steampowered.com",
+   "cat": "game",
+   "tagline": "Leading PC game store and platform.",
+   "intro": "Leading PC game store and platform.",
+   "facts": [
+    [
+     "Type",
+     "Game platform / store"
+    ]
+   ],
+   "rating": 8.4,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Established platform with purchase protections."
+    },
+    {
+     "t": "warn",
+     "txt": "In-game purchases; set parental controls for minors."
+    }
+   ]
+  },
+  {
+   "id": "roblox",
+   "name": "Roblox",
+   "domain": "roblox.com",
+   "cat": "game",
+   "tagline": "User-generated games and social platform.",
+   "intro": "User-generated games and social platform.",
+   "facts": [
+    [
+     "Type",
+     "Game platform / store"
+    ]
+   ],
+   "rating": 8.0,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Established platform with purchase protections."
+    },
+    {
+     "t": "warn",
+     "txt": "In-game purchases; set parental controls for minors."
+    }
+   ]
+  },
+  {
+   "id": "epicgames",
+   "name": "Epic Games",
+   "domain": "epicgames.com",
+   "cat": "game",
+   "tagline": "Game publisher and store behind Fortnite and Unreal.",
+   "intro": "Game publisher and store behind Fortnite and Unreal.",
+   "facts": [
+    [
+     "Type",
+     "Game platform / store"
+    ]
+   ],
+   "rating": 7.6,
+   "userScore": 0,
+   "userCount": 0,
+   "dist": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "status": "ok",
+   "added": "2026-09-05",
+   "reasons": [
+    {
+     "t": "good",
+     "txt": "Established platform with purchase protections."
+    },
+    {
+     "t": "warn",
+     "txt": "In-game purchases; set parental controls for minors."
+    }
+   ]
   }
  ],
  "live": {
-  "fireflywallet": [
+  "binance": [
    1,
    1,
    1
   ],
-  "metawaretoken": [
+  "coinbase": [
    1,
    1,
+   1
+  ],
+  "okx": [
+   1,
+   1,
+   1
+  ],
+  "bybit": [
+   1,
+   1,
+   1
+  ],
+  "kucoin": [
+   1,
+   1,
+   1
+  ],
+  "kraken": [
+   1,
+   1,
+   1
+  ],
+  "gateio": [
+   1,
+   1,
+   1
+  ],
+  "mexc": [
+   1,
+   1,
+   1
+  ],
+  "bitget": [
+   1,
+   1,
+   1
+  ],
+  "hyperliquid": [
+   1,
+   1,
+   1
+  ],
+  "mtgox": [
+   0,
+   0,
    0
+  ],
+  "bitconnect": [
+   0,
+   0,
+   0
+  ],
+  "wex": [
+   0,
+   0,
+   0
+  ],
+  "figureai": [
+   0,
+   0,
+   0
+  ],
+  "faitrade": [
+   0,
+   0,
+   0
+  ],
+  "interactivebrokers": [
+   1,
+   1,
+   1
+  ],
+  "robinhood": [
+   1,
+   1,
+   1
+  ],
+  "etoro": [
+   1,
+   1,
+   1
+  ],
+  "plus500": [
+   1,
+   1,
+   1
   ],
   "shark-trades": [
    1,
    1,
    1
   ],
-  "steadycap": [
+  "amazon": [
    1,
    1,
    1
   ],
-  "auroramall": [
+  "ebay": [
    1,
    1,
    1
   ],
-  "luxurysale": [
-   0,
-   1,
-   1
-  ],
-  "quickcash": [
+  "aliexpress": [
    1,
    1,
    1
   ],
-  "cashnow": [
-   0,
-   0,
-   0
-  ],
-  "haohuojobs": [
+  "etsy": [
    1,
    1,
    1
   ],
-  "globalrecruit": [
-   0,
-   1,
-   1
-  ],
-  "heartmeet": [
+  "sofi": [
    1,
    1,
    1
   ],
-  "tangodate": [
+  "klarna": [
    1,
    1,
    1
   ],
-  "blockflash": [
+  "affirm": [
    1,
    1,
    1
   ],
-  "bitbridge": [
+  "linkedin": [
    1,
    1,
    1
   ],
-  "starvalley": [
+  "indeed": [
    1,
    1,
    1
   ],
-  "sweetlucky": [
+  "upwork": [
    1,
-   0,
+   1,
+   1
+  ],
+  "fiverr": [
+   1,
+   1,
+   1
+  ],
+  "tinder": [
+   1,
+   1,
+   1
+  ],
+  "bumble": [
+   1,
+   1,
+   1
+  ],
+  "hinge": [
+   1,
+   1,
+   1
+  ],
+  "coindesk": [
+   1,
+   1,
+   1
+  ],
+  "cointelegraph": [
+   1,
+   1,
+   1
+  ],
+  "theblock": [
+   1,
+   1,
+   1
+  ],
+  "decrypt": [
+   1,
+   1,
+   1
+  ],
+  "steam": [
+   1,
+   1,
+   1
+  ],
+  "roblox": [
+   1,
+   1,
+   1
+  ],
+  "epicgames": [
+   1,
+   1,
    1
   ]
  },
- "checked": "2026-09-04"
+ "checked": "2026-09-05"
 }
