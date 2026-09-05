@@ -622,7 +622,7 @@
     var st = catStats(id);
     var liveSec = '<div class="live-sec-title"><h2>Live listings</h2><span class="cnt">' + alive.length + ' active — reachable, registrable, still promoted</span></div>';
     var liveList = alive.length
-      ? '<div class="proj-list" id="itemList">' + alive.map(rowItemHTML).join('') + '</div>'
+      ? '<div class="proj-list" id="itemList">' + alive.map(function (i) { return rowItemHTML(i); }).join('') + '</div>'
       : '<div class="empty"><div class="big">&#128269;</div><h3>该分类暂无运营中的网站</h3></div>';
     var deadSec = dead.length
       ? '<section class="dead-sec">' +
@@ -814,7 +814,7 @@
     var body = '';
     if (list.length) {
       body = '<div class="toolbar"><span class="result-count">' + list.length + (list.length === 1 ? ' result' : ' results') + ' · sorted by combined score</span></div>' +
-        '<div class="proj-list">' + list.map(rowItemHTML).join('') + '</div>';
+        '<div class="proj-list">' + list.map(function (i) { return rowItemHTML(i); }).join('') + '</div>';
     } else if (deadNames.length) {
       body = '<div class="empty-state"><div style="font-size:34px">&#128477;</div><h3>Only in the Dead list</h3>' +
         '<p>These sites are confirmed offline or shut down: ' + esc(deadNames.join(', ')) + '. See the DEAD archive in their category.</p>' +
