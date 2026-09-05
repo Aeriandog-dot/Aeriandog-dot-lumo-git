@@ -5,6 +5,13 @@
   var who = document.getElementById('who');
   var curTab = 'queue';
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function toast(msg, isErr){
+    var el = document.createElement('div');
+    el.textContent = msg;
+    el.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 18px;border-radius:10px;font-size:13px;max-width:80vw;box-shadow:0 10px 30px rgba(0,0,0,.5);color:#fff;background:' + (isErr ? '#7f1d1d' : '#1b1b21') + ';border:1px solid ' + (isErr ? '#b91c1c' : '#303038');
+    document.body.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 2600);
+  }
   function wait(ms){ return new Promise(function(r){ setTimeout(r, ms||150); }); }
   function jget(url){ return fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
   function jpost(url, body){ return fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body||{}) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
@@ -95,7 +102,7 @@
           var name = x.getAttribute('data-restore');
           if (!confirm('确认恢复到 ' + name + '?当前数据会先自动备份。')) return;
           jpost('/api/admin/restore', { name: name }).then(function (j) {
-            if (j.error) alert(j.error); else { alert('已恢复完成(安全备份:' + j.safe + '),页面将刷新。'); location.reload(); }
+            if (j.error) toast(j.error, true); else { toast('已恢复完成(安全备份:' + j.safe + '),即将刷新…'); setTimeout(function(){ location.reload(); }, 1200); }
           });
         };
       });
@@ -154,7 +161,7 @@
         b.onclick = function () {
           var id = b.getAttribute('data-ok');
           var rateEl = document.getElementById('rate_' + id);
-          jpost('/api/admin/subs/' + id + '/approve', { rating: rateEl ? rateEl.value : '' }).then(function (j) { if (j.error) alert(j.error); else render(); });
+          jpost('/api/admin/subs/' + id + '/approve', { rating: rateEl ? rateEl.value : '' }).then(function () { toast('已通过并上架 ✓'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
         };
       });
       document.querySelectorAll('[data-ok]').forEach(function (b) {
@@ -172,7 +179,7 @@
           var id = b.getAttribute('data-no');
           var reason = prompt('拒绝原因(可选):');
           if (reason === null) return;
-          jpost('/api/admin/subs/' + id + '/reject', { reason: reason }).then(function (j) { if (j.error) alert(j.error); else render(); });
+          jpost('/api/admin/subs/' + id + '/reject', { reason: reason }).then(function () { toast('已拒绝'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
         };
       });
     });
@@ -253,7 +260,7 @@
               tagline: document.getElementById('e_tag_' + id).value,
               intro: document.getElementById('e_intro_' + id).value,
               live: live
-            }).then(function (j) { alert(j.error || '已保存'); renderItems(); });
+            }).then(function (j) { toast('已保存 ✓'); renderItems(); }).catch(function (e) { toast(e.message || '保存失败', true); });
           };
         });
       };
@@ -276,7 +283,7 @@
             jpost('/api/admin/items/' + id + '/rating', {
               count: document.getElementById('r_cnt_' + id).value,
               avg: document.getElementById('r_avg_' + id).value
-            }).then(function (j) { if (j.error) alert(j.error); else { alert('已保存:均分 ' + j.userScore + ' · ' + j.userCount + ' 人'); renderItems(); } });
+            }).then(function (j) { toast('已保存:均分 ' + j.userScore + ' · ' + j.userCount + ' 人 ✓'); renderItems(); }).catch(function (e) { toast(e.message || '保存失败', true); });
           };
         });
       };
@@ -285,7 +292,7 @@
       b.onclick = function () {
         var id = b.getAttribute('data-del');
         if (!confirm('确认删除该条目?')) return;
-        jpost('/api/admin/items/' + id + '/delete', {}).then(function (j) { if (j.error) alert(j.error); else renderItems(); });
+        jpost('/api/admin/items/' + id + '/delete', {}).then(function () { toast('已删除'); renderItems(); }).catch(function (e) { toast(e.message || '删除失败', true); });
       };
     });
     document.querySelectorAll('[data-snap]').forEach(function (b) {
@@ -293,10 +300,9 @@
         var id = b.getAttribute('data-snap');
         if (!confirm('为该条目生成一份证据快照(会查询互联网档案馆存档)?')) return;
         jpost('/api/admin/items/' + id + '/snapshot', {}).then(function (j) {
-          if (j.error) { alert(j.error); return; }
           var r = j.record || {};
-          alert('证据快照已生成\n存档状态:' + (r.archiveStatus === 'archived' ? '已在互联网档案馆找到存档' : (r.archiveStatus === 'no_archive' ? '暂无公开存档(生产中由存档任务补拍)' : '待存档任务处理')) + (r.archiveUrl ? '\n' + r.archiveUrl : ''));
-        });
+          toast('证据快照已生成 · 存档状态:' + (r.archiveStatus === 'archived' ? '已在档案馆' : (r.archiveStatus === 'no_archive' ? '暂无公开存档' : '待存档任务')) + (r.archiveUrl ? ' · ' + r.archiveUrl : ''));
+        }).catch(function (e) { toast(e.message || '生成失败', true); });
       };
     });
   }
