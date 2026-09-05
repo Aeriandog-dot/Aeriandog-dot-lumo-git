@@ -72,6 +72,8 @@ async function smtpSend(to, subject, text) {
       ? { host: MAIL_HOST, port: MAIL_PORT, servername: MAIL_HOST }
       : { host: MAIL_HOST, port: MAIL_PORT };
     let sock = MAIL_SECURE ? tls.connect(connectOpts) : net.connect(connectOpts);
+    const fromAddr = (String(MAIL_FROM).match(/<([^>]+)>/) || [])[1] || String(MAIL_FROM).trim() || ('no-reply@' + (MAIL_HOST || 'localhost'));
+    const fromHeader = 'Lumo <' + fromAddr + '>';
     let step = 0;
     function hello() { return smtpCommand(sock, 'EHLO ' + (MAIL_HOST || 'lumo.local'), [250]); }
     sock.on('connect', async () => {
@@ -91,10 +93,10 @@ async function smtpSend(to, subject, text) {
         await smtpCommand(sock, 'AUTH LOGIN', [334]);
         await smtpCommand(sock, Buffer.from(MAIL_USER).toString('base64'), [334]);
         await smtpCommand(sock, Buffer.from(MAIL_PASS).toString('base64'), [235]);
-        await smtpCommand(sock, 'MAIL FROM:<' + MAIL_FROM.replace(/^.*<|>$/g, '') + '>', [250]);
+        await smtpCommand(sock, 'MAIL FROM:<' + fromAddr + '>', [250]);
         await smtpCommand(sock, 'RCPT TO:<' + to + '>', [250, 251]);
         await smtpCommand(sock, 'DATA', [354]);
-        await smtpCommand(sock, 'Subject: ' + subject + '\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n' + text + '\r\n.', [250]);
+        await smtpCommand(sock, 'From: ' + fromHeader + '\r\nTo: ' + to + '\r\nSubject: ' + subject + '\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n' + text + '\r\n.', [250]);
         await smtpCommand(sock, 'QUIT', [221]);
         resolve({ ok: true });
       } catch (e) { reject(e); }
