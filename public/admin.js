@@ -55,6 +55,7 @@
       '<a class="btn btn-ghost btn-sm" href="/api/admin/export/items.csv" download>导出条目 CSV</a>' +
       '<a class="btn btn-ghost btn-sm" href="/api/admin/export/subs.csv" download>导出提交 CSV</a>' +
       '<button class="btn btn-ghost btn-sm" id="backupBtn">一键备份</button>' +
+      '<button class="btn btn-ghost btn-sm" id="localizeBtn">切换为英文内容</button>' +
       '<button class="btn btn-ghost btn-sm" id="restoreBtn">恢复备份</button>' +
       '<span class="mini" id="backupInfo" style="margin-left:auto"></span></div>' +
       '<div id="restoreBox" style="display:none"></div>' +
@@ -74,6 +75,11 @@
         if (info) info.textContent = j.error || ('已备份:' + j.name);
         loadBackups();
       });
+    };
+    var lb = document.getElementById('localizeBtn');
+    if (lb) lb.onclick = function () {
+      if (!confirm('将全部收录内容切换为英文(现有用户/提交/日志保留)。继续?')) return;
+      jpost('/api/admin/localize', {}).then(function (j) { toast('已切换为英文内容 ✓'); setTimeout(function(){ location.reload(); }, 800); }).catch(function (e) { toast(e.message || '切换失败', true); });
     };
     var rb = document.getElementById('restoreBtn');
     if (rb) rb.onclick = function () {
