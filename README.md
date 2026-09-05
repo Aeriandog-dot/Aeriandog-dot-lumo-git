@@ -83,7 +83,7 @@ lumo-app/
 | LUMO_SMTP_HOST/PORT | 空 | SMTP 服务器(配置后验证码走真实邮件) |
 | LUMO_SMTP_USER/PASS | 空 | SMTP 账号(465 隐式 TLS / 587 STARTTLS) |
 | LUMO_SMTP_FROM | Lumo <no-reply@lumo.local> | 发件人 |
-| LUMO_SMTP_SECURE | 自动(465=true) | 是否强制 TLS |
+| LUMO_SMTP_SECURE | 自动(465=true) | 是否强制 TLS |\n| LUMO_DATA_DIR | 项目内 data/ | 数据目录(部署时指向持久磁盘,种子数据仍从代码仓库读取) |
 
 > 验证码机制:随机 6 位 + SHA-256 存储 + 10 分钟有效 + 60 秒重发限制 + 5 次试错锁定。
 > 未配置 SMTP 时(开发模式),验证码打印到服务端控制台并在登录提示中返回;配置 SMTP 后自动改为真实邮件。

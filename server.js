@@ -9,9 +9,9 @@ const crypto = require('crypto');
 
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
-const DATA_DIR = path.join(ROOT, 'data');
+const DATA_DIR = process.env.LUMO_DATA_DIR ? path.resolve(process.env.LUMO_DATA_DIR) : path.join(ROOT, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
-const SEED_FILE = path.join(DATA_DIR, 'seed.json');
+const SEED_FILE = path.join(ROOT, 'data', 'seed.json'); // 种子数据始终来自代码仓库
 const PORT = process.env.LUMO_PORT || process.env.PORT || 4780;
 const ADMIN_EMAIL = process.env.LUMO_ADMIN || 'admin@lumo.local';
 const DEV_CODE = process.env.LUMO_DEV_CODE || '123456'; // 开发用固定码;正式环境请改为发送真实邮件并置空本值
@@ -657,6 +657,7 @@ function routes() {
 }
 
 const R = routes();
+fs.mkdirSync(DATA_DIR, { recursive: true });
 loadDB();
 
 const server = http.createServer(async (req, res) => {
