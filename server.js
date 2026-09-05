@@ -470,10 +470,13 @@ function routes() {
     const it = db.items.find((x) => x.id === id);
     if (!it) return send(res, 404, { error: '条目不存在' });
     const b = JSON.parse((await readBody(req)) || '{}');
-    if (Array.isArray(b.dist) && b.dist.length === 5 && b.dist.every((n) => Number.isFinite(n) && n >= 0)) {
-      it.dist = b.dist.map((n) => Math.round(n));
-    } else if (b.count != null && b.avg != null && Number.isFinite(b.count) && Number.isFinite(b.avg)) {
-      it.dist = distributeAvg(Math.max(0, Math.round(b.count)), Math.max(0, Math.min(5, parseFloat(b.avg))));
+    if (Array.isArray(b.dist) && b.dist.length === 5 && b.dist.every((n) => Number.isFinite(Number(n)) && Number(n) >= 0)) {
+      it.dist = b.dist.map((n) => Math.max(0, Math.round(Number(n))));
+    } else if (b.count != null && b.avg != null) {
+      const cnt = Number(b.count);
+      const avg = Number(b.avg);
+      if (!Number.isFinite(cnt) || !Number.isFinite(avg)) return send(res, 400, { error: '人数与均分格式不正确' });
+      it.dist = distributeAvg(Math.max(0, Math.round(cnt)), Math.max(0, Math.min(5, avg)));
     } else {
       return send(res, 400, { error: '需提供 dist(5 档人数)或 count+avg' });
     }
