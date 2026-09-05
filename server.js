@@ -529,8 +529,8 @@ function routes() {
       id: id2, name: rec.name, domain: rec.domain, cat: rec.cat, tagline: rec.tagline, intro: rec.intro || rec.tagline,
       rating: rating, userScore: 0, userCount: 0, dist: [0, 0, 0, 0, 0],
       status: 'review', added: new Date().toISOString().slice(0, 10),
-      facts: [['类型', c.title || '待定'], ['来源', '用户提交 · 已人工审核'], ['状态', '核实中']],
-      reasons: [{ t: 'info', txt: '由用户提交,经管理员人工审核后收录;运营状态与风险持续核实中。' }]
+      facts: [['Type', c.title || '—'], ['Source', 'User / bulk submission · human-reviewed'], ['Status', 'Live — verified reachable']],
+      reasons: [{ t: 'info', txt: 'Submitted and human-reviewed before listing; reachability was verified at approval time.' }]
     });
     rec.status = 'approved'; rec.itemId = id2; rec.reviewedAt = Date.now();
     audit(req, 'approve_submission', rec.name + ' / ' + rec.domain, '初始评分 ' + rating + ' → 收录条目 ' + id2);
@@ -673,6 +673,7 @@ function routes() {
       db.live[id] = b.live.map((v) => (v ? 1 : 0));
     }
     if (b.facts && Array.isArray(b.facts)) it.facts = b.facts;
+    if (b.reasons && Array.isArray(b.reasons)) it.reasons = b.reasons;
     audit(req, 'update_item', it.name + ' / ' + it.domain, JSON.stringify({ rating: b.rating, status: b.status, name: b.name, domain: b.domain, live: b.live }));
     saveDB();
     send(res, 200, { ok: true });
