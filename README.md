@@ -95,6 +95,10 @@ lumo-app/
 
 Windows 可直接双击 `start.bat`;Linux/macOS:`LUMO_PORT=4780 LUMO_ADMIN=you@x.com node server.js`。
 
+## 收录来源与筛选方向(运营手册)
+- 为什么常规搜索找不到诈骗平台、去哪主动发现、判定「运营中 / risk / DEAD」的清单,见 **[SOURCING.md](./SOURCING.md)**。
+- 一句话:不靠搜关键词,靠「邀请码/返佣链接 + Telegram/X 线索 + 域名簇反查 + 监管牌照核验(如 FinCEN MSB)」顺藤摸瓜,再人工逐条核实打分。
+
 ## 审核与打分原则(已固化为设计)
 - **全部人工审核**,系统不做任何自动通过/拒绝/批量判定;
 - 审核通过时必须由管理员**手动填写项目评分(0.5–10)**;缺少评分,后端拒绝上架;
