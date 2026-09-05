@@ -659,6 +659,50 @@ function routes() {
   return r;
 }
 
+function runBackupSnapshot(reason) {
+  try {
+    const dir = path.join(DATA_DIR, 'backups');
+    fs.mkdirSync(dir, { recursive: true });
+    const pad = (n) => String(n).padStart(2, '0');
+    const d = new Date();
+    const name = 'lumo-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.json';
+    fs.writeFileSync(path.join(dir, name), JSON.stringify(db, null, 1), 'utf8');
+    if (!db.logs) db.logs = [];
+    db.logs.unshift({ at: Date.now(), actor: 'system', action: 'auto_backup', target: name, detail: reason || '定时自动备份' });
+    if (db.logs.length > 500) db.logs.length = 500;
+    const keep = Number(process.env.LUMO_BACKUP_KEEP || 14);
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort().reverse();
+    files.slice(keep).forEach((f) => { try { fs.unlinkSync(path.join(dir, f)); } catch (e) {} });
+    saveDB();
+    console.log('[Lumo] 自动备份完成:', name, '(' + reason + ')');
+  } catch (e) { console.log('[Lumo] 自动备份失败:', e.message); }
+}
+async function runEvidenceArchive() {
+  try {
+    if (!db.evidence) db.evidence = {};
+    let pending = [];
+    Object.keys(db.evidence).forEach((id) => {
+      (db.evidence[id] || []).forEach((rec) => { if (rec.archiveStatus === 'pending') pending.push({ id: id, rec: rec }); });
+    });
+    if (!pending.length) return;
+    let done = 0;
+    for (const item of pending.slice(0, 8)) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 6000);
+        const r = await fetch('https://archive.org/wayback/available?url=' + encodeURIComponent(item.rec.url), { signal: ctrl.signal });
+        clearTimeout(timer);
+        const j = await r.json();
+        const cl = j && j.archived_snapshots && j.archived_snapshots.closest;
+        if (cl && cl.url) { item.rec.archiveStatus = 'archived'; item.rec.archiveUrl = cl.url; item.rec.archiveTime = cl.timestamp || null; }
+        else item.rec.archiveStatus = 'no_archive';
+        done++;
+      } catch (e) { /* 网络失败:保留 pending 下轮再试 */ }
+    }
+    if (done) { saveDB(); console.log('[Lumo] 证据快照自动补拍完成:', done + '/' + pending.length); }
+  } catch (e) { console.log('[Lumo] 证据快照补拍异常:', e.message); }
+}
+
 const R = routes();
 fs.mkdirSync(DATA_DIR, { recursive: true });
 loadDB();
@@ -704,7 +748,22 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+const BACKUP_INIT_SEC = Number(process.env.LUMO_BACKUP_INIT_SECONDS || 60);
+const BACKUP_HOURS = Number(process.env.LUMO_BACKUP_HOURS || 24);
+const ARCHIVE_INIT_SEC = Number(process.env.LUMO_ARCHIVE_INIT_SECONDS || 20);
+const ARCHIVE_MIN = Number(process.env.LUMO_ARCHIVE_MINUTES || 10);
+
 server.listen(PORT, () => {
   console.log('Lumo 服务已启动: http://localhost:' + PORT);
   console.log('演示登录:任意邮箱,验证码 123456');
+  if (BACKUP_INIT_SEC > 0) {
+    setTimeout(function () { runBackupSnapshot('启动后首次自动备份'); }, BACKUP_INIT_SEC * 1000);
+    setInterval(function () { runBackupSnapshot('每日定时自动备份'); }, BACKUP_HOURS * 3600 * 1000);
+    console.log('[Lumo] 已启用自动备份(首次 ' + BACKUP_INIT_SEC + 's,每 ' + BACKUP_HOURS + 'h)');
+  }
+  if (ARCHIVE_INIT_SEC > 0) {
+    setTimeout(runEvidenceArchive, ARCHIVE_INIT_SEC * 1000);
+    setInterval(runEvidenceArchive, ARCHIVE_MIN * 60 * 1000);
+    console.log('[Lumo] 已启用证据快照自动补拍(每 ' + ARCHIVE_MIN + ' 分钟)');
+  }
 });
