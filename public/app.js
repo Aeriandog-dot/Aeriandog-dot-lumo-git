@@ -240,7 +240,20 @@
   '网站 / 项目Name *':'Site / project name *',
   'Website链接 *':'Website URL *',
   '所属Category *':'Category *',
-  '一句话About *':'One-line summary *'
+  '一句话About *':'One-line summary *',
+  '清空':'Clear',
+  '最后更新:2026-09-05':'Last updated: 2026-09-05',
+  '提示.Lumo 定位为公开信息聚合与High risk平台,不是官方机构,也不替代任何监管或司法认定。请以官方Source为准,并自行核实。':'Note: Lumo aggregates public risk signals. It is not an official body and does not replace regulators or courts — verify against official sources.',
+  'LUMO SCORE说明':'About the Lumo score',
+  'Lumo Score(0–10)综合Public records、Risky记录、User ratings与运营透明度得出,与用户打分相互独立。':'The Lumo score (0–10) combines public records, risk records, user ratings and operating transparency — separate from user votes.',
+  '黑名单与投诉记录。':'Blacklists and complaints.',
+  'View完整规则 →':'View full method →',
+  '遇到问题?':'Found a problem?',
+  '发现信息有误或疑似诈骗?告诉我们,编辑会复核。':'See an error or a suspected scam? Tell us — an editor will review it.',
+  '免责声明.Score基于公开信息与用户反馈,仅供参考,不构成投资、交易或任何决策建议。请自行核实并谨慎判断。':'Disclaimer. Scores are based on public information and user feedback — for reference only. Verify independently.',
+  '按综合分排序':'sorted by combined score',
+  'excluding the Dead list。':'excluding the Dead list.',
+  '个 active listings':' active listings'
 };
 
 
@@ -730,8 +743,8 @@
           '</div>' +
         '</div>' +
         '<aside class="side-col">' +
-          '<div class="side-card"><h3>Lumo 评分说明</h3>' +
-            '<p style="color:var(--muted);font-size:13px">Lumo 评分(0–10)综合公开信息核验、风险记录、用户评价与运营透明度得出,与用户打分相互独立。</p>' +
+          '<div class="side-card"><h3>About the Lumo score</h3>' +
+            '<p style="color:var(--muted);font-size:13px">The Lumo score (0–10) combines public records, risk records, user ratings and operating transparency. It is separate from user votes.</p>' +
             '<div class="quote-block" style="margin-top:10px"><p style="font-size:12.5px;color:var(--muted)">评分会随新证据更新。</p></div>' +
           '</div>' +
           '<div class="side-card"><h3>评分规则</h3>' +
@@ -746,7 +759,7 @@
             '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">发现信息有误或疑似诈骗?告诉我们,编辑会复核。</p>' +
             '<button class="btn btn-ghost btn-block" type="button" data-report>报告问题</button>' +
           '</div>' +
-          '<div class="side-card disclaimer-box"><strong style="color:var(--muted)">免责声明.</strong>评分基于公开信息与用户反馈,仅供参考,不构成投资、交易或任何决策建议。请自行核实并谨慎判断。</div>' +
+          '<div class="side-card disclaimer-box"><strong style="color:var(--muted)">Disclaimer.</strong> Scores are based on public information and user feedback — for reference only. Verify independently before acting.</div>' +
         '</aside>' +
       '</div>';
   }
@@ -812,64 +825,56 @@
     it.userScore = n ? Math.round(total / n * 10) / 10 : 0;
   }
 
-  function renderAbout() {
-    var sources = SOURCES.map(function (s) { return '<div class="source-tile"><b>' + esc(s.name) + '</b><span>' + esc(s.note) + '</span></div>'; }).join('');
+    function renderAbout() {
+    var sources = SOURCES.map(function (s2) { return '<div class="source-tile"><b>' + esc(s2.name) + '</b><span>' + esc(s2.note) + '</span></div>'; }).join('');
     var method = METHOD.map(function (m) {
       return '<div class="method-row"><div class="mname">' + esc(m.name) + '</div><div class="mdesc">' + esc(m.desc) + '</div><div class="mval">' + m.val + '</div></div>';
     }).join('');
-    var cats = CATEGORIES.map(function (c) { return '<span class="tag">' + c.icon + ' ' + esc(c.title) + '</span>'; }).join('');
-
+    var cats = CATEGORIES.map(function (c) { return '<span class="tag">' + esc(c.title) + '</span>'; }).join('');
     view.innerHTML =
       '<section class="about-hero">' +
-        '<h1>关于 Lumo</h1>' +
-        '<p class="lede">Lumo 是一个网站与平台信息库:收录不同网站类型的项目与平台,提供简单的项目介绍、平台评分和用户打分,帮你快速判断"它是什么、值不值得信"。</p>' +
+        '<h1>About Lumo</h1>' +
+        '<p class="lede">Lumo is a directory of websites and platforms across different types — with a simple intro, a platform score and independent user votes, so you can quickly judge what a site is and whether to trust it.</p>' +
       '</section>' +
       '<div class="about-grid">' +
         '<div class="main-col about-body">' +
-          '<h2>Lumo 是什么</h2>' +
-          '<p>你可以把 Lumo 理解为一本"网站黄页 + 大众点评":搜索一个网址或名称,就能看到它的简介、关键信息、Lumo 平台评分,以及真实用户打出的分数和评价分布。对风险较高的平台,我们会给出明确的风险提示与依据。</p>' +
-          '<ul><li><span class="tick">&#10003;</span><span><b>简单介绍。</b>每个收录都有易懂的项目简介。</span></li>' +
-          '<li><span class="tick">&#10003;</span><span><b>双轨评分。</b>Lumo 平台评分 + 用户打分相互独立。</span></li>' +
-          '<li><span class="tick">&#10003;</span><span><b>风险提示。</b>可疑平台会标注依据与外部证据。</span></li>' +
-          '<li><span class="warn">&#9888;</span><span><b>仅供参考。</b>评分不是官方认证,请自行核实。</span></li></ul>' +
-
-          '<h2>覆盖的类型</h2>' +
+          '<h2>What Lumo is</h2>' +
+          '<p>Think of Lumo as a website directory plus reviews. Search a site or name to see its overview, key facts, Lumo score, real user votes and rating distribution. Higher-risk platforms get clear warnings with evidence.</p>' +
+          '<ul><li><span class="tick">&#10003;</span><span><b>Simple intros.</b> Every listing includes an easy-to-read overview.</span></li>' +
+          '<li><span class="tick">&#10003;</span><span><b>Two independent signals.</b> The Lumo score and user votes are separate.</span></li>' +
+          '<li><span class="tick">&#10003;</span><span><b>High-risk flags.</b> Suspicious platforms show their evidence and external sources.</span></li>' +
+          '<li><span class="warn">&#9888;</span><span><b>For reference only.</b> Scores are not official certifications — always verify yourself.</span></li></ul>' +
+          '<h2>Categories we cover</h2>' +
           '<div class="proj-meta" style="margin-top:6px">' + cats + '</div>' +
-
-          '<h2 id="submit">网站如何被收录</h2>' +
-          '<p>网站通过自动发现(公开来源)与用户建议进入候选池,由编辑核验后收录并给出首轮评分。收录时会同时核验<b>运营状态</b>——网站是否可访问、是否开放注册、是否仍在推广;列表中默认只展示“运营中”的网站,已停运或失联的会标注并归档。你可以点击顶部或搜索结果页的「提交收录」提交,提交后进入人工审核,通过后收录到对应类目。</p>' +
-
-          '<h2 id="sources">信息从哪里来</h2>' +
+          '<h2 id="submit">How sites are listed</h2>' +
+          '<p>Sites enter via automated discovery of public sources and via user suggestions. Editors verify each entry, run an operational check (reachable, registrable, still promoted), and only live sites show by default — offline ones are archived with a label. Every listing is human-reviewed before it is published; no automatic approve/reject is used.</p>' +
+          '<h2 id="sources">Where data comes from</h2>' +
           '<div class="source-grid">' + sources + '</div>' +
-
-          '<h2 id="method">评分规则</h2>' +
-          '<p><b>Lumo 平台评分(0–10)</b>:由编辑综合以下维度得出,与用户打分相互独立:</p>' +
+          '<h2 id="method">How the score works</h2>' +
+          '<p><b>Lumo score (0–10):</b> produced by editors from the dimensions below and independent of user votes:</p>' +
           '<div>' + method + '</div>' +
-          '<div class="note" style="margin:16px 0"><b>分级:</b>7.5 分及以上为"表现良好" · 4.5–7.4 为"需谨慎" · 低于 4.5 为"高风险"。</div>' +
-          '<p><b>用户打分(1–5 星)</b>:登录后即可打分,一个账号对同一网站只计一次,可修改。用户打分仅代表用户个人体验。</p>' +
-          '<p><b>排序(综合分)</b>:分类与搜索结果按综合分从高到低排列。综合分 = Lumo 网站评分 × 60% + 用户打分(换算为 10 分制)× 40%。</p>' +
-          '<p><b>DEAD 死亡名单</b>:经核验已无法打开或停止运营的网站,会移出正常列表,放入所在分类的“死亡名单”并打上 DEAD 标签,仅作归档、不参与排序。</p>' +
-
-          '<h2 id="disclaimer">免责声明</h2>' +
-          '<div class="note"><b>仅供参考。</b>Lumo 上的评分、简介与风险提示基于公开信息和用户反馈,可能不完整或有误,不构成投资、交易、借贷或其他任何决策建议。使用任何网站或平台前,请自行核实其资质与条款。如遇疑似诈骗,请立即停止转账并联系银行、支付平台或当地警方。</div>' +
-
-          '<h2>联系我们</h2>' +
-          '<p>纠错、收录建议或合作:<a href="#" data-demo="联系邮箱" style="color:var(--info)">hello@lumo.example</a></p>' +
+          '<div class="note" style="margin:16px 0"><b>Bands:</b> 7.5+ Trusted · 4.5–7.4 Caution · below 4.5 High risk.</div>' +
+          '<p><b>User rating (1–5 stars):</b> logged-in users vote once per account; Lumo only tallies the results.</p>' +
+          '<h2 id="disclaimer">Disclaimer</h2>' +
+          '<div class="note"><b>For reference only.</b> Lumo aggregates publicly available information for research purposes. Scores and listings are not endorsements, offers, certifications or investment/trading/legal advice. Always verify contract addresses and primary sources, and do your own research before making any decision.</div>' +
+          '<h2>Contact</h2>' +
+          '<p>Corrections, appeals or partnerships: <a href="#" data-demo="Contact email" style="color:var(--info)">hello@lumo.example</a></p>' +
         '</div>' +
         '<aside class="side-col">' +
-          '<div class="side-card"><h3>原型说明</h3>' +
-            '<p style="color:var(--muted);font-size:13px">本原型为演示用,除 shark-trades.com(真实高危示例)外,收录网站均为虚构。正式版将接入实时收录、真实评分与审核后台。</p>' +
+          '<div class="side-card"><h3>Prototype notes</h3>' +
+            '<p style="color:var(--muted);font-size:13px">Most listings are fictional sample data (except shark-trades.com, a real high-risk example). The live build adds verified sources and a review workflow.</p>' +
           '</div>' +
-          '<div class="side-card"><h3>路线图</h3>' +
+          '<div class="side-card"><h3>Roadmap</h3>' +
             '<div class="steps">' +
-              '<div class="step"><span class="n">1</span><div><b>原型(本版)</b><p>搜索、分类、详情与双轨评分体验。</p></div></div>' +
-              '<div class="step"><span class="n">2</span><div><b>实时收录</b><p>真实数据源、自动发现与人工审核。</p></div></div>' +
-              '<div class="step"><span class="n">3</span><div><b>成长社区</b><p>账号体系、评价、举报与申诉流程。</p></div></div>' +
+              '<div class="step"><span class="n">1</span><div><b>Prototype (this build)</b><p>Directory, scoring and review flows.</p></div></div>' +
+              '<div class="step"><span class="n">2</span><div><b>Live checks</b><p>Automated reachability and source feeds.</p></div></div>' +
+              '<div class="step"><span class="n">3</span><div><b>Community</b><p>Accounts, appeals and moderation tooling.</p></div></div>' +
             '</div>' +
           '</div>' +
         '</aside>' +
       '</div>';
   }
+
   function doLogout() {
     fetch('/api/auth/logout', { method: 'POST' }).catch(function () {});
     state.signedIn = false; state.user = null; state.submissions = [];
@@ -918,63 +923,64 @@
 
   function normalizeSubmissions() { /* 状态由后台审核驱动 */ }
 
-  function renderSubmit() {
-    var opts = CATEGORIES.map(function (c) { return '<option value="' + c.id + '">' + c.icon + ' ' + esc(c.title) + '</option>'; }).join('');
+    function renderSubmit() {
+    var opts = CATEGORIES.map(function (c) { return '<option value="' + c.id + '">' + esc(c.title) + '</option>'; }).join('');
     var subsHtml = '';
     if (state.signedIn && state.submissions && state.submissions.length) {
-      subsHtml = '<div class="section-head" style="margin-top:4px"><h2>我的提交进度</h2><span style="font-size:12px;color:var(--dim)">只对提交者本人可见</span></div>' +
+      subsHtml = '<div class="section-head" style="margin-top:4px"><h2>My submissions</h2><span style="font-size:12px;color:var(--dim)">visible only to you</span></div>' +
         '<div class="my-sub">' + state.submissions.map(function (x) {
           var pill, line = '';
           if (x.status === 'pending') {
-            pill = '<span class="st-pill pending"><span class="dot"></span>Under review<span class="subnote">usually 1-2 business days</span></span>';
-            line = '<div class="progress-line">This updates automatically once an admin approves it.</div>';
+            pill = '<span class="st-pill pending"><span class="dot"></span>Under review<span class="subnote">usually 1–2 business days</span></span>';
+            line = '<div class="progress-line">Updates automatically after an admin approves it.</div>';
           } else if (x.status === 'approved' || x.status === 'done') {
-            pill = '<span class="st-pill done"><span class="dot"></span>Approved · listed<span class="subnote"></span></span>';
-            line = '<div class="progress-line" style="color:var(--good)">Approved — you can now find it in its category.</div>';
+            pill = '<span class="st-pill done"><span class="dot"></span>Approved · listed</span>';
+            line = '<div class="progress-line" style="color:var(--good)">Approved — find it in its category.</div>';
           } else {
-            pill = '<span class="st-pill off"><span class="dot"></span>Rejected<span class="subnote"></span></span>';
+            pill = '<span class="st-pill off"><span class="dot"></span>Rejected</span>';
             line = '<div class="progress-line" style="color:var(--bad)">' + (x.reason ? esc(x.reason) : 'Rejected') + '</div>';
           }
           return '<div class="sub-row"><div><div class="sn">' + esc(x.name) + ' <span class="sd">' + esc(x.domain) + '</span></div>' +
-            '<div class="sc">提交至「' + esc(x.catTitle || x.cat) + '」 · ' + esc(new Date(x.at).toLocaleString('zh-CN', { hour12: false })) + '</div></div>' + pill + '</div>' + line;
+            '<div class="sc">Submitted to: ' + esc(x.catTitle || x.cat) + ' · ' + esc(new Date(x.at).toLocaleString('en-GB', { hour12: false })) + '</div></div>' + pill + '</div>' + line;
         }).join('') + '</div>';
     }
     view.innerHTML =
       '<div class="page-head">' +
-        '<h1>提交收录</h1>' +
-        '<p class="lede">没找到你想找的网站?把它提交给我们。审核通过后,会收录到对应的分类,并参与综合评分排序。</p>' +
+        '<h1>Submit a site</h1>' +
+        '<p class="lede">Can’t find a site? Submit it — after human review it is listed in its category and ranked.</p>' +
       '</div>' + subsHtml +
       '<div class="submit-grid">' +
         '<div class="form-card">' +
-          '<h2>网站信息</h2>' +
-          '<p class="fc-sub">带 <span style="color:var(--bad)">*</span> 为必填。请尽量提供真实、可核实的信息。</p>' +
+          '<h2>Site details</h2>' +
+          '<p class="fc-sub">Required fields are marked <span style="color:var(--bad)">*</span>. Please provide real, verifiable information.</p>' +
           '<form id="submitForm">' +
             '<div class="form-grid">' +
-              '<label class="field"><span>网站 / 项目名称 <span class="req">*</span></span><input name="name" required placeholder="例如:萤火钱包"></label>' +
-              '<label class="field"><span>网址链接 <span class="req">*</span></span><input name="website" type="url" required placeholder="https://…"></label>' +
-              '<label class="field full"><span>所属类目 <span class="req">*</span></span><select name="cat" required><option value="">请选择类目…</option>' + opts + '</select></label>' +
-              '<label class="field full"><span>一句话简介 <span class="req">*</span></span><input name="tagline" required maxlength="160" placeholder="这个网站是做什么的?"></label>' +
-              '<label class="field full"><span>详细介绍</span><textarea name="intro" rows="5" placeholder="它解决什么问题、有什么风险或亮点、你从哪得知它…"></textarea></label>' +
-              '<label class="field full"><span>信息来源 / 证据链接(可选)</span><textarea name="evidence" rows="2" placeholder="官网、报道、应用商店链接等,一行一个"></textarea></label>' +
+              '<label class="field"><span>Site / project name <span class="req">*</span></span><input name="name" required placeholder="e.g. Firefly Wallet"></label>' +
+              '<label class="field"><span>Website URL <span class="req">*</span></span><input name="website" type="url" required placeholder="https://…"></label>' +
+              '<label class="field full"><span>Category <span class="req">*</span></span><select name="cat" required><option value="">Select a category…</option>' + opts + '</select></label>' +
+              '<label class="field full"><span>One-line summary <span class="req">*</span></span><input name="tagline" required maxlength="160" placeholder="What does this site do?"></label>' +
+              '<label class="field full"><span>Full description</span><textarea name="intro" rows="5" placeholder="What problem it solves, its risks or highlights, and where you heard about it…"></textarea></label>' +
+              '<label class="field full"><span>Sources / evidence links (optional)</span><textarea name="evidence" rows="2" placeholder="Official site, articles, store links — one per line"></textarea></label>' +
             '</div>' +
             '<div class="form-foot">' +
-              '<label class="check"><input type="checkbox" required><span>我确认以上信息真实,并理解提交后会经过人工审核,通过后才公开展示。</span></label>' +
-              '<button class="btn btn-primary btn-block" type="submit">提交,进入审核</button>' +
+              '<label class="check"><input type="checkbox" required><span>I confirm this is accurate and understand it is reviewed by humans before it is published.</span></label>' +
+              '<button class="btn btn-primary btn-block" type="submit">Submit for review</button>' +
             '</div>' +
           '</form>' +
         '</div>' +
         '<aside class="side-col">' +
-          '<div class="side-card"><h3>流程</h3>' +
+          '<div class="side-card"><h3>Process</h3>' +
             '<div class="steps">' +
-              '<div class="step"><span class="n">1</span><div><b>提交</b><p>填写名称、链接与简介(需登录)。</p></div></div>' +
-              '<div class="step"><span class="n">2</span><div><b>人工审核</b><p>编辑核实信息与运营状态。</p></div></div>' +
-              '<div class="step"><span class="n">3</span><div><b>收录上线</b><p>通过后进入对应分类参与排序。</p></div></div>' +
+              '<div class="step"><span class="n">1</span><div><b>Submit</b><p>Name, URL and a short summary (sign-in required).</p></div></div>' +
+              '<div class="step"><span class="n">2</span><div><b>Human review</b><p>Editors verify the information.</p></div></div>' +
+              '<div class="step"><span class="n">3</span><div><b>Listed</b><p>Approved sites appear in their category and are ranked.</p></div></div>' +
             '</div>' +
           '</div>' +
-          '<div class="side-card disclaimer-box"><strong style="color:var(--muted)">提示.</strong>审核通过不等于背书;未通过或长期无法核实的提交会被拒绝或标注"核实中"。</div>' +
+          '<div class="side-card disclaimer-box"><strong style="color:var(--muted)">Note.</strong> Being listed is not an endorsement. Unverifiable submissions may be rejected or marked “under review”.</div>' +
         '</aside>' +
       '</div>';
   }
+
 
   
 
@@ -1022,36 +1028,35 @@
       '<div class="about-grid"><div class="main-col about-body">' + body +
       '<p style="color:var(--dim);font-size:12px;margin-top:26px">最后更新:' + updated + '</p></div>' +
       '<aside class="side-col"><div class="side-card disclaimer-box">' +
-      '<strong style="color:var(--muted)">提示.</strong>Lumo 定位为公开信息聚合与风险提示平台,不是官方机构,也不替代任何监管或司法认定。请以官方来源为准,并自行核实。</div></aside></div>';
+      '<strong style="color:var(--muted)">Note.</strong> Lumo aggregates public risk signals. It is not an official body and does not replace regulators or courts — verify against official sources.</div></aside></div>';
   }
 
-  function renderTerms() {
-    legalPage('服务条款', '使用 Lumo 即表示你同意以下条款。本平台用于信息检索与风险提示,不构成任何投资、交易或法律建议。', [
-      { h: '1. 平台定位', p: ['Lumo 聚合公开来源(监管黑名单、媒体报道、安全检测、用户提交等)形成网站/平台信息库,并对收录条目给出基于公开证据的风险提示与评分。'] },
-      { h: '2. 你的使用', ul: ['不得利用本站信息骚扰、威胁或中伤任何个人或组织;', '不得恶意提交虚假收录、批量刷分或滥用举报;', '不得抓取、复制本站全部数据用于商业用途(引用请注明来源)。'] },
-      { h: '3. 内容与责任', p: ['收录条目与评分基于可核实证据并附来源,但因公开信息存在滞后或不完整,我们不对其绝对准确或完整作保证。', '我们不对任何依据本站信息作出的决策承担责任。'] },
-      { h: '4. 修改与终止', p: ['我们可因合规、安全或运营原因更新条款、调整或移除收录内容,并在合理范围内提前通知。'] }
+    function renderTerms() {
+    legalPage('Terms of Service', 'By using Lumo you agree to these terms. Lumo is an information and risk-signal platform — not investment, trading or legal advice.', [
+      { h: '1. What Lumo is', p: ['Lumo aggregates public sources (regulator blacklists, media, security scanners, user submissions) into a directory and gives evidence-based risk signals and scores.'] },
+      { h: '2. Your use', ul: ['You may not use Lumo to harass, threaten or defame anyone;', 'You may not submit false listings, mass-vote, or abuse reports;', 'You may not scrape or copy the full database for commercial use without attribution.'] },
+      { h: '3. Content & liability', p: ['Listings and scores are based on verifiable evidence with sources, but public information can be late or incomplete — we do not guarantee absolute accuracy.', 'We are not liable for decisions made based on this information.'] },
+      { h: '4. Changes', p: ['We may update these terms, adjust or remove listings for compliance, safety or operational reasons, with reasonable notice where possible.'] }
     ], '2026-09-05');
   }
-
   function renderPrivacy() {
-    legalPage('隐私政策', '我们只收集提供服务所必需的信息,并说明其用途、存储与你的权利。', [
-      { h: '1. 我们收集什么', ul: ['登录邮箱(用于发送验证码、识别身份与评分记账);', '你主动提交的内容(收录建议、评价、评分、留言);', '必要运行数据(IP、访问日志、会话状态,用于安全与防滥用);'] },
-      { h: '2. 如何使用', p: ['验证码登录与会话保持、按“一账号一票”统计评分、展示你提交的进度、防垃圾与滥用、保障网站安全。我们不会出售你的数据。'] },
-      { h: '3. 存储与第三方', p: ['数据存储于我们配置的服务器/持久磁盘;登录验证码邮件通过第三方邮件服务(如 Resend)发送;收录证据存档可能查询互联网档案馆(Wayback)。各第三方仅按其自身政策处理必要数据。'] },
-      { h: '4. 你的权利', p: ['你可通过页面“退出”注销会话;如需更正或删除账号与个人数据,可联系我们(见联系方式),我们会在核实身份后处理。'] },
-      { h: '5. 安全与儿童', p: ['我们采用 HTTPS、会话 Cookie、限流等措施保护数据;本服务不面向儿童,不故意收集未成年人信息。'] }
+    legalPage('Privacy Policy', 'We only collect what is needed to run the service, and we explain how it is used and stored.', [
+      { h: '1. What we collect', ul: ['Login email (to send codes, identify you and record votes);', 'Content you submit (suggestions, ratings, scores, messages);', 'Necessary operational data (IP, access logs, session state) for security and anti-abuse;'] },
+      { h: '2. How it is used', p: ['Code login and sessions, one-vote-per-account tallies, submission progress, spam prevention and site security. We never sell your data.'] },
+      { h: '3. Storage & third parties', p: ['Data is stored on our servers/persistent disk. Verification emails are sent via a third-party mail service (e.g. Resend). Evidence archiving may query the Internet Archive (Wayback). Each third party processes only what is necessary under its own policy.'] },
+      { h: '4. Your rights', p: ['Use “Sign out” to end your session. To correct or delete your account data, contact us and we will act after verifying your identity.'] },
+      { h: '5. Security & children', p: ['We use HTTPS, session cookies and rate limits to protect data. This service is not directed at children and does not knowingly collect their information.'] }
+    ], '2026-09-05');
+  }
+  function renderAppeals() {
+    legalPage('Appeals', 'If you or your organization believe a listing is wrong, misses evidence, or was wrongly marked high risk or DEAD, you can appeal.', [
+      { h: '1. When to appeal', ul: ['Listing content conflicts with facts or misquotes a source;', 'Wrongly marked high risk or DEAD and you can provide counter-evidence;', 'Identity misuse, or material that infringes your rights.'] },
+      { h: '2. How to appeal', p: ['Prepare: (a) who you are; (b) the listing link or domain; (c) point-by-point evidence (official sites, registrations, licences, audits, statements).', 'Send these via the contact email on this page with the subject line “Appeal”.'] },
+      { h: '3. Process', ul: ['Your appeal is reviewed by humans (no automatic decisions);', 'We contact you via the email you provide if more evidence is needed;', 'The outcome (correction / downgrade / removal / keep) is confirmed by email and logged on the entry.'] },
+      { h: '4. Notes', p: ['An appeal does not guarantee removal. To balance credibility and fairness we prefer correcting with evidence and only remove or downgrade when the evidence is sufficient. Abusive appeals are rejected.'] }
     ], '2026-09-05');
   }
 
-  function renderAppeals() {
-    legalPage('收录申诉', '如你(或你代表的组织)认为某条收录信息有误、存在遗漏证据,或被错误标记为风险/DEAD,可提交申诉。', [
-      { h: '1. 什么情况可申诉', ul: ['收录内容与事实不符、来源引用错误;', '被错误标记为“风险提示”或 DEAD,且你能提供反向证据;', '身份/主体被冒用,或涉及你方知识产权的材料。'] },
-      { h: '2. 如何申诉', p: ['请准备:(a) 你的身份/主体说明;(b) 涉及的收录链接或域名;(c) 逐条反驳的证据(官网、工商、牌照、审计、官方声明等)。', '将上述材料通过页面“联系我们”邮箱发送,标题注明【申诉】。'] },
-      { h: '3. 处理流程', ul: ['收到后我们进行人工复核(非自动判定);', '需要补充证据时会通过你提供的邮箱联系;', '复核结论(更正/降级/移除/维持)将回信告知,并在条目修订记录中留痕;'] },
-      { h: '4. 说明', p: ['申诉不保证必然移除。为平衡公信力与公平,我们优先“以证据纠正”,仅在证据充分时移除或降级。恶意申诉会被拒绝。'] }
-    ], '2026-09-05');
-  }
   function render() {
     var raw = (location.hash || '#/').slice(2);
     var qIdx = raw.indexOf('?');
