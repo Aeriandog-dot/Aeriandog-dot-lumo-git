@@ -23,14 +23,247 @@
   var authBtn = document.getElementById('authBtn');
   var menuBtn = document.getElementById('menuBtn');
 
+
+  var EN_DICT = {
+  '提交平台需要登录用户':'Sign-in required',
+  '没找到你想找的网站?告诉我们,审核通过后会收录到对应分类。':'Missing a site? Submit it — it appears after human review.',
+  '审核通过后,会收录到对应的分类,并参与综合评分排序。':'After approval it is listed in its category and ranked.',
+  '我的提交进度':'My submissions',
+  '只对提交者本人可见':'visible only to you',
+  '提交至':'Submitted to',
+  '正在审核':'Under review',
+  '审核完成 · 已收录':'Approved · listed',
+  '审核完成':'Approved',
+  '预计 1–2 个工作日':'usually 1–2 business days',
+  '未通过审核':'Rejected',
+  '未通过':'Rejected',
+  '管理员审核通过后,此处会自动更新为「已收录」':'Updates automatically after an admin approves it.',
+  '已通过人工审核,可在对应分类中查看':'Approved — find it in its category.',
+  '综合排序(网站评分+用户打分)':'Ranked (site score + user rating)',
+  '按 Lumo 网站评分':'By Lumo score',
+  '按用户打分':'By user rating',
+  '最新收录':'Newest',
+  '可访问收录':'active listings',
+  '个结果':' results',
+  '该状态下暂无收录':'Nothing here yet',
+  '试试切换上方的状态筛选。':'Try a different filter.',
+  '运营名单':'Live listings',
+  '死亡名单':'Dead list',
+  '已确认无法打开 / 停止运营':'Confirmed offline / shut down',
+  '仅归档,不参与排序':'archived — not ranked',
+  '可访问 · 可注册 · 仍在推广':'reachable · registrable · still promoted',
+  'DEAD':'DEAD',
+  '正常收录':'Listed',
+  '风险提示':'High risk',
+  '核实中':'Under review',
+  '运营中':'Live',
+  '部分活跃':'Partially active',
+  '已停运':'Offline',
+  '表现良好':'Trusted',
+  '需谨慎':'Caution',
+  '高风险':'High risk',
+  '收录于 ':'Added ',
+  '综合 ':'Score ',
+  '人评分':' ratings',
+  '满分 5 星':'out of 5',
+  '点星打分':'Tap a star to rate',
+  '你已评 ':'You rated ',
+  ' 星':' stars',
+  '人':' people',
+  '项目简介':'About this site',
+  '关键信息':'Key information',
+  '收录依据':'Listing basis',
+  '用户评价':'User ratings',
+  '运营状态核验':'Operational check',
+  '最近核验 ':'Last checked ',
+  '仅“运营中”表示三项全部通过':'Live = all three checks pass',
+  '重新检测':'Re-check',
+  '网站可访问':'Reachable','可以打开':'Yes','无法访问':'No',
+  '可注册 / 开户':'Registrable','开放注册':'Yes','已暂停注册':'No',
+  '仍在推广':'Still promoted','未见推广':'No',
+  '外部证据':'External evidence',
+  '可点击查看':'click to view',
+  '低信任分':'low trust score',
+  '信任分':'trust score',
+  '黑名单警告':'blacklist warning',
+  'ScamAdviser 低信任分':'ScamAdviser: low trust',
+  'ScamDoc 8% 信任分':'ScamDoc: 8% trust',
+  'Gridinsoft 黑名单警告':'Gridinsoft: blacklist',
+  'Trustpilot 提现投诉':'Trustpilot: withdrawal complaints',
+  '请勿向其转账或连接钱包':'Do not send money or connect a wallet',
+  '该网站存在多项风险信号,详情见下方收录依据与外部证据。':'Multiple risk signals — see the listing basis and external evidence below.',
+  '证据不足,正在人工复核。':'Insufficient evidence — under human review.',
+  '当前证据不足以定性,正在人工复核。':'Current evidence is inconclusive — under human review.',
+  '风险与运营状态仍在核实中':'Risk and operational status still under review',
+  '报告问题':'Report issue',
+  '建议收录':'Suggest listing',
+  '访问官网':'Visit website',
+  '登录查看官网':'Sign in to view website',
+  '查看完整域名':'view full domain',
+  '登录后即可查看完整域名与访问官网。':'Sign in to see full domains and open official sites.',
+  '登录后即可查看完整域名。':'Sign in to view the full domain.',
+  '登录后即可为该网站打分。':'Sign in to rate this site.',
+  '登录后即可提交收录。':'Sign in to submit.',
+  '请输入有效邮箱':'Enter a valid email',
+  '验证码错误':'Wrong code',
+  '验证码已过期,请重新发送':'Code expired — please resend',
+  '已登录 ':'Signed in ',
+  '已退出登录':'Signed out',
+  'Sign out (':'Sign out (',
+  '验证码':'Code',
+  '发送验证码':'Send code',
+  '演示验证码:123456':'Demo code: 123456',
+  '演示环境:任意邮箱均可,验证码统一为 123456。':'Demo: any email; the code is shown below.',
+  '网站信息':'Site details',
+  '带 * 为必填。请尽量提供真实、可核实的信息。':'Required fields are marked *. Please provide real, verifiable information.',
+  '网站 / 项目名称 *':'Site / project name *',
+  '网站名称 *':'Site name *',
+  '所属类目 *':'Category *',
+  '请选择类目…':'Select a category…',
+  '请选择分类…':'Select a category…',
+  '一句话简介 *':'One-line summary *',
+  '介绍这个网站是做什么的?':'What does this site do?',
+  '详细介绍':'Full description',
+  '信息来源 / 证据链接(可选)':'Sources / evidence links (optional)',
+  '官网、报道、应用商店链接等,一行一个':'Official site, articles, store links — one per line',
+  '我确认以上信息真实,并理解提交后会经过人工审核,通过后才公开展示。':'I confirm this is accurate and understand it is reviewed before publishing.',
+  '提交,进入审核':'Submit for review',
+  '提交,进入人工审核':'Submit for review',
+  '请填写必填项。':'Please fill in the required fields.',
+  '提交失败,请重试':'Submission failed, please retry.',
+  '已提交,进入人工审核':'Submitted — under review',
+  '已提交':'Submitted',
+  '进入人工审核':'for review',
+  '管理员审核通过后,此处将自动更新':'Updates after admin approval',
+  '返回首页':'Back to home',
+  '编号':'Ref',
+  '全部收录':'All listings',
+  '当前收录的全部网站与平台':'All listed sites and platforms',
+  '不含 DEAD 死亡名单':'excluding the Dead list',
+  '的搜索结果':' — search results',
+  '找到 ':'Found ',
+  '个相关收录':'related listings',
+  '暂未收录该网站':'Not in the directory yet',
+  '它可能还没有进入我们的信息库。你可以换个关键词,或告诉我们帮你核实收录。':'It may not be in our database yet. Try another keyword, or tell us and we will look into it.',
+  '仅在死亡名单中找到':'Only in the Dead list',
+  '这些网站已确认无法打开或停止运营:':'These sites are confirmed offline:',
+  '请到对应分类的 DEAD 死亡名单查看归档。':'See the Dead list in its category for the archive.',
+  '首页':'Home',
+  '关于 Lumo':'About Lumo',
+  '关于':'About',
+  'Lumo 是什么':'What is Lumo',
+  '覆盖的类型':'Categories we cover',
+  '网站如何被收录':'How sites are listed',
+  '信息从哪里来':'Where data comes from',
+  '评分规则':'Scoring method',
+  '复核与申诉':'Review & appeals',
+  '申诉':'Appeals',
+  '联系方式':'Contact',
+  '提交':'Submit',
+  '收录':'Listings',
+  '均分':'Avg',
+  '风险':'Risky',
+  '已收录':'Listed',
+  '网址':'Website',
+  '名称':'Name',
+  '类目':'Category',
+  '分类':'Category',
+  '类型':'Type',
+  '来源':'Source',
+  '状态':'Status',
+  '收录时间':'Added',
+  '数据':'Data',
+  '暂无':'No',
+  '全部':'All',
+  '返回':'Back',
+  '查看':'View',
+  '详情':'Details',
+  '评分':'Score',
+  '用户评分':'User rating',
+  '简介':'About',
+  '内容':'Content',
+  '我的':'My',
+  '最近浏览':'Recently viewed',
+  '清空':'Clear',
+  '位用户打分':' users rated',
+  '个':'',
+  '综合公开信息核验、Risky记录、User ratings与运营透明度得出,与用户打分相互独立。':'combines public-record checks, risk records, user ratings and operating transparency — separate from user votes.',
+  '公开信息核验':'Public records',
+  '官网、工商、牌照、报道。':'Official site, registrations, licences, media.',
+  'Risky记录比对':'Risk-record checks',
+  '人工复核':'Human review',
+  '关键结论逐条确认':'each conclusion is verified',
+  'LUMO SCORE说明':'About the Lumo score',
+  'Lumo Score(0–10)综合公开信息核验、Risky记录、User ratings与运营透明度得出,与用户打分相互独立。':'The Lumo score (0–10) combines public-record checks, risk records, user ratings and operating transparency — it is independent of user votes.',
+  'Score会随新证据更新。':'Scores update as new evidence appears.',
+  'Details见下方Listing basis与External evidence。':'See the listing basis and external evidence below.',
+  '该网站存在多项High risk信号,Details见下方Listing basis与External evidence。':'Multiple high-risk signals — details in the listing basis and external evidence below.',
+  'Lumo 是一个网站与平台信息库:Listings不同网站Type的项目与平台,提供简单的项目介绍、平台Score和用户打分,帮你快速判断"它是什么、值不值得信"。':'Lumo is a directory of websites and platforms across different types, with a simple intro, a platform score and user votes, so you can quickly judge what a site is and whether to trust it.',
+  '你可以把 Lumo 理解为一本"网站黄页 + 大众点评":搜索一个Website或Name,就能看到它的About、Key information、Lumo 平台Score,以及真实用户打出的分数和评价分布。对Risky较高的平台,我们会给出明确的High risk与依据。':'Think of Lumo as a website directory plus reviews: search a site or name to see its intro, key facts, Lumo score, real user votes and rating distribution. Higher-risk platforms get clear warnings with evidence.',
+  '简单介绍。每个Listings都有易懂的About this site。':'Simple intros — every listing includes an easy-to-read overview.',
+  '双轨Score。Lumo 平台Score + 用户打分相互独立。':'Two independent signals: the Lumo score and user votes.',
+  'High risk。可疑平台会标注依据与External evidence。':'High-risk platforms show their evidence and external sources.',
+  '仅供参考。Score不是官方认证,请自行核实。':'For reference only. Scores are not official certifications — always verify yourself.',
+  '网站通过自动发现(公开Source)与用户建议进入候选池,由编辑核验后Listings并给出首轮Score。':'Sites enter via automated discovery and user suggestions, are reviewed by editors, then listed with an initial score.',
+  'Listings时会同时核验运营Status——网站是否可访问、是否Yes、是否Still promoted;列表中默认只展示“Live”的网站,Offline或失联的会标注并归档。':'Each listing also checks whether the site is reachable, registrable and still promoted; only live sites show by default, and offline ones are archived with a label.',
+  '你可以点击顶部或搜索结果页的「SubmitListings」Submit,Submit后for review,通过后Listings到对应Category。':'Use “Submit a site” to submit; entries go through human review before being listed in their category.',
+  '使用 Lumo 即表示你同意以下条款。本平台用于信息检索与High risk,不构成任何投资、交易或法律建议。':'By using Lumo you agree to these terms. Lumo is an information and risk-signal platform — not investment, trading or legal advice.',
+  '1. 平台定位':'1. What Lumo is',
+  'Lumo 聚合公开Source(监管黑名单、媒体报道、安全检测、用户Submit等)形成网站/平台信息库,并对Listings条目给出基于公开证据的High risk与Score。':'Lumo aggregates public sources (regulator blacklists, media, security scanners, user submissions) into a directory and gives evidence-based risk signals and scores.',
+  '2. 你的使用':'2. Your use',
+  '不得利用本站信息骚扰、威胁或中伤任何个 people或组织;':'You may not use Lumo to harass, threaten or defame anyone;',
+  '服务条款':'Terms of Service',
+  'Home/服务条款':'Home / Terms',
+  '隐私政策':'Privacy Policy',
+  'Home/隐私政策':'Home / Privacy',
+  '收录申诉':'Appeals',
+  'Home/Listings申诉':'Home / Appeals',
+  '如你(或你代表的组织)认为某条Listings信息有误、存在遗漏证据,或被错误标记为Risky/DEAD,可SubmitAppeals。':'If you or your organization believe a listing is wrong, misses evidence, or was wrongly marked risky/DEAD, you can appeal.',
+  '1. 什么情况可Appeals':'1. When to appeal',
+  'ListingsContent与事实不符、Source引用错误;':'Listing content conflicts with facts or misquotes a source;',
+  '被错误标记为“High risk”或 DEAD,且你能提供反向证据;':'Wrongly marked “high risk” or DEAD, and you can provide counter-evidence;',
+  '身份/主体被冒用,或涉及你方知识产权的材料。':'Identity misuse, or material that infringes your rights.',
+  '2. 如何Appeals':'2. How to appeal',
+  '请准备:(a) 你的身份/主体说明;(b) 涉及的Listings链接或域名;(c) 逐条反驳的证据(官网、工商、牌照、审计、官方声明等)。':'Prepare: (a) who you are; (b) the listing link or domain; (c) point-by-point evidence (official sites, registrations, licences, audits, statements).',
+  '我们只收集提供服务所必需的信息,并说明其用途、存储与你的权利。':'We only collect what is needed to run the service, and explain how it is used and stored.',
+  '1. 我们收集什么':'1. What we collect',
+  '登录邮箱(用于Send code、识别身份与Score记账);':'Login email (to send codes, identify you and record votes);',
+  '你主动Submit的Content(Listings建议、评价、Score、留言);':'Content you submit (suggestions, ratings, scores, messages);',
+  '必要运行Data(IP、访问日志、会话Status,用于安全与防滥用);':'Necessary operational data (IP, access logs, session state) for security and anti-abuse;',
+  '2. 如何使用':'2. How it is used',
+  '3. 存储与第三方':'3. Storage & third parties',
+  '4. 你的权利':'4. Your rights',
+  '5. 安全与儿童':'5. Security & children',
+  '流程':'Process',
+  '没找到你想找的网站?把它Submit给我们。':'Can’t find a site? Submit it to us.',
+  'After approval it is listed in its category and ranked.':'After approval it is listed in its category and ranked.',
+  '网站 / 项目Name *':'Site / project name *',
+  'Website链接 *':'Website URL *',
+  '所属Category *':'Category *',
+  '一句话About *':'One-line summary *'
+};
+
+
+  function enHtml(html) {
+    if (!html) return html;
+    var keys = Object.keys(EN_DICT);
+    keys.sort(function (a, b) { return b.length - a.length; });
+    for (var pass = 0; pass < 4; pass++) {
+      for (var i = 0; i < keys.length; i++) {
+        html = html.split(keys[i]).join(EN_DICT[keys[i]]);
+      }
+    }
+    return html;
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function level(r) {
-    if (r >= 7.5) return { c: 'lv-good', label: '表现良好', color: '#34d399' };
-    if (r >= 4.5) return { c: 'lv-mid', label: '需谨慎', color: '#fbbf24' };
-    return { c: 'lv-bad', label: '高风险', color: '#f87171' };
+    if (r >= 7.5) return { c: 'lv-good', label: 'Trusted', color: '#34d399' };
+    if (r >= 4.5) return { c: 'lv-mid', label: 'Caution', color: '#fbbf24' };
+    return { c: 'lv-bad', label: 'High risk', color: '#f87171' };
   }
 
   function ringHTML(p, lg, sm) {
@@ -57,7 +290,7 @@
   function badge(status) {
     if (status === 'ok') return '<span class="badge bd-ok">正常收录</span>';
     if (status === 'risk') return '<span class="badge bd-risk">风险提示</span>';
-    return '<span class="badge bd-review">核实中</span>';
+    return '<span class="badge bd-review">Under review</span>';
   }
 
   function catById(id) {
@@ -92,9 +325,9 @@
 
   function liveInfo(it) {
     var l = liveArr(it);
-    if (!l.online) return { key: 'off', label: '已停运' };
-    if (l.signup && l.promo) return { key: 'on', label: '运营中' };
-    return { key: 'part', label: '部分活跃' };
+    if (!l.online) return { key: 'off', label: 'Offline' };
+    if (l.signup && l.promo) return { key: 'on', label: 'Live' };
+    return { key: 'part', label: 'Partially active' };
   }
 
   function liveBadge(it) {
@@ -150,7 +383,7 @@
     var wrap = document.getElementById('toasts');
     var el = document.createElement('div');
     el.className = 'toast';
-    el.textContent = msg;
+    el.textContent = enHtml(msg);
     wrap.appendChild(el);
     setTimeout(function () { el.classList.add('out'); }, 2600);
     setTimeout(function () { el.remove(); }, 2950);
@@ -174,7 +407,7 @@
   }
 
   function updateAuthButton() {
-    authBtn.textContent = state.signedIn ? '退出 (' + userHandle() + ')' : '登录';
+    authBtn.textContent = state.signedIn ? 'Sign out (' + userHandle() + ')' : 'Sign in';
   }
 
   function openAuth(subText) {
@@ -307,7 +540,7 @@
         '<form class="search-wrap" id="searchForm">' +
           '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>' +
           '<input class="search-input" id="searchInput" type="search" placeholder="输入网址或名称,如 shark-trades.com" autocomplete="off">' +
-          '<button class="btn btn-primary search-go" type="submit">搜索</button>' +
+          '<button class="btn btn-primary search-go" type="submit">Search</button>' +
         '</form>' +
   
       '</section>' +
@@ -363,14 +596,14 @@
     var dead = base.filter(function (i) { return liveInfo(i).key === 'off'; });
     var alive = sortedItems(base.filter(function (i) { return liveInfo(i).key !== 'off'; }));
     var st = catStats(id);
-    var liveSec = '<div class="live-sec-title"><h2>运营名单</h2><span class="cnt">' + alive.length + ' 个 · 可访问 · 可注册 · 仍在推广</span></div>';
+    var liveSec = '<div class="live-sec-title"><h2>Live listings</h2><span class="cnt">' + alive.length + ' active — reachable, registrable, still promoted</span></div>';
     var liveList = alive.length
       ? '<div class="proj-list" id="itemList">' + alive.map(rowItemHTML).join('') + '</div>'
       : '<div class="empty"><div class="big">&#128269;</div><h3>该分类暂无运营中的网站</h3></div>';
     var deadSec = dead.length
       ? '<section class="dead-sec">' +
-        '<div class="dead-sec-head"><span class="dead-badge">DEAD</span><h2>死亡名单</h2>' +
-        '<span class="dead-note">已确认无法打开 / 停止运营 · ' + dead.length + ' 个 · 仅归档,不参与排序</span></div>' +
+        '<div class="dead-sec-head"><span class="dead-badge">DEAD</span><h2>Dead list</h2>' +
+        '<span class="dead-note">已确认无法打开 / 停止运营 · ' + dead.length + ' archived — not ranked</span></div>' +
         '<div class="dead-cardlist">' + dead.map(function (it) { return rowItemHTML(it, true); }).join('') + '</div>' +
         '</section>'
       : '';
@@ -693,14 +926,14 @@
         '<div class="my-sub">' + state.submissions.map(function (x) {
           var pill, line = '';
           if (x.status === 'pending') {
-            pill = '<span class="st-pill pending"><span class="dot"></span>正在审核<span class="subnote">预计 1–2 个工作日</span></span>';
-            line = '<div class="progress-line">管理员审核通过后,此处会自动更新为「已收录」</div>';
+            pill = '<span class="st-pill pending"><span class="dot"></span>Under review<span class="subnote">usually 1-2 business days</span></span>';
+            line = '<div class="progress-line">This updates automatically once an admin approves it.</div>';
           } else if (x.status === 'approved' || x.status === 'done') {
-            pill = '<span class="st-pill done"><span class="dot"></span>审核完成 · 已收录<span class="subnote"></span></span>';
-            line = '<div class="progress-line" style="color:var(--good)">已通过人工审核,可在对应分类中查看</div>';
+            pill = '<span class="st-pill done"><span class="dot"></span>Approved · listed<span class="subnote"></span></span>';
+            line = '<div class="progress-line" style="color:var(--good)">Approved — you can now find it in its category.</div>';
           } else {
-            pill = '<span class="st-pill off"><span class="dot"></span>未通过<span class="subnote"></span></span>';
-            line = '<div class="progress-line" style="color:var(--bad)">' + (x.reason ? esc(x.reason) : '未通过审核') + '</div>';
+            pill = '<span class="st-pill off"><span class="dot"></span>Rejected<span class="subnote"></span></span>';
+            line = '<div class="progress-line" style="color:var(--bad)">' + (x.reason ? esc(x.reason) : 'Rejected') + '</div>';
           }
           return '<div class="sub-row"><div><div class="sn">' + esc(x.name) + ' <span class="sd">' + esc(x.domain) + '</span></div>' +
             '<div class="sc">提交至「' + esc(x.catTitle || x.cat) + '」 · ' + esc(new Date(x.at).toLocaleString('zh-CN', { hour12: false })) + '</div></div>' + pill + '</div>' + line;
@@ -849,6 +1082,7 @@
 
     setActiveNav(route);
     updateAuthButton();
+    view.innerHTML = enHtml(view.innerHTML);
     window.scrollTo(0, 0);
   }
   document.addEventListener('click', function (e) {

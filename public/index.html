@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lumo — 找你想找的</title>
-<meta name="description" content="Lumo 网站与平台信息库:搜索网站、了解项目内容、查看平台评分与用户评价。">
+<title>Lumo — Find what you are looking for</title>
+<meta name="description" content="Lumo — a directory of websites and platforms with scores and user reviews.">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,16 +12,16 @@
 
 <div class="demo-banner" id="demoBanner">
   <span><strong>Prototype data</strong> — sample entries are fictional except shark-trades.com (a real high-risk example). The live build adds verified sources.</span>
-  <button class="demo-banner-x" data-dismiss-banner aria-label="关闭">&times;</button>
+  <button class="demo-banner-x" data-dismiss-banner aria-label="Close">&times;</button>
 </div>
 
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
-    <a class="brand" href="#/" aria-label="Lumo 首页">
+    <a class="brand" href="#/" aria-label="Lumo Home">
       <img class="brand-mark" src="assets/lumo-mark-light.png" alt="">
       <img class="brand-word" src="assets/lumo-word-light.png" alt="Lumo">
     </a>
-    <nav class="site-nav" id="siteNav" aria-label="主导航">
+    <nav class="site-nav" id="siteNav" aria-label="Primary">
       <a href="#/" data-route>Home</a>
       <a href="#/submit" data-route>Submit</a>
       <a href="#/about" data-route>About</a>
@@ -40,11 +40,11 @@
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-brand">
-      <a class="brand" href="#/" aria-label="Lumo 首页">
+      <a class="brand" href="#/" aria-label="Lumo Home">
         <img class="brand-mark" src="assets/lumo-mark-light.png" alt="">
         <img class="brand-word" src="assets/lumo-word-light.png" alt="Lumo" style="height:20px">
       </a>
-      <p class="footer-blurb">Lumo 汇聚公开信息与用户反馈,帮你快速了解一个网站或平台是什么、靠不靠谱、别人怎么评价。评分仅供参考,不构成投资或交易建议。</p>
+      <p class="footer-blurb">Lumo aggregates public information and community feedback so you can quickly see what a site is, whether it looks trustworthy, and what people say about it. Scores are for reference only.</p>
     </div>
     <div class="footer-col">
       <h4>Explore</h4>
@@ -58,21 +58,21 @@
     </div>
     <div class="footer-col">
       <h4>Learn</h4>
-      <a href="#/about" data-scroll-to="submit">如何收录</a>
+      <a href="#/about" data-scroll-to="submit">How sites are listed</a>
       <a href="#/about" data-scroll-to="disclaimer">Disclaimer</a>
-      <a href="#" data-demo="联系邮箱">Contact</a>
+      <a href="#" data-demo="Contact email">Contact</a>
     </div>
     <div class="footer-col footer-note">
-      <p><strong>重要提示:</strong>Lumo 上的评分基于公开信息和用户反馈,不是官方认证,也不能替代你自己的判断。遇到疑似诈骗,请立即停止转账并联系银行或警方。</p>
-      <p class="footer-sample">原型演示 — 2026 · 大部分数据为虚构示例</p>
+      <p><strong>Disclaimer:</strong> Lumo scores are based on public information and user feedback. They are not official certifications and are not a substitute for your own judgment.</p>
+      <p class="footer-sample">Prototype demo — 2026 · sample data</p>
     </div>
   </div>
-  <div class="container footer-bottom">&copy; 2026 Lumo.原型构建,并非正式服务。</div>
+  <div class="container footer-bottom">&copy; 2026 Lumo. Prototype build — not a live service.</div>
 </footer>
 
 <div class="modal-backdrop" id="authModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-    <button class="modal-x" data-close-modal aria-label="关闭">&times;</button>
+    <button class="modal-x" data-close-modal aria-label="Close">&times;</button>
     <h3 id="authTitle">Sign in to Lumo</h3>
     <p class="modal-sub" id="authSub">Sign in to see full domains, rate sites and submit entries.</p>
 
@@ -85,7 +85,7 @@
     </form>
 
     <div id="authStepCode" hidden>
-      <p class="modal-sub" style="margin-bottom:6px">验证码已发送至 <b id="authMailShow" style="color:var(--text)"></b></p>
+      <p class="modal-sub" style="margin-bottom:6px">Code sent to <b id="authMailShow" style="color:var(--text)"></b></p>
       <form id="authCodeForm">
         <label class="field">
           <span>6-digit code</span>
@@ -95,7 +95,7 @@
       </form>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-ghost btn-sm" type="button" data-auth-back>Change email</button>
-        <span class="modal-hint" style="margin:0">演示验证码:<b>123456</b></span>
+        <span class="modal-hint" style="margin:0">Demo code:<b>123456</b></span>
       </div>
     </div>
 
@@ -105,7 +105,7 @@
 
 <div class="modal-backdrop" id="riskModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="riskTitle" style="max-width:460px">
-    <button class="modal-x" data-close-modal aria-label="关闭">&times;</button>
+    <button class="modal-x" data-close-modal aria-label="Close">&times;</button>
     <h3 id="riskTitle">&#9888; Confirm before you leave</h3>
     <p class="modal-sub">You are about to leave Lumo and open an external site marked as <b style="color:var(--bad)">high risk</b>:</p>
     <p id="riskUrl" class="modal-sub" style="font-family:var(--mono);color:var(--bad);word-break:break-all;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px"></p>
