@@ -13,11 +13,27 @@
   function loginView() {
     box.innerHTML =
       '<div class="admin-login"><h3 style="font-size:18px;margin-bottom:6px">管理员登录</h3>' +
-      '<p style="color:var(--dim);font-size:13px;margin-bottom:16px">仅限 Lumo 管理员(admin@lumo.local)。</p>' +
-      '<label class="field"><span>邮箱</span><input id="admEmail" type="email" placeholder="admin@lumo.local 或你配置的管理员邮箱"></label>' +
-      '<label class="field" style="margin-top:12px"><span>验证码</span><input id="admCode" inputmode="numeric" maxlength="6" placeholder="123456"></label>' +
-      '<button class="btn btn-primary btn-block" id="admLogin" style="margin-top:16px">登录</button>' +
-      '<p style="color:var(--dim);font-size:12px;margin-top:12px">演示验证码:123456 · 正式版将改为真实邮件 + 2FA</p></div>';
+      '<p style="color:var(--dim);font-size:13px;margin-bottom:16px">仅限 Lumo 管理员使用。</p>' +
+      '<label class="field"><span>邮箱</span><input id="admEmail" type="email" placeholder="管理员邮箱"></label>' +
+      '<button class="btn btn-ghost btn-sm" id="admSend" style="margin-top:10px">发送验证码</button>' +
+      '<p id="admHint" class="mini" style="margin:8px 0 2px"></p>' +
+      '<label class="field" style="margin-top:8px"><span>验证码</span><input id="admCode" inputmode="numeric" maxlength="6" placeholder="6 位验证码"></label>' +
+      '<button class="btn btn-primary btn-block" id="admLogin" style="margin-top:16px" disabled>登录</button>' +
+      '<p style="color:var(--dim);font-size:12px;margin-top:12px">未配置 SMTP 时,验证码会显示在上方提示里(仅测试期)。</p></div>';
+    var sendBtn = document.getElementById('admSend');
+    if (sendBtn) sendBtn.onclick = function () {
+      var email = document.getElementById('admEmail').value.trim();
+      if (!email || email.indexOf('@') === -1) { alert('请输入管理员邮箱'); return; }
+      fetch('/api/auth/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var hintEl = document.getElementById('admHint');
+          if (hintEl) hintEl.textContent = j.hint || '验证码已发送,请查收邮箱。';
+        });
+    };
+    var codeInput = document.getElementById('admCode');
+    var loginBtn = document.getElementById('admLogin');
+    if (codeInput && loginBtn) codeInput.oninput = function () { loginBtn.disabled = codeInput.value.trim().length < 6; };
     document.getElementById('admLogin').onclick = function () {
       var email = document.getElementById('admEmail').value.trim();
       var code = document.getElementById('admCode').value.trim();
