@@ -6,8 +6,8 @@
   var curTab = 'queue';
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function wait(ms){ return new Promise(function(r){ setTimeout(r, ms||150); }); }
-  function jget(url){ return fetch(url).then(function(r){ return r.json(); }); }
-  function jpost(url, body){ return fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body||{}) }).then(function(r){ return r.json(); }); }
+  function jget(url){ return fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+  function jpost(url, body){ return fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body||{}) }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
   function fmt(t){ return t ? new Date(t).toLocaleString('zh-CN', { hour12:false }) : '-'; }
 
   function loginView() {
@@ -94,6 +94,11 @@
     jget('/api/admin/stats').then(function (s) {
       document.getElementById('statTitle').textContent = '运营数据';
       document.getElementById('statSub').textContent = '条目 ' + s.items + ' · 活跃 ' + s.alive + ' · DEAD ' + s.dead + ' · 风险 ' + s.risk + ' · 待审核 ' + s.pending + ' · 注册用户 ' + s.users;
+    }).catch(function () {
+      var st = document.getElementById('statTitle');
+      var sb = document.getElementById('statSub');
+      if (st) st.textContent = '运营数据(未登录)';
+      if (sb) sb.textContent = '请先登录管理员账号。';
     });
     if (curTab === 'queue') renderQueue();
     else if (curTab === 'items') renderItems();
