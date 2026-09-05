@@ -777,6 +777,48 @@
 
   
 
+
+  function legalPage(title, intro, sections, updated) {
+    var body = sections.map(function (sec) {
+      return '<h2>' + esc(sec.h) + '</h2>' + (sec.p || []).map(function (pp) { return '<p>' + pp + '</p>'; }).join('') +
+        (sec.ul ? '<ul>' + sec.ul.map(function (li) { return '<li><span class="tick">&#10003;</span><span>' + li + '</span></li>'; }).join('') + '</ul>' : '');
+    }).join('');
+    view.innerHTML =
+      '<div class="page-head"><div class="crumb"><a href="#/">首页</a><span class="sep">/</span><span>' + esc(title) + '</span></div>' +
+      '<h1>' + esc(title) + '</h1><p class="lede">' + intro + '</p></div>' +
+      '<div class="about-grid"><div class="main-col about-body">' + body +
+      '<p style="color:var(--dim);font-size:12px;margin-top:26px">最后更新:' + updated + '</p></div>' +
+      '<aside class="side-col"><div class="side-card disclaimer-box">' +
+      '<strong style="color:var(--muted)">提示.</strong>Lumo 定位为公开信息聚合与风险提示平台,不是官方机构,也不替代任何监管或司法认定。请以官方来源为准,并自行核实。</div></aside></div>';
+  }
+
+  function renderTerms() {
+    legalPage('服务条款', '使用 Lumo 即表示你同意以下条款。本平台用于信息检索与风险提示,不构成任何投资、交易或法律建议。', [
+      { h: '1. 平台定位', p: ['Lumo 聚合公开来源(监管黑名单、媒体报道、安全检测、用户提交等)形成网站/平台信息库,并对收录条目给出基于公开证据的风险提示与评分。'] },
+      { h: '2. 你的使用', ul: ['不得利用本站信息骚扰、威胁或中伤任何个人或组织;', '不得恶意提交虚假收录、批量刷分或滥用举报;', '不得抓取、复制本站全部数据用于商业用途(引用请注明来源)。'] },
+      { h: '3. 内容与责任', p: ['收录条目与评分基于可核实证据并附来源,但因公开信息存在滞后或不完整,我们不对其绝对准确或完整作保证。', '我们不对任何依据本站信息作出的决策承担责任。'] },
+      { h: '4. 修改与终止', p: ['我们可因合规、安全或运营原因更新条款、调整或移除收录内容,并在合理范围内提前通知。'] }
+    ], '2026-09-05');
+  }
+
+  function renderPrivacy() {
+    legalPage('隐私政策', '我们只收集提供服务所必需的信息,并说明其用途、存储与你的权利。', [
+      { h: '1. 我们收集什么', ul: ['登录邮箱(用于发送验证码、识别身份与评分记账);', '你主动提交的内容(收录建议、评价、评分、留言);', '必要运行数据(IP、访问日志、会话状态,用于安全与防滥用);'] },
+      { h: '2. 如何使用', p: ['验证码登录与会话保持、按“一账号一票”统计评分、展示你提交的进度、防垃圾与滥用、保障网站安全。我们不会出售你的数据。'] },
+      { h: '3. 存储与第三方', p: ['数据存储于我们配置的服务器/持久磁盘;登录验证码邮件通过第三方邮件服务(如 Resend)发送;收录证据存档可能查询互联网档案馆(Wayback)。各第三方仅按其自身政策处理必要数据。'] },
+      { h: '4. 你的权利', p: ['你可通过页面“退出”注销会话;如需更正或删除账号与个人数据,可联系我们(见联系方式),我们会在核实身份后处理。'] },
+      { h: '5. 安全与儿童', p: ['我们采用 HTTPS、会话 Cookie、限流等措施保护数据;本服务不面向儿童,不故意收集未成年人信息。'] }
+    ], '2026-09-05');
+  }
+
+  function renderAppeals() {
+    legalPage('收录申诉', '如你(或你代表的组织)认为某条收录信息有误、存在遗漏证据,或被错误标记为风险/DEAD,可提交申诉。', [
+      { h: '1. 什么情况可申诉', ul: ['收录内容与事实不符、来源引用错误;', '被错误标记为“风险提示”或 DEAD,且你能提供反向证据;', '身份/主体被冒用,或涉及你方知识产权的材料。'] },
+      { h: '2. 如何申诉', p: ['请准备:(a) 你的身份/主体说明;(b) 涉及的收录链接或域名;(c) 逐条反驳的证据(官网、工商、牌照、审计、官方声明等)。', '将上述材料通过页面“联系我们”邮箱发送,标题注明【申诉】。'] },
+      { h: '3. 处理流程', ul: ['收到后我们进行人工复核(非自动判定);', '需要补充证据时会通过你提供的邮箱联系;', '复核结论(更正/降级/移除/维持)将回信告知,并在条目修订记录中留痕;'] },
+      { h: '4. 说明', p: ['申诉不保证必然移除。为平衡公信力与公平,我们优先“以证据纠正”,仅在证据充分时移除或降级。恶意申诉会被拒绝。'] }
+    ], '2026-09-05');
+  }
   function render() {
     var raw = (location.hash || '#/').slice(2);
     var qIdx = raw.indexOf('?');
@@ -790,6 +832,9 @@
     else if (parts[0] === 'item' && parts[1]) { route = 'item'; arg = parts[1]; }
     else if (parts[0] === 'search' || parts[0] === 'all') { route = 'results'; arg = queryStr.indexOf('all=1') !== -1 ? 'all' : 'query'; }
     else if (parts[0] === 'submit') route = 'submit';
+    else if (parts[0] === 'terms') route = 'terms';
+    else if (parts[0] === 'privacy') route = 'privacy';
+    else if (parts[0] === 'appeals') route = 'appeals';
     else if (parts[0] === 'about') route = 'about';
 
     if (route === 'home') renderHome();
@@ -797,6 +842,9 @@
     else if (route === 'item') { state.currentItemId = arg; renderItem(arg); }
     else if (route === 'results') renderResults(arg);
     else if (route === 'submit') renderSubmit();
+    else if (route === 'terms') renderTerms();
+    else if (route === 'privacy') renderPrivacy();
+    else if (route === 'appeals') renderAppeals();
     else if (route === 'about') renderAbout();
 
     setActiveNav(route);
