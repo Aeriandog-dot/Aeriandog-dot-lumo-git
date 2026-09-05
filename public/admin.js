@@ -140,6 +140,39 @@
   /* ---------- 审核队列 ---------- */
   function renderQueue() {
     var body = document.getElementById('body');
+    var catOpts = [['crypto','Crypto & Exchanges'],['trading','Trading & Investment'],['shop','E-commerce'],['loan','Finance & Lending'],['job','Jobs & Gig'],['dating','Dating & Social'],['news','News & Content'],['game','Games & Entertainment']].map(function (c) { return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('');
+    body.innerHTML =
+      '<div class="queue-head" style="margin-top:0"><h2>批量导入候选</h2><span>每行:名称 | 域名 | 类目(可省,用默认)。导入时逐个探活:能打开的进入下方待审核队列,打不开的单独列出。</span></div>' +
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin:4px 0 8px">' +
+        '<textarea id="bulkText" rows="4" placeholder="示例:&#10;Uniswap | uniswap.org | crypto&#10;Robinhood | robinhood.com | trading" style="flex:1;min-width:320px"></textarea>' +
+        '<label style="font-size:12px;color:var(--dim);display:flex;flex-direction:column;gap:6px">默认类目<select id="bulkCat" class="select">' + catOpts + '</select></label>' +
+      '</div>' +
+      '<div class="bar" style="margin:0 0 14px"><button class="btn btn-primary btn-sm" id="bulkGo">探测并导入队列</button><span class="mini" id="bulkInfo" style="margin-left:10px"></span></div>' +
+      '<div id="bulkBox"></div>' +
+      '<div id="queueArea"></div>';
+    var goBtn = document.getElementById('bulkGo');
+    if (goBtn) goBtn.onclick = function () {
+      var text = document.getElementById('bulkText').value.trim();
+      var cat = document.getElementById('bulkCat').value;
+      var info = document.getElementById('bulkInfo');
+      var entries = text.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+        var p = l.split('|').map(function (x) { return x.trim(); });
+        return { name: p[0], domain: p[1] || '', cat: p[2] || cat };
+      }).filter(function (e) { return e.name && e.domain; });
+      if (!entries.length) { toast('请至少输入一行: 名称 | 域名', true); return; }
+      goBtn.disabled = true;
+      if (info) info.textContent = '正在逐个探活(' + entries.length + ' 条),请稍候…';
+      jpost('/api/admin/bulk-import', { entries: entries, cat: cat }).then(function (j) {
+        goBtn.disabled = false;
+        if (info) info.textContent = '';
+        toast('进入队列:' + (j.queued || []).length + ' · 重复:' + (j.duplicate || []).length + ' · 打不开:' + (j.offline || []).length + ' · 无效:' + (j.invalid || []).length);
+        var bx = document.getElementById('bulkBox');
+        if (bx) bx.innerHTML =
+          ((j.offline && j.offline.length) ? '<div class="queue-head" style="margin-top:6px"><h2>打不开(未入队)</h2><span>域名当前无法访问——确认后另行人工处理</span></div><div class="adm-sub">' + j.offline.map(function (x) { return '<div class="adm-sub-row"><div class="g"><div class="an">' + esc(x) + '</div></div></div>'; }).join('') + '</div>' : '') +
+          ((j.invalid && j.invalid.length) ? '<div class="queue-head" style="margin-top:6px"><h2>格式无效(跳过)</h2><div class="adm-sub">' + j.invalid.map(function (x) { return '<div class="adm-sub-row"><div class="g"><div class="an">' + esc(x) + '</div></div></div>'; }).join('') + '</div></div>' : '');
+        render();
+      }).catch(function (e) { goBtn.disabled = false; if (info) info.textContent = ''; toast(e.message || '导入失败', true); });
+    };
     jget('/api/admin/subs').then(function (data) {
       var list = data.submissions || [];
       var pending = list.filter(function (x) { return x.status === 'pending'; });
@@ -165,7 +198,7 @@
           '<div class="ac">类目:' + esc(sub.catTitle || sub.cat) + ' · 提交人:' + esc(sub.email) + ' · ' + fmt(sub.at) + '</div>' +
           '<div class="ac">' + esc(sub.intro || sub.tagline || '') + '</div></div>' + actions + '</div>';
       }
-      body.innerHTML =
+      document.getElementById('queueArea').innerHTML =
         '<div class="queue-head"><h2>待审核提交</h2><span>' + pending.length + ' 条 · 全部人工审核(系统不做自动判定)</span></div>' +
         (pending.length ? '<div class="adm-sub">' + pending.map(row).join('') + '</div>' : '<p style="color:var(--dim)">暂无待审核提交。</p>') +
         (rest.length ? '<div class="queue-head" style="margin-top:26px"><h2>已处理记录</h2><span>' + rest.length + ' 条</span></div><div class="adm-sub">' + rest.map(row).join('') + '</div>' : '');

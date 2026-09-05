@@ -582,6 +582,35 @@ function routes() {
     send(res, 200, { online: !!out.online, status: out.status || 0, scheme: out.scheme || '', note: out.reason || '' });
   };
 
+  // ---- 批量导入候选(仅管理员):每行 名称|域名|类目(可省),先探活,可达的进待审核队列 ----
+  r.POST['/api/admin/bulk-import'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    if (!rateLimit(req, 60, 60000)) return send(res, 429, { error: '操作过于频繁,请稍后再试' });
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const raw = Array.isArray(b.entries) ? b.entries : [];
+    const defCat = String(b.cat || 'crypto');
+    if (!db.categories.some((c) => c.id === defCat)) return send(res, 400, { error: '默认类目无效' });
+    const catById = (id) => db.categories.find((c) => c.id === id) || {};
+    const out = { queued: [], duplicate: [], offline: [], invalid: [] };
+    if (!db.subs) db.subs = [];
+    for (const e of raw) {
+      const name = String(e.name || '').trim().slice(0, 80);
+      let domain = String(e.domain || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+      const cat = catById(String(e.cat || defCat)).id || defCat;
+      if (!name || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) { out.invalid.push(name || domain || '(empty)'); continue; }
+      if (db.items.some((x) => x.domain === domain) || db.subs.some((x) => x.domain === domain && x.status === 'pending')) { out.duplicate.push(name + ' (' + domain + ')'); continue; }
+      const pr = await probeDomain(domain, 10000);
+      if (!pr.online) { out.offline.push(name + ' (' + domain + ')'); continue; }
+      const rec = { id: 'sub' + Date.now() + Math.floor(Math.random() * 900), email: '(bulk)', name: name, domain: domain, cat: cat, catTitle: catById(cat).title || cat, tagline: name, intro: 'Candidate added by batch import; awaiting human scoring.', status: 'pending', at: Date.now(), source: 'bulk', probe: { online: true, status: pr.status, scheme: pr.scheme } };
+      db.subs.unshift(rec);
+      out.queued.push(name + ' (' + domain + ')');
+    }
+    if (db.logs) db.logs.unshift({ at: Date.now(), actor: req._admin.email, action: 'bulk_import', target: String(raw.length), detail: 'queued ' + out.queued.length + ' / duplicate ' + out.duplicate.length + ' / offline ' + out.offline.length + ' / invalid ' + out.invalid.length });
+    if (db.logs.length > 500) db.logs.length = 500;
+    saveDB();
+    send(res, 200, out);
+  };
+
   // ---- 条目管理(仅管理员)----
   r.GET['/api/admin/items'] = (req, res) => {
     if (!adminOnly(req, res)) return;
