@@ -266,6 +266,17 @@
         html = html.split(keys[i]).join(EN_DICT[keys[i]]);
       }
     }
+    html = html
+      .replace(/[\u3002\uff61\uff0e]/g, '.')
+      .replace(/[\uff0c\u3001]/g, ', ')
+      .replace(/\uff1f/g, '?')
+      .replace(/\uff1a/g, ':')
+      .replace(/\uff1b/g, ';')
+      .replace(/[\u201c\u201d\u300c\u300d]/g, '"')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/\uff08/g, '(')
+      .replace(/\uff09/g, ')')
+      .replace(/\u3000/g, ' ');
     return html;
   }
 
@@ -778,35 +789,35 @@
   function renderResults(mode) {
     var title, lede, base, deadNames = [];
     if (mode === 'all') {
-      title = '全部收录';
-      lede = '当前收录的全部网站与平台,按综合分排序,不含 DEAD 死亡名单。';
+      title = 'All listings';
+      lede = 'Every website and platform we list, ranked by combined score. The Dead list is excluded.';
       base = ITEMS.filter(function (i) { return i.phase !== 'pending' && liveInfo(i).key !== 'off'; });
     } else {
       var q = state.lastSearch || '';
-      title = '“' + esc(q) + '” 的搜索结果';
+      title = 'Results for "' + esc(q) + '"';
       var matched = searchItems(q);
       deadNames = matched.filter(function (i) { return liveInfo(i).key === 'off'; }).map(function (i) { return i.name; });
       base = matched.filter(function (i) { return liveInfo(i).key !== 'off'; });
-      lede = base.length ? '找到 ' + base.length + ' 个可访问收录。' : '';
+      lede = base.length ? 'Found ' + base.length + (base.length === 1 ? ' active listing.' : ' active listings.') : '';
     }
     var list = sortedItems(base);
     var body = '';
     if (list.length) {
-      body = '<div class="toolbar"><span class="result-count">' + list.length + ' 个结果 · 按综合分排序</span></div>' +
+      body = '<div class="toolbar"><span class="result-count">' + list.length + (list.length === 1 ? ' result' : ' results') + ' · sorted by combined score</span></div>' +
         '<div class="proj-list">' + list.map(rowItemHTML).join('') + '</div>';
     } else if (deadNames.length) {
-      body = '<div class="empty-state"><div style="font-size:34px">&#128477;</div><h3>仅在死亡名单中找到</h3>' +
-        '<p>这些网站已确认无法打开或停止运营:' + esc(deadNames.join('、')) + '。请到对应分类的 DEAD 死亡名单查看归档。</p>' +
-        '<div class="lookup-actions" style="justify-content:center;margin-top:16px"><a class="btn btn-primary" href="#/">返回首页</a></div></div>';
+      body = '<div class="empty-state"><div style="font-size:34px">&#128477;</div><h3>Only in the Dead list</h3>' +
+        '<p>These sites are confirmed offline or shut down: ' + esc(deadNames.join(', ')) + '. See the DEAD archive in their category.</p>' +
+        '<div class="lookup-actions" style="justify-content:center;margin-top:16px"><a class="btn btn-primary" href="#/">Back to home</a></div></div>';
     } else {
-      body = '<div class="empty-state"><div style="font-size:34px">&#128269;</div><h3>暂未收录该网站</h3>' +
-        '<p>它可能还没有进入我们的信息库。你可以换个关键词,或告诉我们帮你核实收录。</p>' +
+      body = '<div class="empty-state"><div style="font-size:34px">&#128269;</div><h3>Not listed yet</h3>' +
+        '<p>It may not be in our directory yet. Try another keyword, or tell us and we will verify it for you.</p>' +
         '<div class="lookup-actions" style="justify-content:center;margin-top:16px">' +
-        '<a class="btn btn-primary" href="#/">返回首页</a>' +
-        '<a class="btn btn-ghost" href="#/submit">提交收录</a></div></div>';
+        '<a class="btn btn-primary" href="#/">Back to home</a>' +
+        '<a class="btn btn-ghost" href="#/submit">Submit a site</a></div></div>';
     }
     view.innerHTML =
-      '<div class="page-head"><div class="crumb"><a href="#/">首页</a><span class="sep">/</span><span>' + title + '</span></div>' +
+      '<div class="page-head"><div class="crumb"><a href="#/">Home</a><span class="sep">/</span><span>' + title + '</span></div>' +
       '<h1>' + title + '</h1>' + (lede ? '<p class="lede">' + lede + '</p>' : '') + '</div>' + body;
   }
 
