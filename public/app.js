@@ -932,7 +932,13 @@
       e.preventDefault();
       var email = document.getElementById('authEmail').value.trim();
       if (!email || email.indexOf('@') === -1) { showToast('请输入有效邮箱'); return; }
-      fetch('/api/auth/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }).catch(function () {});
+      fetch('/api/auth/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var hint = document.getElementById('authHint');
+          if (hint && j && j.hint) hint.textContent = j.hint;
+          else if (hint) hint.textContent = '验证码已发送,请查收邮箱。';
+        }).catch(function () {});
       var mshow = document.getElementById('authMailShow');
       var cs = document.getElementById('authStepCode');
       var ef = document.getElementById('authEmailForm');
@@ -940,7 +946,6 @@
       if (mshow) mshow.textContent = email;
       if (ef) ef.style.display = 'none';
       if (cs) cs.hidden = false;
-      if (hint) hint.textContent = '';
       setTimeout(function () { var ac = document.getElementById('authCode'); if (ac) ac.focus(); }, 60);
     }
     if (e.target.id === 'authCodeForm') {

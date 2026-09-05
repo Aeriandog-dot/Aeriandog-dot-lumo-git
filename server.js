@@ -105,7 +105,7 @@ async function smtpSend(to, subject, text) {
 async function deliverCode(email, code) {
   const subject = '【Lumo】登录验证码: ' + code;
   const text = '你的 Lumo 登录验证码是: ' + code + '\n10 分钟内有效。如果不是你本人操作,请忽略此邮件。';
-  if (!MAIL_ENABLED) return { dev: true, note: '未配置 SMTP,验证码仅打印到服务端控制台(开发模式)。' };
+  if (!MAIL_ENABLED) { console.log('[Lumo] 验证码(未配 SMTP,仅日志可见):', code, '->', email); return { dev: true, note: '未配置 SMTP,验证码仅打印到服务端控制台(开发模式)。' }; }
   await smtpSend(email, subject, text);
   return { dev: false };
 }
