@@ -65,6 +65,7 @@
       '<button data-tab="watch">风险线索</button>' +
       '<button data-tab="items">条目管理</button>' +
       '<button data-tab="users">用户评分</button>' +
+      '<button data-tab="contrib">贡献者</button>' +
       '<button data-tab="logs">操作日志</button>' +
       '</div><div id="body"></div>';
     document.querySelectorAll('#tabs button').forEach(function (b) {
@@ -136,6 +137,7 @@
     else if (curTab === 'watch') renderWatchAdmin();
     else if (curTab === 'items') renderItems();
     else if (curTab === 'users') renderUsers();
+    else if (curTab === 'contrib') renderContribAdmin();
     else renderLogs();
   }
 
@@ -177,11 +179,11 @@
     };
     jget('/api/admin/subs').then(function (data) {
       var list = data.submissions || [];
-      var pending = list.filter(function (x) { return x.status === 'pending'; });
+      var pending = list.filter(function (x) { return x.status === 'pending'; }).sort(function (a, b) { return (b.priority ? 1 : 0) - (a.priority ? 1 : 0); });
       var rest = list.filter(function (x) { return x.status !== 'pending'; });
       function row(sub) {
         var st = sub.status;
-        var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>';
+        var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>' + (sub.priority && st === 'pending' ? ' <span class="st" style="color:var(--good);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08)">高贡献·优先</span>' : '');
         var actions;
         if (st === 'pending') {
           actions = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
@@ -256,7 +258,7 @@
         var st = r.status;
         var statusHtml = '<span class="st ' + (st === 'open' ? 'pending' : (st === 'resolved' ? 'approved' : 'rejected')) + '">' + (st === 'open' ? '待处理' : (st === 'resolved' ? '已处理' : '已忽略')) + '</span>';
         var actions = st === 'open'
-          ? '<button class="btn btn-primary btn-sm" data-rres="' + r.id + '">标记已处理</button>' +
+          ? '<button class="btn btn-primary btn-sm" data-rres="' + r.id + '">采纳(有效 · +10)</button>' +
             '<button class="btn btn-ghost btn-sm" data-rdismiss="' + r.id + '">忽略</button>'
           : '<span style="font-size:12px;color:var(--dim)">' + esc(r.note || (st === 'resolved' ? '已处理' : '已忽略')) + '</span>';
         var link = r.linked && r.itemId ? ' <a href="#/item/' + esc(r.itemId) + '" target="_blank">查看条目</a>' : '';
@@ -274,7 +276,7 @@
           var id = b.getAttribute('data-rres');
           var note = prompt('处理备注(可选,会写入日志):');
           if (note === null) return;
-          jpost('/api/admin/reports/' + id + '/resolve', { status: 'resolved', note: note || '' }).then(function () { toast('已标记处理 ✓'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
+          jpost('/api/admin/reports/' + id + '/resolve', { status: 'resolved', action: 'valid', note: note || '' }).then(function () { toast('已标记处理 ✓'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
         };
       });
       document.querySelectorAll('[data-rdismiss]').forEach(function (b) {
@@ -505,6 +507,86 @@
   }
 
   var ACTION_LABEL = { approve_submission: '审核通过', reject_submission: '审核拒绝', update_item: '修改条目', override_rating: '覆盖评分', delete_item: '删除条目', user_rate_set: '修改用户票', user_rate_remove: '移除用户票', backup: '数据备份' };
+  /* ---------- 贡献者管理 ---------- */
+  function renderContribAdmin() {
+    var body = document.getElementById('body');
+    body.innerHTML =
+      '<div class="queue-head"><h2>贡献者与排行榜</h2><span>积分规则:通过收录 +10 · 确认高风险 +20(含 +10 奖励)· 确认死亡 +15 · 采纳有效举报 +10。仿真榜用于冷启动,真实用户按积分自动插入,可随时删除占位。</span></div>' +
+      '<div class="bar" style="flex-wrap:wrap"><button class="btn btn-primary btn-sm" id="cReload">刷新</button><span class="mini" style="margin-left:10px" id="cInfo"></span></div>' +
+      '<div id="cUsers"></div>' +
+      '<div class="queue-head" style="margin-top:24px"><h2>仿真贡献者(垫榜)</h2><span>新站冷启动阶段让榜单看起来有人;真实用户达到积分后自动排到前面。</span></div>' +
+      '<div class="bar" style="flex-wrap:wrap">' +
+        '<input id="fName" placeholder="名称(如 @ChainSleuth)" style="min-width:180px">' +
+        '<input id="fPts" type="number" placeholder="总分" style="width:80px">' +
+        '<input id="fMonth" type="number" placeholder="本月" style="width:70px">' +
+        '<input id="fAcc" type="number" placeholder="收录" style="width:70px">' +
+        '<input id="fRisk" type="number" placeholder="风险" style="width:70px">' +
+        '<input id="fDead" type="number" placeholder="死亡" style="width:70px">' +
+        '<button class="btn btn-primary btn-sm" id="fAdd">添加</button></div>' +
+      '<div id="fList"></div>';
+    function load() {
+      jget('/api/admin/contrib').then(function (d) {
+        var users = d.users || [];
+        var info = document.getElementById('cInfo'); if (info) info.textContent = '注册用户 ' + users.length + ' · 有积分可上榜 ' + users.filter(function(u){ return u.points > 0 && u.creditPublic; }).length;
+        var cu = document.getElementById('cUsers');
+        cu.innerHTML = '<div class="queue-head" style="margin-top:10px"><h2>真实用户</h2><span>可改公开名 / 是否公开署名 / 可信(优先审核)/ 积分(0=不上榜)</span></div>' +
+          '<div class="adm-sub">' + (users.length ? users.map(function (u) {
+            return '<div class="adm-sub-row" style="align-items:flex-start"><div class="g"><div class="an" style="font-family:var(--mono)">' + esc(u.email) + ' <span class="st approved">' + esc(u.level) + '</span></div>' +
+              '<div class="ac">收录 ' + (u.counts.accepted||0) + ' · 风险 ' + (u.counts.risk||0) + ' · 死亡 ' + (u.counts.dead||0) + ' · 采纳举报 ' + (u.counts.reports||0) + '</div>' +
+              '<div class="frow" style="margin-top:8px">' +
+                '<label><span>公开名</span><input id="ual_' + u.email + '" value="' + esc(u.alias) + '"></label>' +
+                '<label><span>积分</span><input id="upt_' + u.email + '" type="number" value="' + u.points + '"></label>' +
+                '<label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="upub_' + u.email + '"' + (u.creditPublic ? ' checked' : '') + '> 公开署名</label>' +
+                '<label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="utr_' + u.email + '"' + (u.trusted ? ' checked' : '') + '> 可信·优先</label>' +
+              '</div></div>' +
+              '<button class="btn btn-ghost btn-sm" data-csave="' + esc(u.email) + '">保存</button></div>';
+          }).join('') : '') + '</div>' +
+          (users.length ? '' : '<p style="color:var(--dim)">暂无注册用户。</p>');
+        document.querySelectorAll('[data-csave]').forEach(function (b) {
+          b.onclick = function () {
+            var em = b.getAttribute('data-csave');
+            jpost('/api/admin/contrib/user', {
+              email: em,
+              alias: document.getElementById('ual_' + em).value,
+              points: Number(document.getElementById('upt_' + em).value || 0),
+              creditPublic: document.getElementById('upub_' + em).checked,
+              trusted: document.getElementById('utr_' + em).checked
+            }).then(function () { toast('已保存 ✓'); load(); }).catch(function (e) { toast(e.message || '保存失败', true); });
+          };
+        });
+        var fakes = d.fakes || [];
+        var fl = document.getElementById('fList');
+        fl.innerHTML = fakes.length
+          ? '<div class="adm-sub">' + fakes.map(function (f) {
+              return '<div class="adm-sub-row"><div class="g"><div class="an">' + esc(f.name) + '</div>' +
+                '<div class="ac">总分 ' + f.points + ' · 本月 ' + (f.month||0) + ' · 收录 ' + f.accepted + ' · 风险 ' + f.risk + ' · 死亡 ' + f.dead + '</div></div>' +
+                '<button class="btn btn-ghost btn-sm" data-fdel="' + esc(f.id) + '" style="color:var(--bad)">删除</button></div>';
+            }).join('') + '</div>'
+          : '<p style="color:var(--dim)">没有仿真条目。</p>';
+        document.querySelectorAll('[data-fdel]').forEach(function (b) {
+          b.onclick = function () {
+            var id = b.getAttribute('data-fdel');
+            if (!confirm('删除这条仿真贡献者?')) return;
+            jpost('/api/admin/contrib/fake/' + encodeURIComponent(id) + '/delete', {}).then(function () { toast('已删除'); load(); }).catch(function (e) { toast(e.message || '删除失败', true); });
+          };
+        });
+      }).catch(function () { toast('加载失败', true); });
+    }
+    document.getElementById('fAdd').onclick = function () {
+      jpost('/api/admin/contrib/fake', {
+        name: document.getElementById('fName').value,
+        points: Number(document.getElementById('fPts').value || 0),
+        month: Number(document.getElementById('fMonth').value || 0),
+        accepted: Number(document.getElementById('fAcc').value || 0),
+        risk: Number(document.getElementById('fRisk').value || 0),
+        dead: Number(document.getElementById('fDead').value || 0)
+      }).then(function (j) { if (j.error) toast(j.error, true); else { toast('已添加 ✓'); load(); } }).catch(function (e) { toast(e.message || '添加失败', true); });
+    };
+    document.getElementById('cReload').onclick = load;
+    load();
+  }
+
+
   function renderLogs() {
     var body = document.getElementById('body');
     body.innerHTML = '<div class="queue-head"><h2>操作日志</h2><span>管理员操作留痕(最近 200 条)</span></div><div class="adm-sub" id="logList"></div>';

@@ -672,7 +672,7 @@
 
     var kv = it.facts.map(function (f) {
       return '<div class="row"><div class="k">' + esc(f[0]) + '</div><div class="v">' + esc(f[1]) + '</div></div>';
-    }).join('');
+    }).join('') + (it.creditName ? '<div class="row"><div class="k">Lead by</div><div class="v">' + esc('@' + it.creditName) + '</div></div>' : '');
 
     var la = liveArr(it);
     var lchk = (window.CHECKS || {})[it.id];
@@ -1003,6 +1003,7 @@
     function renderSubmit() {
     var opts = CATEGORIES.map(function (c) { return '<option value="' + c.id + '">' + esc(c.title) + '</option>'; }).join('');
     var subsHtml = '';
+    var profHtml = state.signedIn ? '<div class="contrib-banner"><span>Accepted submissions earn contributor points — accepted +10 · confirmed high-risk +20 · dead +15.</span> <a href="#/me">My profile &amp; points &rarr;</a></div>' : '';
     if (state.signedIn && state.submissions && state.submissions.length) {
       subsHtml = '<div class="section-head" style="margin-top:4px"><h2>My submissions</h2><span style="font-size:12px;color:var(--dim)">visible only to you</span></div>' +
         '<div class="my-sub">' + state.submissions.map(function (x) {
@@ -1025,7 +1026,7 @@
       '<div class="page-head">' +
         '<h1>Submit a site</h1>' +
         '<p class="lede">Can’t find a site? Submit it — after human review it is listed in its category and ranked.</p>' +
-      '</div>' + subsHtml +
+      '</div>' + profHtml + subsHtml +
       '<div class="submit-grid">' +
         '<div class="form-card">' +
           '<h2>Site details</h2>' +
@@ -1157,6 +1158,112 @@
     }).catch(function () { var box = document.getElementById('watchBox'); if (box) box.innerHTML = '<p style="color:var(--bad)">Failed to load.</p>'; });
   }
 
+  var LB_PERIOD = 'all';
+  var EVENT_LABEL = {
+    submission_accepted: 'Submission accepted (+10)',
+    risk_flag: 'Lead confirmed high risk (+10)',
+    dead_flag: 'Confirmed dead / shut down (+15)',
+    report_valid: 'Report verified (+10)',
+    admin: 'Admin adjustment'
+  };
+  function levelChip(level) {
+    var cls = 'lv-chip';
+    if (level === 'Top Contributor') cls += ' lv-top';
+    else if (level === 'Verified Hunter') cls += ' lv-vh';
+    else if (level === 'Hunter') cls += ' lv-h';
+    else if (level === 'Scout') cls += ' lv-s';
+    return '<span class="' + cls + '">' + esc(level) + '</span>';
+  }
+  function renderContributors(period) {
+    if (period) LB_PERIOD = period;
+    view.innerHTML =
+      '<div class="page-head">' +
+        '<h1>Top contributors</h1>' +
+        '<p class="lede">Community members who help keep Lumo accurate — by submitting sites and flagging scams. Accepted listings earn points; confirmed high-risk and dead leads earn more.</p>' +
+      '</div>' +
+      '<div class="seg" id="lbSeg">' +
+        '<button class="seg-btn' + (LB_PERIOD === 'all' ? ' on' : '') + '" data-lb="all">All time</button>' +
+        '<button class="seg-btn' + (LB_PERIOD === 'month' ? ' on' : '') + '" data-lb="month">This month</button>' +
+      '</div>' +
+      '<div id="lbList" class="lb-list"><p style="color:var(--dim)">Loading…</p></div>' +
+      '<div class="note" style="margin-top:18px"><b>Want to be here?</b> Submit a site you know, or flag a project you suspect. Every accepted lead scores points — human-reviewed before anything is published.</div>';
+    document.querySelectorAll('[data-lb]').forEach(function (b) {
+      b.onclick = function () { renderContributors(b.getAttribute('data-lb')); };
+    });
+    fetch('/api/contrib/top').then(function (r) { return r.json(); }).then(function (j) {
+      var rows = (LB_PERIOD === 'month' ? j.month : j.all) || [];
+      var box = document.getElementById('lbList');
+      if (!box) return;
+      box.innerHTML = rows.length
+        ? rows.map(function (x) {
+            return '<div class="lb-row"><div class="lb-rank">' + x.rank + '</div>' +
+              '<div class="lb-main"><div class="lb-name">' + esc(x.name) + ' ' + levelChip(x.level) + '</div>' +
+              '<div class="lb-sub"><span class="ok">' + x.accepted + ' accepted</span> · <span class="warn">' + x.risk + ' risk</span> · <span class="dead">' + x.dead + ' dead</span></div></div>' +
+              '<div class="lb-pts">' + x.points + ' pts</div></div>';
+          }).join('')
+        : '<p style="color:var(--dim)">No contributors yet this month — be the first.</p>';
+    }).catch(function () { var box = document.getElementById('lbList'); if (box) box.innerHTML = '<p style="color:var(--bad)">Failed to load.</p>'; });
+  }
+  function renderMe() {
+    if (!state.signedIn) {
+      view.innerHTML =
+        '<div class="page-head"><h1>My profile</h1><p class="lede">Sign in to see your contributor points, level and submission history.</p></div>' +
+        '<p><button class="btn btn-primary" id="meSignin" type="button">Sign in</button></p>';
+      var sb = document.getElementById('meSignin');
+      if (sb) sb.onclick = function () { openAuth('Sign in to view your contributor profile.'); };
+      return;
+    }
+    view.innerHTML =
+      '<div class="page-head"><h1>My profile</h1><p class="lede">Your contributor points, level and submission history.</p></div>' +
+      '<div class="submit-grid"><div class="form-card">' +
+        '<div id="meTop" class="me-top"><span>Loading…</span></div>' +
+        '<div id="meForm" class="me-form">' +
+          '<label class="field"><span>Public name</span><input id="meAlias" maxlength="24" placeholder="How your name appears on listings"></label>' +
+          '<label class="check"><input type="checkbox" id="mePublic"><span>Show my name on listings I contributed</span></label>' +
+          '<button class="btn btn-primary" id="meSave" type="button">Save profile</button>' +
+        '</div>' +
+        '<div id="meEvents"></div>' +
+      '</div>' +
+      '<aside class="side-col"><div class="side-card"><h3>How points work</h3>' +
+        '<div class="steps">' +
+          '<div class="step"><span class="n">+10</span><div><b>Accepted</b><p>A submission that passes human review.</p></div></div>' +
+          '<div class="step"><span class="n">+20</span><div><b>High risk</b><p>A lead confirmed as risky or a scam (10 + 10 bonus).</p></div></div>' +
+          '<div class="step"><span class="n">+15</span><div><b>Dead</b><p>A confirmed dead / shut-down lead.</p></div></div>' +
+          '<div class="step"><span class="n">+10</span><div><b>Verified report</b><p>Reports that lead to a correction.</p></div></div>' +
+        '</div></div></aside></div>';
+    var meSave = document.getElementById('meSave');
+    if (meSave) meSave.onclick = function () {
+      fetch('/api/contrib/profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ alias: document.getElementById('meAlias').value, creditPublic: document.getElementById('mePublic').checked }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j.error) showToast(j.error); else { showToast('Profile saved'); renderMe(); } })
+        .catch(function () { showToast('Save failed'); });
+    };
+    fetch('/api/contrib/me').then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.user) return;
+      var u = j.user;
+      var top = document.getElementById('meTop');
+      if (top) top.innerHTML = '<div class="me-identity"><div class="me-alias">' + esc('@' + u.alias) + ' ' + levelChip(u.level) + (u.trusted ? ' <span class="lv-chip lv-t">Trusted</span>' : '') + '</div>' +
+        '<div class="me-stats"><div class="ms"><b>' + u.points + '</b><span>points</span></div>' +
+        '<div class="ms"><b>' + (u.counts.accepted || 0) + '</b><span>accepted</span></div>' +
+        '<div class="ms"><b>' + (u.counts.risk || 0) + '</b><span>risk</span></div>' +
+        '<div class="ms"><b>' + (u.counts.dead || 0) + '</b><span>dead</span></div></div></div>' +
+        '<div class="note" style="margin-top:12px"><b>Priority review:</b> ' + (u.trusted || u.points >= 200 ? 'your submissions jump the queue.' : 'reach 200 points or get trusted status and your submissions jump the queue.') + '</div>';
+      var aliasEl = document.getElementById('meAlias');
+      if (aliasEl) aliasEl.value = u.alias || '';
+      var pub = document.getElementById('mePublic');
+      if (pub) pub.checked = !!u.creditPublic;
+      var ev = document.getElementById('meEvents');
+      if (ev) {
+        ev.innerHTML = '<h2 style="font-size:16px;margin:20px 0 10px">Recent activity</h2>' +
+          ((u.events && u.events.length) ? '<div class="my-sub">' + u.events.map(function (e) {
+            return '<div class="sub-row"><div><div class="sn">' + esc(EVENT_LABEL[e.reason] || e.reason) + ' <span class="sd">' + (e.delta > 0 ? '+' + e.delta + ' pts' : e.delta + ' pts') + '</span></div>' +
+              '<div class="sc">' + (e.target ? esc(e.target) : '') + ' · ' + esc(new Date(e.at).toLocaleString('en-GB', { hour12: false })) + '</div></div></div>';
+          }).join('') + '</div>' : '<p style="color:var(--dim)">No activity yet — submit a site to start earning points.</p>');
+      }
+    }).catch(function () {});
+  }
+
+
   function render() {
     var raw = (location.hash || '#/').slice(2);
     var qIdx = raw.indexOf('?');
@@ -1175,6 +1282,8 @@
     else if (parts[0] === 'appeals') route = 'appeals';
     else if (parts[0] === 'watchlist') route = 'watchlist';
     else if (parts[0] === 'about') route = 'about';
+    else if (parts[0] === 'contributors') route = 'contributors';
+    else if (parts[0] === 'me') route = 'me';
 
     if (route === 'home') renderHome();
     else if (route === 'cat') renderCat(arg);
@@ -1186,6 +1295,8 @@
     else if (route === 'appeals') renderAppeals();
     else if (route === 'watchlist') renderWatchlist();
     else if (route === 'about') renderAbout();
+    else if (route === 'contributors') renderContributors('all');
+    else if (route === 'me') renderMe();
 
     setActiveNav(route);
     updateAuthButton();

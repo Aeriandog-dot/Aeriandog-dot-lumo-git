@@ -15,6 +15,20 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 const SEED_FILE = path.join(ROOT, 'data', 'seed.json'); // 种子数据始终来自代码仓库
 const PORT = process.env.LUMO_PORT || process.env.PORT || 4780;
 const ADMIN_EMAIL = process.env.LUMO_ADMIN || 'admin@lumo.local';
+function FAKE_CONTRIB_SEEDS() {
+  const seed = [
+    ['@ChainSleuth', 1860, 420, 46, 12, 3],
+    ['@RugAlertX', 1240, 310, 31, 9, 2],
+    ['@CryptoWhistle', 980, 240, 24, 7, 2],
+    ['@DegenDebunker', 720, 190, 18, 5, 1],
+    ['@TokenSheriff', 560, 150, 14, 4, 1],
+    ['@ApeAuditor', 410, 120, 11, 3, 1],
+    ['@WhaleWatcherK', 300, 90, 9, 2, 0],
+    ['@AltcoinScope', 210, 70, 6, 1, 0],
+    ['@SatoshiScout', 130, 45, 4, 0, 0]
+  ];
+  return seed.map((s, i) => ({ id: 'fake' + (i + 1), name: s[0], points: s[1], month: s[2], accepted: s[3], risk: s[4], dead: s[5] }));
+}
 const DEV_CODE = process.env.LUMO_DEV_CODE || '123456'; // 开发用固定码;正式环境请改为发送真实邮件并置空本值
 const MAIL_HOST = process.env.LUMO_SMTP_HOST || '';
 const MAIL_PORT = parseInt(process.env.LUMO_SMTP_PORT || '587', 10);
@@ -127,6 +141,7 @@ function loadDB() {
   if (!db.reports) db.reports = [];
   if (!db.checks) db.checks = {};
   if (!db.watch) db.watch = [];
+  if (!Array.isArray(db.fakes) || !db.fakes.length) db.fakes = FAKE_CONTRIB_SEEDS();
 }
 function saveDB() {
   const tmp = DB_FILE + '.tmp';
@@ -163,7 +178,13 @@ function sessionUser(req) {
 function newToken() { return crypto.randomBytes(24).toString('hex'); }
 function userOf(email) {
   if (!db.users[email]) db.users[email] = { email, rates: {}, createdAt: Date.now() };
-  return db.users[email];
+  const u = db.users[email];
+  if (u.points == null) u.points = 0;
+  if (!u.counts) u.counts = { accepted: 0, risk: 0, dead: 0, reports: 0 };
+  if (!u.events) u.events = [];
+  if (u.alias == null) u.alias = String(email.split('@')[0] || email).replace(/[^\w.-]+/g, '').slice(0, 20) || 'user';
+  if (u.creditPublic == null) u.creditPublic = true;
+  return u;
 }
 function adminUser(req) {
   const me = sessionUser(req);
@@ -307,6 +328,64 @@ function routes() {
     const me = sessionUser(req);
     const myRates = me ? (userOf(me.email).rates || {}) : {};
     send(res, 200, { categories: db.categories, items: db.items, live: db.live, checked: db.checked, myRates: myRates, user: me ? me.email : null, contact: process.env.LUMO_CONTACT || '', checks: db.checks || {} });
+  };
+
+  // ---- 贡献者积分 / 排行榜(公开读 + 本人写)----
+  function levelOf(p) { p = +p || 0; if (p >= 1000) return 'Top Contributor'; if (p >= 500) return 'Verified Hunter'; if (p >= 200) return 'Hunter'; if (p >= 50) return 'Scout'; return 'New Explorer'; }
+  function contribKind(reason) { if (reason === 'submission_accepted') return 'accepted'; if (reason === 'risk_flag') return 'risk'; if (reason === 'dead_flag') return 'dead'; if (reason === 'report_valid') return 'reports'; return 'other'; }
+  function awardContrib(email, delta, reason, target, itemId) {
+    if (!email || email === '(bulk)' || String(email).indexOf('bulk') === 0 || String(email).indexOf('(system)') === 0) return;
+    const u = userOf(email);
+    const kind = contribKind(reason);
+    u.points = Math.max(0, (+u.points || 0) + delta);
+    if (!u.counts) u.counts = { accepted: 0, risk: 0, dead: 0, reports: 0 };
+    u.counts[kind] = (u.counts[kind] || 0) + 1;
+    if (!u.events) u.events = [];
+    u.events.unshift({ at: Date.now(), delta: delta, reason: reason, target: String(target || '').slice(0, 90), itemId: itemId || '' });
+    if (u.events.length > 200) u.events.length = 200;
+    saveDB();
+  }
+  function contribRows(period) {
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0); const ms = monthStart.getTime();
+    const real = [];
+    for (const em of Object.keys(db.users || {})) {
+      const u = db.users[em];
+      if (!u || u.creditPublic === false) continue;
+      let pts = +u.points || 0, accepted = (u.counts && u.counts.accepted) || 0, risk = (u.counts && u.counts.risk) || 0, dead = (u.counts && u.counts.dead) || 0;
+      if (period === 'month') {
+        pts = 0; accepted = risk = dead = 0;
+        for (const e of (u.events || [])) {
+          if (e.at >= ms && (e.reason === 'submission_accepted' || e.reason === 'risk_flag' || e.reason === 'dead_flag')) {
+            pts += e.delta;
+            if (e.reason === 'submission_accepted') accepted++; else if (e.reason === 'risk_flag') risk++; else dead++;
+          }
+        }
+      }
+      if (pts > 0) real.push({ name: u.alias || String(em.split('@')[0] || em), points: pts, accepted: accepted, risk: risk, dead: dead, level: levelOf(pts), fake: false });
+    }
+    const fakes = (db.fakes || []).map(f => {
+      const pts = period === 'month' ? (+f.month || 0) : (+f.points || 0);
+      return { name: f.name, points: pts, accepted: +f.accepted || 0, risk: +f.risk || 0, dead: +f.dead || 0, level: levelOf(pts), fake: true, id: f.id };
+    });
+    return [...real, ...fakes].filter(x => x.points > 0).sort((a, b) => b.points - a.points).slice(0, 25).map((x, i) => ({ rank: i + 1, name: x.name, points: x.points, accepted: x.accepted, risk: x.risk, dead: x.dead, level: x.level, fake: !!x.fake }));
+  }
+  r.GET['/api/contrib/top'] = (req, res) => { send(res, 200, { all: contribRows('all'), month: contribRows('month') }); };
+  r.GET['/api/contrib/me'] = (req, res) => {
+    const me = sessionUser(req);
+    if (!me) return send(res, 200, { user: null });
+    const u = userOf(me.email);
+    send(res, 200, { user: { alias: u.alias, points: +u.points || 0, level: levelOf(u.points), creditPublic: u.creditPublic !== false, trusted: !!u.trusted, counts: u.counts || {}, events: (u.events || []).slice(0, 60) } });
+  };
+  r.POST['/api/contrib/profile'] = async (req, res) => {
+    const me = sessionUser(req);
+    if (!me) return send(res, 401, { error: 'Sign in required' });
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const u = userOf(me.email);
+    const alias = String(b.alias || '').trim().replace(/^@/, '').slice(0, 24).replace(/[<>"'&]/g, '');
+    if (alias) u.alias = alias;
+    if (b.creditPublic !== undefined) u.creditPublic = !!b.creditPublic;
+    saveDB();
+    send(res, 200, { ok: true, alias: u.alias, creditPublic: u.creditPublic !== false });
   };
 
   r.POST['/api/auth/send-code'] = async (req, res) => {
@@ -489,10 +568,64 @@ function routes() {
     db.logs.unshift({ at: Date.now(), actor: (req._admin && req._admin.email) || 'unknown', action: action, target: String(target || '').slice(0, 120), detail: String(detail || '').slice(0, 400) });
     if (db.logs.length > 500) db.logs.length = 500;
   }
+  // ---- 贡献者管理(仅管理员)----
+  r.GET['/api/admin/contrib'] = (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const users = Object.keys(db.users || {}).map(function (em) {
+      const u = db.users[em];
+      return { email: em, alias: (u && u.alias) || String(em.split('@')[0] || em), points: (u && +u.points) || 0, creditPublic: u ? u.creditPublic !== false : true, trusted: !!(u && u.trusted), counts: (u && u.counts) || {}, level: levelOf((u && u.points) || 0), createdAt: (u && u.createdAt) || 0 };
+    }).sort(function (a, b) { return b.points - a.points; });
+    send(res, 200, { users: users, fakes: db.fakes || [] });
+  };
+  r.POST['/api/admin/contrib/fake'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const name = String(b.name || '').trim().slice(0, 40);
+    if (!name) return send(res, 400, { error: '缺少名称' });
+    if (!db.fakes) db.fakes = [];
+    db.fakes.push({ id: 'f' + Date.now() + Math.floor(Math.random() * 900), name: name, points: Math.max(0, Math.round(+b.points || 0)), month: Math.max(0, Math.round(+b.month || 0)), accepted: Math.max(0, Math.round(+b.accepted || 0)), risk: Math.max(0, Math.round(+b.risk || 0)), dead: Math.max(0, Math.round(+b.dead || 0)) });
+    audit(req, 'add_fake_contrib', name, 'points ' + (b.points || 0));
+    saveDB();
+    send(res, 200, { ok: true });
+  };
+  r.POST['/api/admin/contrib/fake/:id/delete'] = (req, res, id) => {
+    if (!adminOnly(req, res)) return;
+    if (!db.fakes) db.fakes = [];
+    const i = db.fakes.findIndex(x => x.id === id);
+    if (i < 0) return send(res, 404, { error: '不存在' });
+    const nm = db.fakes[i].name;
+    db.fakes.splice(i, 1);
+    audit(req, 'delete_fake_contrib', nm, '');
+    saveDB();
+    send(res, 200, { ok: true });
+  };
+  r.POST['/api/admin/contrib/user'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const email = String(b.email || '').trim().toLowerCase();
+    if (!email) return send(res, 400, { error: '缺少邮箱' });
+    const u = userOf(email);
+    if (b.alias !== undefined) { const al = String(b.alias || '').trim().replace(/^@/, '').slice(0, 24).replace(/[<>"'&]/g, ''); if (al) u.alias = al; }
+    if (b.creditPublic !== undefined) u.creditPublic = !!b.creditPublic;
+    if (b.trusted !== undefined) u.trusted = !!b.trusted;
+    if (b.points !== undefined && !isNaN(b.points)) {
+      const np = Math.max(0, Math.round(+b.points));
+      if (np !== (+u.points || 0)) {
+        if (!u.events) u.events = [];
+        u.events.unshift({ at: Date.now(), delta: np - (+u.points || 0), reason: 'admin', target: 'Manual adjustment by admin', itemId: '' });
+        if (u.events.length > 200) u.events.length = 200;
+        u.points = np;
+      }
+    }
+    audit(req, 'update_contrib', email, 'alias/credit/trusted/points');
+    saveDB();
+    send(res, 200, { ok: true });
+  };
+
   r.GET['/api/admin/subs'] = (req, res) => {
     if (!adminOnly(req, res)) return;
     const list = db.subs.map(function (x) {
-      return { id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: x.catTitle, tagline: x.tagline, intro: x.intro, email: x.email, status: x.status, at: x.at, reviewedAt: x.reviewedAt || null, itemId: x.itemId || null, reason: x.reason || '' };
+      return { id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: x.catTitle, tagline: x.tagline, intro: x.intro, email: x.email, status: x.status, at: x.at, reviewedAt: x.reviewedAt || null, itemId: x.itemId || null, reason: x.reason || '', priority: x.status === 'pending' ? !!(db.users[x.email] && (db.users[x.email].trusted || (+db.users[x.email].points || 0) >= 200)) : false };
     }).sort(function (a, b) { return b.at - a.at; });
     send(res, 200, { submissions: list });
   };
@@ -533,6 +666,14 @@ function routes() {
       reasons: [{ t: 'info', txt: 'Submitted and human-reviewed before listing; reachability was verified at approval time.' }]
     });
     rec.status = 'approved'; rec.itemId = id2; rec.reviewedAt = Date.now();
+    {
+      const nw = db.items[0];
+      if (nw && nw.id === id2 && rec.email && rec.email !== '(bulk)' && db.users[rec.email]) {
+        const su = userOf(rec.email);
+        nw.creditName = (su.creditPublic !== false && su.alias) ? su.alias : null;
+        awardContrib(rec.email, 10, 'submission_accepted', rec.name + ' / ' + rec.domain, id2);
+      }
+    }
     audit(req, 'approve_submission', rec.name + ' / ' + rec.domain, '初始评分 ' + rating + ' → 收录条目 ' + id2);
     recordEvidence(req, id2, 'https://' + rec.domain, 'auto', '审核通过时自动建档(证据快照由存档任务补拍)');
     saveDB();
@@ -569,6 +710,7 @@ function routes() {
     rec.status = b.status === 'dismissed' ? 'dismissed' : 'resolved';
     rec.note = String(b.note || '').trim().slice(0, 500);
     rec.updatedAt = Date.now();
+    if (rec.status === 'resolved' && b.action === 'valid' && rec.email) awardContrib(rec.email, 10, 'report_valid', rec.domain + ' / ' + rec.kind, rec.itemId || '');
     audit(req, 'resolve_report', rec.domain + ' / ' + rec.id, rec.status + (rec.note ? ' — ' + rec.note : ''));
     saveDB();
     send(res, 200, { ok: true });
@@ -655,6 +797,8 @@ function routes() {
     const it = db.items.find((x) => x.id === id);
     if (!it) return send(res, 404, { error: '条目不存在' });
     const b = JSON.parse((await readBody(req)) || '{}');
+    const prevStatus = it.status;
+    const prevLive0 = (db.live && db.live[id] && db.live[id][0]);
     if (b.name != null) it.name = String(b.name).trim().slice(0, 80) || it.name;
     if (b.domain != null) {
       const d = String(b.domain).trim().toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,'');
@@ -674,6 +818,14 @@ function routes() {
     }
     if (b.facts && Array.isArray(b.facts)) it.facts = b.facts;
     if (b.reasons && Array.isArray(b.reasons)) it.reasons = b.reasons;
+    {
+      const origin = (db.subs || []).find(x => x.itemId === id && x.status === 'approved' && x.email && x.email !== '(bulk)');
+      if (origin && db.users[origin.email]) {
+        const nowLive0 = (db.live && db.live[id] && db.live[id][0]);
+        if (b.status === 'risk' && prevStatus !== 'risk') awardContrib(origin.email, 10, 'risk_flag', it.name + ' / ' + it.domain, id);
+        if (Array.isArray(b.live) && b.live.length === 3 && b.live[0] === 0 && prevLive0 !== 0) awardContrib(origin.email, 15, 'dead_flag', it.name + ' / ' + it.domain, id);
+      }
+    }
     audit(req, 'update_item', it.name + ' / ' + it.domain, JSON.stringify({ rating: b.rating, status: b.status, name: b.name, domain: b.domain, live: b.live }));
     saveDB();
     send(res, 200, { ok: true });
