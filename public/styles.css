@@ -19,8 +19,8 @@
   --header-h:64px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:transparent;color:var(--text);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 img,svg{display:block}
 button{font-family:inherit;cursor:pointer}
@@ -713,3 +713,19 @@ button.chip.on{color:#0a0a0c}
 .me-form{display:flex;flex-direction:column;gap:14px;align-items:flex-start;border-top:1px dashed #2a2a31;padding-top:16px;margin-top:4px}
 .me-form .field{width:100%}
 @media (max-width:600px){.lb-pts{font-size:14px}.contrib-banner a{white-space:normal}}
+
+
+/* ---- Guardnet-style ambient floating glass bubbles (decorative background) ---- */
+.lumo-ambient{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.ab{position:absolute;border-radius:50%;will-change:transform,opacity}
+.ab1{width:36vmax;height:36vmax;left:-9vmax;top:-7vmax;background:radial-gradient(circle at 32% 28%,rgba(250,132,83,.30),rgba(250,132,83,.07) 42%,transparent 70%);animation:abDrift1 30s ease-in-out infinite alternate}
+.ab2{width:28vmax;height:28vmax;right:-7vmax;top:7vmax;background:radial-gradient(circle at 60% 35%,rgba(248,201,178,.20),rgba(150,90,255,.08) 46%,transparent 70%);animation:abDrift2 26s ease-in-out infinite alternate}
+.ab3{width:23vmax;height:23vmax;left:20vw;top:44vh;background:radial-gradient(circle at 35% 30%,rgba(138,180,248,.16),rgba(120,90,255,.05) 55%,transparent 72%);animation:abDrift3 34s ease-in-out infinite alternate}
+.ab4{width:32vmax;height:32vmax;right:4vw;bottom:-11vmax;background:radial-gradient(circle at 42% 34%,rgba(52,211,153,.14),rgba(250,132,83,.05) 50%,transparent 74%);animation:abDrift1 40s ease-in-out infinite alternate-reverse}
+.ab5{width:17vmax;height:17vmax;left:6vw;bottom:5vh;background:radial-gradient(circle at 50% 40%,rgba(250,132,83,.17),transparent 72%);animation:abDrift2 23s ease-in-out infinite alternate-reverse}
+.ab6{width:13vmax;height:13vmax;left:46vw;top:5vh;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.09),transparent 72%);animation:abDrift3 21s ease-in-out infinite alternate}
+@keyframes abDrift1{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(6vw,4vh,0) scale(1.16)}}
+@keyframes abDrift2{0%{transform:translate3d(0,0,0) scale(1.12)}100%{transform:translate3d(-5vw,-3vh,0) scale(.9)}}
+@keyframes abDrift3{0%{transform:translate3d(0,0,0) scale(.94)}100%{transform:translate3d(4vw,-5vh,0) scale(1.14)}}
+@media (prefers-reduced-motion:reduce){.ab{animation:none}}
+@media (max-width:720px){.ab{opacity:.45}}
