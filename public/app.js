@@ -53,7 +53,7 @@
   '仅归档,不参与排序':'archived — not ranked',
   '可访问 · 可注册 · 仍在推广':'reachable · registrable · still promoted',
   'DEAD':'DEAD',
-  '正常收录':'Listed',
+  '正常收录':'Official reference','官方参考':'Official reference',
   '风险提示':'High risk',
   '核实中':'Under review',
   '运营中':'Live',
@@ -312,7 +312,7 @@
   }
 
   function badge(status) {
-    if (status === 'ok') return '<span class="badge bd-ok">正常收录</span>';
+    if (status === 'ok') return '<span class="badge bd-official">Official reference</span>';
     if (status === 'risk') return '<span class="badge bd-risk">风险提示</span>';
     return '<span class="badge bd-review">Under review</span>';
   }

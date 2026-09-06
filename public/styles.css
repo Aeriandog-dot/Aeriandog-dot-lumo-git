@@ -731,3 +731,6 @@ button.chip.on{color:#0a0a0c}
 .site-nav a.nav-board:hover{border-color:rgba(255,255,255,.45);background:var(--panel-2)}
 .site-nav a.nav-board.active{border-color:#d4af37;color:#f0d78c;background:rgba(212,175,55,.08)}
 @media (max-width:1020px){.site-nav a.nav-board{margin:6px 0 0;width:max-content}}
+
+/* ---- official reference badge (trusted head anchors) ---- */
+.badge.bd-official{color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
