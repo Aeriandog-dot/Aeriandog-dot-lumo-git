@@ -179,33 +179,113 @@
     };
     jget('/api/admin/subs').then(function (data) {
       var list = data.submissions || [];
-      var pending = list.filter(function (x) { return x.status === 'pending'; }).sort(function (a, b) { return (b.priority ? 1 : 0) - (a.priority ? 1 : 0); });
+      var pending = list.filter(function (x) { return x.status === 'pending'; });
       var rest = list.filter(function (x) { return x.status !== 'pending'; });
-      function row(sub) {
+      var unscored = pending.filter(function (x) { return x.draftRating == null; }).sort(function (a, b) { return (b.priority ? 1 : 0) - (a.priority ? 1 : 0) || (b.at - a.at); });
+      var scored = pending.filter(function (x) { return x.draftRating != null; }).sort(function (a, b) { return (b.draftAt || 0) - (a.draftAt || 0) || (b.at - a.at); });
+      function rowHTML(sub) {
         var st = sub.status;
-        var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>' + (sub.priority && st === 'pending' ? ' <span class="st" style="color:var(--good);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08)">高贡献·优先</span>' : '');
+        var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>';
         var actions;
-        if (st === 'pending') {
-          actions = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
-            '<label style="font-size:12px;color:var(--dim)">人工评分(必填)<input id="rate_' + sub.id + '" type="number" min="0.5" max="10" step="0.1" placeholder="如 8.2" required></label>' +
-            '<div style="display:flex;gap:8px">' +
-            '<button class="btn btn-ghost btn-sm" data-probe="' + esc(sub.domain) + '" title="收录前先探测该域名当前能否打开">探测能否打开</button>' +
-            '<button class="btn btn-primary btn-sm" data-ok="' + sub.id + '" disabled>通过并上架</button>' +
-            '<button class="btn btn-ghost btn-sm" data-no="' + sub.id + '">拒绝</button>' +
-            '</div></div>';
-        } else if (st === 'approved') {
-          actions = '<span style="font-size:12px;color:var(--dim)">已收录 → <a href="#/item/' + esc(sub.itemId) + '">查看条目</a></span>';
-        } else {
-          actions = '<span style="font-size:12px;color:var(--dim)">' + esc(sub.reason || '未通过') + '</span>';
-        }
+        if (st === 'approved') actions = '<span style="font-size:12px;color:var(--dim)">已收录 → <a href="#/item/' + esc(sub.itemId) + '">查看条目</a></span>';
+        else actions = '<span style="font-size:12px;color:var(--dim)">' + esc(sub.reason || '未通过') + '</span>';
         return '<div class="adm-sub-row ' + (st !== 'pending' ? 'done' : '') + '"><div class="g"><div class="an">' + esc(sub.name) + ' <span class="ad">' + esc(sub.domain) + '</span> ' + statusHtml + '</div>' +
           '<div class="ac">类目:' + esc(sub.catTitle || sub.cat) + ' · 提交人:' + esc(sub.email) + ' · ' + fmt(sub.at) + '</div>' +
           '<div class="ac">' + esc(sub.intro || sub.tagline || '') + '</div></div>' + actions + '</div>';
       }
+      var pendingEls = {}; // id -> {el, scored, input, okBtn}
+      function mkRow(sub) {
+        var st = sub.status;
+        var isScored = sub.draftRating != null;
+        var statusHtml = '<span class="st ' + st + '">' + (st === 'pending' ? '待审核' : (st === 'approved' ? '已收录' : '未通过')) + '</span>' +
+          (sub.priority && st === 'pending' ? ' <span class="st" style="color:var(--good);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08)">高贡献·优先</span>' : '') +
+          (isScored ? ' <span class="st st-scored">已评分 ' + sub.draftRating + ' · 待确认</span>' : '');
+        var actions = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
+            '<label style="font-size:12px;color:var(--dim)">人工评分(必填)<input id="rate_' + sub.id + '" type="number" min="0.5" max="10" step="0.1" placeholder="如 8.2" value="' + (isScored ? esc(sub.draftRating) : '') + '" required></label>' +
+            '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-ghost btn-sm" data-probe="' + esc(sub.domain) + '" title="收录前先探测该域名当前能否打开">探测能否打开</button>' +
+            '<button class="btn btn-primary btn-sm" data-ok="' + sub.id + '"' + (isScored ? '' : ' disabled') + '>通过并上架</button>' +
+            '<button class="btn btn-ghost btn-sm" data-no="' + sub.id + '">拒绝</button>' +
+            '</div></div>';
+        var wrap = document.createElement('div');
+        wrap.innerHTML = '<div class="adm-sub-row"><div class="g"><div class="an">' + esc(sub.name) + ' <span class="ad">' + esc(sub.domain) + '</span> ' + statusHtml + '</div>' +
+          '<div class="ac">类目:' + esc(sub.catTitle || sub.cat) + ' · 提交人:' + esc(sub.email) + ' · ' + fmt(sub.at) + '</div>' +
+          '<div class="ac">' + esc(sub.intro || sub.tagline || '') + '</div></div>' + actions + '</div>';
+        return wrap.firstChild;
+      }
+      function refreshCounts() {
+        var nU = document.getElementById('pendU').children.length;
+        var nS = document.getElementById('pendS').children.length;
+        var hU = document.getElementById('pendUHead'); var hS = document.getElementById('pendSHead');
+        if (hU) hU.innerHTML = '<span style="color:var(--dim)">未评分 · ' + nU + ' 条(先填分,自动沉底)</span>';
+        if (hS) { hS.style.display = nS ? 'flex' : 'none'; if (hS.querySelector('span')) hS.querySelector('span').textContent = '已评分 · 待确认通过 · ' + nS + ' 条'; }
+        var big = document.getElementById('pendBigInfo');
+        if (big) big.textContent = (nU + nS) + ' 条 · 未评分 ' + nU + ' · 已评分待通过 ' + nS + ' · 全部人工审核(系统不做自动判定)';
+      }
+      function placeInto(sub, el) {
+        var scored = sub.draftRating != null;
+        var box = document.getElementById(scored ? 'pendS' : 'pendU');
+        if (box) box.appendChild(el);
+      }
       document.getElementById('queueArea').innerHTML =
-        '<div class="queue-head"><h2>待审核提交</h2><span>' + pending.length + ' 条 · 全部人工审核(系统不做自动判定)</span></div>' +
-        (pending.length ? '<div class="adm-sub">' + pending.map(row).join('') + '</div>' : '<p style="color:var(--dim)">暂无待审核提交。</p>') +
-        (rest.length ? '<div class="queue-head" style="margin-top:26px"><h2>已处理记录</h2><span>' + rest.length + ' 条</span></div><div class="adm-sub">' + rest.map(row).join('') + '</div>' : '');
+        '<div class="queue-head"><h2>待审核提交</h2><span id="pendBigInfo"></span></div>' +
+        '<div class="queue-head" style="margin-top:10px" id="pendUHead"><span style="color:var(--dim)">未评分 · 0 条(先填分,自动沉底)</span></div>' +
+        '<div class="adm-sub" id="pendU"></div>' +
+        '<div class="queue-head" id="pendSHead" style="margin-top:14px;display:none"><span style="color:var(--dim)">已评分 · 待确认通过 · 0 条</span></div>' +
+        '<div class="adm-sub" id="pendS"></div>' +
+        (rest.length ? '<div class="queue-head" style="margin-top:26px"><h2>已处理记录</h2><span>' + rest.length + ' 条</span></div><div class="adm-sub">' + rest.map(rowHTML).join('') + '</div>' : '');
+      unscored.forEach(function (s) { placeInto(s, mkRow(s)); });
+      scored.forEach(function (s) { placeInto(s, mkRow(s)); });
+      refreshCounts();
+      function applyPending(sub) {
+        var el = pendingEls[sub.id];
+        if (!el) return;
+        var scored = sub.draftRating != null;
+        var chip = el.el.querySelector('.st-scored');
+        if (scored && !el.scored) {
+          document.getElementById('pendS').appendChild(el.el);
+          el.scored = true;
+        } else if (!scored && el.scored) {
+          document.getElementById('pendU').appendChild(el.el);
+          el.scored = false;
+        }
+        if (scored && chip) {
+          chip.textContent = '已评分 ' + sub.draftRating + ' · 待确认';
+        } else if (scored && !chip && el.el.querySelector('.an')) {
+          var span = document.createElement('span'); span.className = 'st st-scored';
+          span.textContent = '已评分 ' + sub.draftRating + ' · 待确认';
+          el.el.querySelector('.an').appendChild(span);
+        } else if (!scored) {
+          var tags = el.el.querySelectorAll('.st-scored');
+          tags.forEach(function (t) { t.remove(); });
+        }
+        if (el.input) el.input.value = sub.draftRating != null ? sub.draftRating : '';
+        refreshCounts();
+      }
+      document.querySelectorAll('#pendU .adm-sub-row, #pendS .adm-sub-row').forEach(function (row) {
+        var okBtn = row.querySelector('[data-ok]');
+        var id = okBtn ? okBtn.getAttribute('data-ok') : '';
+        if (!id) return;
+        var input = document.getElementById('rate_' + id);
+        var refresh = function () {
+          var v = parseFloat(input ? input.value : NaN);
+          if (okBtn) okBtn.disabled = !(v >= 0.5 && v <= 10);
+        };
+        var timer = null;
+        if (input) input.oninput = function () {
+          refresh();
+          var v = parseFloat(input.value);
+          var valid = v >= 0.5 && v <= 10;
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            jpost('/api/admin/subs/' + id + '/draft', { rating: valid ? input.value : '' }).then(function () {
+              applyPending({ id: id, draftRating: valid ? Math.round(v * 10) / 10 : null });
+            }).catch(function (e) { toast((e && e.message) || '保存评分失败', true); });
+          }, 500);
+        };
+        refresh();
+        pendingEls[id] = { el: row, scored: !!(row.parentNode && row.parentNode.id === 'pendS'), input: input, okBtn: okBtn };
+      });
       document.querySelectorAll('[data-probe]').forEach(function (b) {
         b.onclick = function () {
           var dom = b.getAttribute('data-probe');
@@ -224,16 +304,6 @@
           var rateEl = document.getElementById('rate_' + id);
           jpost('/api/admin/subs/' + id + '/approve', { rating: rateEl ? rateEl.value : '' }).then(function () { toast('已通过并上架 ✓'); render(); }).catch(function (e) { toast(e.message || '操作失败', true); });
         };
-      });
-      document.querySelectorAll('[data-ok]').forEach(function (b) {
-        var id = b.getAttribute('data-ok');
-        var input = document.getElementById('rate_' + id);
-        var refresh = function () {
-          var v = parseFloat(input ? input.value : NaN);
-          b.disabled = !(v >= 0.5 && v <= 10);
-        };
-        if (input) input.oninput = refresh;
-        refresh();
       });
       document.querySelectorAll('[data-no]').forEach(function (b) {
         b.onclick = function () {

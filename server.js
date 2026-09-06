@@ -625,7 +625,7 @@ function routes() {
   r.GET['/api/admin/subs'] = (req, res) => {
     if (!adminOnly(req, res)) return;
     const list = db.subs.map(function (x) {
-      return { id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: x.catTitle, tagline: x.tagline, intro: x.intro, email: x.email, status: x.status, at: x.at, reviewedAt: x.reviewedAt || null, itemId: x.itemId || null, reason: x.reason || '', priority: x.status === 'pending' ? !!(db.users[x.email] && (db.users[x.email].trusted || (+db.users[x.email].points || 0) >= 200)) : false };
+      return { id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: x.catTitle, tagline: x.tagline, intro: x.intro, email: x.email, status: x.status, at: x.at, reviewedAt: x.reviewedAt || null, itemId: x.itemId || null, reason: x.reason || '', priority: x.status === 'pending' ? !!(db.users[x.email] && (db.users[x.email].trusted || (+db.users[x.email].points || 0) >= 200)) : false, draftRating: x.draftRating == null ? null : x.draftRating, draftAt: x.draftAt || null };
     }).sort(function (a, b) { return b.at - a.at; });
     send(res, 200, { submissions: list });
   };
@@ -666,6 +666,7 @@ function routes() {
       reasons: [{ t: 'info', txt: 'Submitted and human-reviewed before listing; reachability was verified at approval time.' }]
     });
     rec.status = 'approved'; rec.itemId = id2; rec.reviewedAt = Date.now();
+    delete rec.draftRating; delete rec.draftAt;
     {
       const nw = db.items[0];
       if (nw && nw.id === id2 && rec.email && rec.email !== '(bulk)' && db.users[rec.email]) {
@@ -686,6 +687,7 @@ function routes() {
     if (rec.status !== 'pending') return send(res, 400, { error: '该提交已处理' });
     const body = JSON.parse((await readBody(req)) || '{}');
     rec.status = 'rejected';
+    delete rec.draftRating; delete rec.draftAt;
     rec.reason = String(body.reason || '').trim().slice(0, 200);
     rec.reviewedAt = Date.now();
     audit(req, 'reject_submission', rec.name + ' / ' + rec.domain, '原因:' + (rec.reason || '无'));
@@ -693,6 +695,26 @@ function routes() {
     send(res, 200, { ok: true });
   };
 
+  // ---- 待审核评分草稿(仅管理员):人工填了分但未点通过时自动保存,用于把“已评分”项沉底 ----
+  r.POST['/api/admin/subs/:id/draft'] = async (req, res, id) => {
+    if (!adminOnly(req, res)) return;
+    const rec = db.subs.find((x) => x.id === id);
+    if (!rec) return send(res, 404, { error: '提交不存在' });
+    if (rec.status !== 'pending') return send(res, 400, { error: '该提交已处理' });
+    const body = JSON.parse((await readBody(req)) || '{}');
+    const raw = body.rating;
+    const cleared = raw === '' || raw === null || raw === undefined;
+    if (!cleared) {
+      const r = parseFloat(raw);
+      if (isNaN(r)) return send(res, 400, { error: '评分格式不正确' });
+      rec.draftRating = Math.max(0.5, Math.min(10, Math.round(r * 10) / 10));
+      rec.draftAt = Date.now();
+    } else {
+      delete rec.draftRating; delete rec.draftAt;
+    }
+    saveDB();
+    send(res, 200, { ok: true, draftRating: rec.draftRating || null });
+  };
   // ---- 举报 / 反馈管理(仅管理员)----
   r.GET['/api/admin/reports'] = (req, res) => {
     if (!adminOnly(req, res)) return;
