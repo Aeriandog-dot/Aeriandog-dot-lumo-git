@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="lumo-ambient" aria-hidden="true">
-  <span class="ab blob"></span>
+  <span class="ab blob"><svg class="sphere3d" viewBox="-120 -120 240 240" aria-hidden="true"></svg></span>
 </div>
 
 <header class="site-header" id="siteHeader">
@@ -149,5 +149,56 @@
 
 <script src="boot.js"></script>
 <script src="app.js"></script>
+
+<script>
+(function () {
+  var svg = document.querySelector('.sphere3d');
+  if (!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var R = 100, LAT = 7, LON = 10, STEP = 6;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nodes = [];
+  var i, j;
+  function rot(x, y, z, tilt, spin) {
+    var c1 = Math.cos(tilt), s1 = Math.sin(tilt), c2 = Math.cos(spin), s2 = Math.sin(spin);
+    var y1 = y * c1 - z * s1, z1 = y * s1 + z * c1;
+    var x2 = x * c2 + z1 * s2, z2 = -x * s2 + z1 * c2;
+    return [x2, y1];
+  }
+  function pt(th, ph) { return [R * Math.cos(th) * Math.cos(ph), R * Math.sin(ph), R * Math.sin(th) * Math.cos(ph) * 0.5]; }
+  function build() {
+    for (i = 0; i < LAT + LON; i++) {
+      var p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', '');
+      svg.appendChild(p);
+      nodes.push(p);
+    }
+  }
+  function dLat(th, tilt, spin) {
+    var d = '';
+    for (var q = -180; q <= 180; q += STEP) {
+      var qv = pt(th, q * Math.PI / 180), p = rot(qv[0], qv[1], qv[2], tilt, spin);
+      d += (q === -180 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' ';
+    }
+    return d;
+  }
+  function dLon(ph, tilt, spin) {
+    var d = '';
+    for (var q = -85; q <= 85; q += STEP) {
+      var qv = pt(q * Math.PI / 180, ph), p = rot(qv[0], qv[1], qv[2], tilt, spin);
+      d += (q === -85 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' ';
+    }
+    return d;
+  }
+  function frame(t) {
+    var spin = (t || 0) * 0.00026, tilt = -0.42, m = 0;
+    for (i = 0; i < LAT; i++) { var th = -72 + i * (144 / (LAT - 1)) * Math.PI / 180; nodes[m].setAttribute('d', dLat(th, tilt, spin)); m++; }
+    for (j = 0; j < LON; j++) { var ph = j * (360 / LON) * Math.PI / 180; nodes[m].setAttribute('d', dLon(ph, tilt, spin)); m++; }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  build();
+  if (reduce) frame(0); else requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>

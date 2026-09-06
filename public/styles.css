@@ -723,12 +723,7 @@ button.chip.on{color:#0a0a0c}
   border:1px solid rgba(212,175,55,.07);
   box-shadow:inset 0 0 160px rgba(212,175,55,.05),0 0 180px rgba(0,0,0,.5);
   animation:blobMorph 11s ease-in-out infinite,blobFloat 34s ease-in-out infinite alternate}
-.ab.blob::before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:.9;
-  background-image:linear-gradient(rgba(212,175,55,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.13) 1px,transparent 1px);
-  background-size:22px 22px;
-  -webkit-mask:radial-gradient(circle at 50% 46%,#000 0%,rgba(0,0,0,.85) 52%,transparent 82%);
-  mask:radial-gradient(circle at 50% 46%,#000 0%,rgba(0,0,0,.85) 52%,transparent 82%);
-  animation:gridPan 12s linear infinite}
+
 .ab.blob::after{content:"";position:absolute;width:34%;height:34%;border-radius:50%;left:6%;top:4%;mix-blend-mode:screen;
   background:radial-gradient(circle at 35% 32%,rgba(255,255,255,.08),rgba(212,175,55,.10) 38%,rgba(212,175,55,0) 72%);
   filter:blur(22px);animation:sheenMove 17s ease-in-out infinite alternate}
@@ -751,6 +746,10 @@ button.chip.on{color:#0a0a0c}
   0%{transform:translate3d(0,0,0) scale(1)}
   100%{transform:translate3d(240%,230%,0) scale(1.7)}
 }
-@keyframes gridPan{0%{background-position:0 0}100%{background-position:52px 52px}}
-@media (prefers-reduced-motion:reduce){.ab.blob{animation:none}.ab.blob::after{animation:none}.ab.blob::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.ab.blob{animation:none}.ab.blob::after{animation:none}}
 @media (max-width:720px){.ab.blob{opacity:.55;width:130vmax;height:130vmax;top:0;margin-left:-65vmax}}
+
+/* ---- 3D wireframe sphere inside the morphing bubble ---- */
+.sphere3d{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.62;pointer-events:none;mix-blend-mode:screen}
+.sphere3d path{fill:none;stroke:rgba(212,175,55,.4);stroke-width:.55;stroke-linecap:round}
+@media (max-width:720px){.sphere3d{opacity:.45}}
