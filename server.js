@@ -717,6 +717,33 @@ function routes() {
   };
 
   // ---- 收录前域名探测(仅管理员,走服务器出口,避免在无法访问时误收录)----
+  // ---- 服务器端抓取(仅管理员):真实出口抓任意公开页面/接口,供自动收集分析 ----
+  const COLLECT_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
+  r.POST['/api/admin/fetch'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    if (!rateLimit(req, 30, 60000)) return send(res, 429, { error: '请求过于频繁' });
+    const b = JSON.parse((await readBody(req)) || '{}');
+    let url = String(b.url || '').trim();
+    if (!/^https?:\/\//i.test(url)) return send(res, 400, { error: '仅支持 http(s) 地址' });
+    url = url.replace(/^http:\/\//i, 'https://');
+    const ctl = new AbortController();
+    const timer = setTimeout(function () { ctl.abort(); }, 25000);
+    try {
+      const r = await fetch(url, {
+        redirect: 'follow',
+        signal: ctl.signal,
+        headers: { 'User-Agent': COLLECT_UA, 'Accept': 'text/html,application/xhtml+xml,application/json,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.8' }
+      });
+      const raw = await r.text();
+      const txt = String(raw || '').slice(0, 400000);
+      audit(req, 'collect_fetch', String(url).slice(0, 160), 'HTTP ' + r.status + ' len ' + txt.length);
+      send(res, 200, { ok: true, url: r.url || url, status: r.status, type: (r.headers.get('content-type') || '').slice(0, 120), len: txt.length, text: txt });
+    } catch (e) {
+      audit(req, 'collect_fetch', String(url).slice(0, 160), 'ERR ' + String(e.message || e).slice(0, 120));
+      send(res, 502, { ok: false, error: String(e.message || e).slice(0, 200) });
+    } finally { clearTimeout(timer); }
+  };
+
   r.POST['/api/admin/probe'] = async (req, res) => {
     if (!adminOnly(req, res)) return;
     if (!rateLimit(req, 30, 60000)) return send(res, 429, { error: '检测过于频繁,请稍后再试' });
