@@ -9,9 +9,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="lumo-ambient" aria-hidden="true">
-  <span class="ab blob"><svg class="sphere3d" viewBox="-120 -120 240 240" aria-hidden="true"></svg></span>
-</div>
+<canvas class="lumo-blob" id="blobCanvas" aria-hidden="true"></canvas>
 
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
@@ -152,52 +150,71 @@
 
 <script>
 (function () {
-  var svg = document.querySelector('.sphere3d');
-  if (!svg) return;
-  var NS = 'http://www.w3.org/2000/svg';
-  var R = 100, LAT = 7, LON = 10, STEP = 6;
+  var cv = document.getElementById('blobCanvas');
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var nodes = [];
-  var i, j;
-  function rot(x, y, z, tilt, spin) {
-    var c1 = Math.cos(tilt), s1 = Math.sin(tilt), c2 = Math.cos(spin), s2 = Math.sin(spin);
-    var y1 = y * c1 - z * s1, z1 = y * s1 + z * c1;
-    var x2 = x * c2 + z1 * s2, z2 = -x * s2 + z1 * c2;
-    return [x2, y1];
+  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+  function size() { W = window.innerWidth; H = window.innerHeight; cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); }
+  window.addEventListener('resize', size); size();
+  var N = 150, CONTOURS = 13, SPOKES = 44;
+  var CX = 0.5, CY = 0.26;
+  function pt(theta, t, s) {
+    var rot = t * 0.00007;
+    var a = theta + rot;
+    var grow = 1 + 0.05 * Math.sin(t * 0.0002);
+    var base = Math.min(W, H) * (W < 760 ? 0.55 : 0.66);
+    var r = base * grow * s * (1
+      + 0.13 * Math.sin(3 * a + t * 0.0010)
+      + 0.085 * Math.cos(5 * a - t * 0.0008)
+      + 0.06 * Math.sin(8 * a + t * 0.0013)
+      + 0.035 * Math.cos(11 * a - t * 0.0011));
+    return [W * CX + Math.cos(theta) * r, H * CY + Math.sin(theta) * r];
   }
-  function pt(th, ph) { return [R * Math.cos(th) * Math.cos(ph), R * Math.sin(ph), R * Math.sin(th) * Math.cos(ph) * 0.5]; }
-  function build() {
-    for (i = 0; i < LAT + LON; i++) {
-      var p = document.createElementNS(NS, 'path');
-      p.setAttribute('d', '');
-      svg.appendChild(p);
-      nodes.push(p);
+  function blobPath(s) {
+    ctx.beginPath();
+    for (var i = 0; i <= N; i++) {
+      var p = pt(i * 2 * Math.PI / N, 0, s);
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
     }
+    ctx.closePath();
   }
-  function dLat(th, tilt, spin) {
-    var d = '';
-    for (var q = -180; q <= 180; q += STEP) {
-      var qv = pt(th, q * Math.PI / 180), p = rot(qv[0], qv[1], qv[2], tilt, spin);
-      d += (q === -180 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' ';
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    // silhouette fill
+    var g = ctx.createRadialGradient(W * CX, H * CY - 40, 10, W * CX, H * CY, Math.min(W, H) * 0.6);
+    g.addColorStop(0, 'rgba(212,175,55,0.10)');
+    g.addColorStop(0.55, 'rgba(212,175,55,0.045)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    blobPath(1); ctx.fillStyle = g; ctx.fill();
+    // dense contour lines that follow the outline
+    for (var L = 1; L <= CONTOURS; L++) {
+      var s = L / CONTOURS;
+      blobPath(s);
+      ctx.strokeStyle = 'rgba(212,175,55,' + (0.035 + 0.09 * (1 - s)).toFixed(3) + ')';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
-    return d;
-  }
-  function dLon(ph, tilt, spin) {
-    var d = '';
-    for (var q = -85; q <= 85; q += STEP) {
-      var qv = pt(q * Math.PI / 180, ph), p = rot(qv[0], qv[1], qv[2], tilt, spin);
-      d += (q === -85 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' ';
+    // spokes from centre to edge
+    ctx.lineWidth = 0.7;
+    for (var k = 0; k < SPOKES; k++) {
+      var a2 = k * 2 * Math.PI / SPOKES;
+      var p0 = [W * CX, H * CY];
+      var p1 = pt(a2, t, 1);
+      ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]);
+      ctx.strokeStyle = 'rgba(212,175,55,0.05)'; ctx.stroke();
     }
-    return d;
+    // moving light (sheen)
+    var lx = W * (0.3 + 0.5 * (0.5 + 0.5 * Math.sin(t * 0.00015)));
+    var ly = H * (CY - 0.05 + 0.12 * Math.sin(t * 0.00011));
+    var hg = ctx.createRadialGradient(lx, ly, 4, lx, ly, Math.min(W, H) * 0.3);
+    hg.addColorStop(0, 'rgba(255,235,190,0.10)');
+    hg.addColorStop(1, 'rgba(255,235,190,0)');
+    ctx.save(); ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = hg; ctx.fillRect(0, 0, W, H); ctx.restore();
+    if (!reduce) requestAnimationFrame(draw);
   }
-  function frame(t) {
-    var spin = (t || 0) * 0.00026, tilt = -0.42, m = 0;
-    for (i = 0; i < LAT; i++) { var th = -72 + i * (144 / (LAT - 1)) * Math.PI / 180; nodes[m].setAttribute('d', dLat(th, tilt, spin)); m++; }
-    for (j = 0; j < LON; j++) { var ph = j * (360 / LON) * Math.PI / 180; nodes[m].setAttribute('d', dLon(ph, tilt, spin)); m++; }
-    if (!reduce) requestAnimationFrame(frame);
-  }
-  build();
-  if (reduce) frame(0); else requestAnimationFrame(frame);
+  if (reduce) draw(4000); else requestAnimationFrame(draw);
 })();
 </script>
 </body>
