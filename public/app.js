@@ -1181,6 +1181,12 @@
         '<h1>Top contributors</h1>' +
         '<p class="lede">Community members who help keep Lumo accurate — by submitting sites and flagging scams. Accepted listings earn points; confirmed high-risk and dead leads earn more.</p>' +
       '</div>' +
+      '<div class="lb-welcome">' +
+        '<div class="lbw-txt"><b>Be part of the community — everyone is welcome.</b>' +
+        '<p>Submit a site you know, flag a suspicious project, or correct an entry. Every accepted lead and confirmed risk earns points and a place on this board.</p></div>' +
+        '<div class="lbw-cta"><a class="btn btn-primary btn-sm" href="#/submit">Submit a site</a><a class="btn btn-ghost btn-sm" href="#/about" data-scroll-to="method">How scoring works</a></div>' +
+      '</div>' +
+      
       '<div class="seg" id="lbSeg">' +
         '<button class="seg-btn' + (LB_PERIOD === 'all' ? ' on' : '') + '" data-lb="all">All time</button>' +
         '<button class="seg-btn' + (LB_PERIOD === 'month' ? ' on' : '') + '" data-lb="month">This month</button>' +

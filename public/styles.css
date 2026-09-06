@@ -716,3 +716,12 @@ button.chip.on{color:#0a0a0c}
 
 /* ---- morphing blob canvas: dense grid wraps and follows the outer shape ---- */
 .lumo-blob{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+
+
+/* ---- footer hint + leaderboard welcome ---- */
+.foot-hint{font-size:11.5px;line-height:1.45;color:var(--dim);padding:2px 0 4px;max-width:210px}
+.lb-welcome{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(212,175,55,.10),rgba(212,175,55,.03));border:1px solid rgba(212,175,55,.22);border-radius:14px;padding:16px 18px;margin:2px 0 16px}
+.lbw-txt{flex:1;min-width:240px}
+.lbw-txt b{font-size:15px;display:block;margin-bottom:4px}
+.lbw-txt p{font-size:13px;color:var(--muted);margin:0;line-height:1.55;max-width:520px}
+.lbw-cta{display:flex;gap:10px;flex-wrap:wrap}
