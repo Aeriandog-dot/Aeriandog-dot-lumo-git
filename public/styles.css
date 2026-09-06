@@ -722,28 +722,30 @@ button.chip.on{color:#0a0a0c}
   background:radial-gradient(circle at 50% 52%,rgba(212,175,55,.09),rgba(212,175,55,.035) 42%,rgba(0,0,0,0) 72%);
   border:1px solid rgba(212,175,55,.07);
   box-shadow:inset 0 0 160px rgba(212,175,55,.05),0 0 180px rgba(0,0,0,.5);
-  animation:blobMorph 26s ease-in-out infinite,blobFloat 48s ease-in-out infinite alternate}
-.ab.blob::before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:.6;
-  background-image:linear-gradient(rgba(212,175,55,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.06) 1px,transparent 1px);
-  background-size:26px 26px;
-  -webkit-mask:radial-gradient(circle at 50% 46%,#000 26%,rgba(0,0,0,.55) 52%,transparent 74%);
-  mask:radial-gradient(circle at 50% 46%,#000 26%,rgba(0,0,0,.55) 52%,transparent 74%);
-  animation:gridPan 36s linear infinite}
+  animation:blobMorph 11s ease-in-out infinite,blobFloat 34s ease-in-out infinite alternate}
+.ab.blob::before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:.9;
+  background-image:linear-gradient(rgba(212,175,55,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.13) 1px,transparent 1px);
+  background-size:22px 22px;
+  -webkit-mask:radial-gradient(circle at 50% 46%,#000 0%,rgba(0,0,0,.85) 52%,transparent 82%);
+  mask:radial-gradient(circle at 50% 46%,#000 0%,rgba(0,0,0,.85) 52%,transparent 82%);
+  animation:gridPan 12s linear infinite}
 .ab.blob::after{content:"";position:absolute;width:34%;height:34%;border-radius:50%;left:6%;top:4%;mix-blend-mode:screen;
   background:radial-gradient(circle at 35% 32%,rgba(255,255,255,.08),rgba(212,175,55,.10) 38%,rgba(212,175,55,0) 72%);
   filter:blur(22px);animation:sheenMove 17s ease-in-out infinite alternate}
 @keyframes blobMorph{
-  0%{border-radius:58% 42% 61% 39%/56% 48% 52% 44%}
-  20%{border-radius:44% 56% 52% 48%/38% 62% 40% 60%}
-  40%{border-radius:60% 40% 46% 54%/64% 36% 62% 38%}
-  60%{border-radius:42% 58% 64% 36%/58% 42% 56% 44%}
-  80%{border-radius:54% 46% 40% 60%/44% 60% 36% 64%}
-  100%{border-radius:58% 42% 61% 39%/56% 48% 52% 44%}
+  0%{border-radius:62% 38% 58% 42%/55% 45% 58% 42%}
+  15%{border-radius:36% 64% 45% 55%/30% 70% 28% 72%}
+  30%{border-radius:70% 30% 38% 62%/74% 26% 68% 32%}
+  45%{border-radius:28% 72% 66% 34%/60% 40% 64% 36%}
+  60%{border-radius:58% 42% 30% 70%/36% 64% 30% 70%}
+  75%{border-radius:66% 34% 70% 30%/44% 56% 40% 60%}
+  90%{border-radius:40% 60% 34% 66%/70% 30% 64% 36%}
+  100%{border-radius:62% 38% 58% 42%/55% 45% 58% 42%}
 }
 @keyframes blobFloat{
-  0%{transform:translate3d(-3vw,0,0) rotate(-3deg) scale(1)}
-  50%{transform:translate3d(2vw,4vh,0) rotate(2deg) scale(1.04)}
-  100%{transform:translate3d(-4vw,-3vh,0) rotate(4deg) scale(.97)}
+  0%{transform:translate3d(-4vw,-1vh,0) rotate(-5deg) scale(1)}
+  50%{transform:translate3d(3vw,5vh,0) rotate(3deg) scale(1.1)}
+  100%{transform:translate3d(-5vw,-4vh,0) rotate(6deg) scale(.9)}
 }
 @keyframes sheenMove{
   0%{transform:translate3d(0,0,0) scale(1)}
