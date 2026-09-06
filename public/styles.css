@@ -715,14 +715,18 @@ button.chip.on{color:#0a0a0c}
 @media (max-width:600px){.lb-pts{font-size:14px}.contrib-banner a{white-space:normal}}
 
 
-/* ---- Guardnet-style single morphing glass bubble (decorative background) ---- */
+/* ---- black-gold morphing glass bubble with moving light (decorative background) ---- */
 .lumo-ambient{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .ab{position:absolute;display:block;will-change:transform,border-radius,opacity}
-.ab.blob{width:92vmax;height:92vmax;left:50%;top:8%;margin-left:-46vmax;background:
-  radial-gradient(circle at 38% 32%,rgba(250,132,83,.34),rgba(250,132,83,.12) 34%,rgba(120,90,255,.06) 58%,transparent 74%),
-  radial-gradient(circle at 64% 70%,rgba(248,201,178,.16),transparent 60%);
-  box-shadow:inset 0 0 120px rgba(255,255,255,.04),0 0 180px rgba(250,132,83,.12);
-  opacity:.85;animation:blobMorph 22s ease-in-out infinite,blobFloat 40s ease-in-out infinite alternate}
+.ab.blob{width:92vmax;height:92vmax;left:50%;top:6%;margin-left:-46vmax;overflow:hidden;opacity:.85;
+  background:radial-gradient(circle at 50% 52%,rgba(212,175,55,.09),rgba(212,175,55,.035) 42%,rgba(0,0,0,0) 72%);
+  border:1px solid rgba(212,175,55,.07);
+  box-shadow:inset 0 0 160px rgba(212,175,55,.05),0 0 180px rgba(0,0,0,.5);
+  animation:blobMorph 26s ease-in-out infinite,blobFloat 48s ease-in-out infinite alternate}
+.ab.blob::before{content:"";position:absolute;inset:6%;border-radius:inherit;border:1px solid rgba(255,255,255,.025);box-shadow:inset 0 0 60px rgba(255,255,255,.02)}
+.ab.blob::after{content:"";position:absolute;width:34%;height:34%;border-radius:50%;left:6%;top:4%;mix-blend-mode:screen;
+  background:radial-gradient(circle at 35% 32%,rgba(255,255,255,.08),rgba(212,175,55,.10) 38%,rgba(212,175,55,0) 72%);
+  filter:blur(22px);animation:sheenMove 17s ease-in-out infinite alternate}
 @keyframes blobMorph{
   0%{border-radius:58% 42% 61% 39%/56% 48% 52% 44%}
   20%{border-radius:44% 56% 52% 48%/38% 62% 40% 60%}
@@ -733,8 +737,12 @@ button.chip.on{color:#0a0a0c}
 }
 @keyframes blobFloat{
   0%{transform:translate3d(-3vw,0,0) rotate(-3deg) scale(1)}
-  50%{transform:translate3d(2vw,4vh,0) rotate(2deg) scale(1.05)}
+  50%{transform:translate3d(2vw,4vh,0) rotate(2deg) scale(1.04)}
   100%{transform:translate3d(-4vw,-3vh,0) rotate(4deg) scale(.97)}
 }
-@media (prefers-reduced-motion:reduce){.ab.blob{animation:none}}
-@media (max-width:720px){.ab.blob{opacity:.5;width:120vmax;height:120vmax;top:2%}}
+@keyframes sheenMove{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(240%,230%,0) scale(1.7)}
+}
+@media (prefers-reduced-motion:reduce){.ab.blob{animation:none}.ab.blob::after{animation:none}}
+@media (max-width:720px){.ab.blob{opacity:.55;width:130vmax;height:130vmax;top:0;margin-left:-65vmax}}
