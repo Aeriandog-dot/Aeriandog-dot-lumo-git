@@ -419,6 +419,12 @@
     var body = document.getElementById('body');
     body.innerHTML =
       '<div class="bar"><input id="itQ" placeholder="按名称 / 域名 / 类目搜索…"><button class="btn btn-ghost btn-sm" id="itSearch">搜索</button>' +
+      '<select id="itRateScope" class="select" style="margin-left:6px" title="自动打分范围">' +
+        '<option value="unscored">自动打分:仅未处理</option>' +
+        '<option value="allNoOk">自动打分:全部(不含官方对照)</option>' +
+        '<option value="allOk">自动打分:全部(含官方对照)</option>' +
+      '</select>' +
+      '<button class="btn btn-primary btn-sm" id="itAutoRate">自动随机打分</button>' +
       '<span class="mini" style="margin-left:auto" id="itCount"></span></div><div id="itList"></div>';
     var load = function () {
       var q = document.getElementById('itQ').value.trim();
@@ -438,6 +444,19 @@
     document.getElementById('itSearch').onclick = load;
     document.getElementById('itQ').onkeydown = function (e) { if (e.key === 'Enter') load(); };
     load();
+    var ar = document.getElementById('itAutoRate');
+    if (ar) ar.onclick = function () {
+      var scope = (document.getElementById('itRateScope') || {}).value || 'unscored';
+      var label = scope === 'allOk' ? '全部条目(含官方对照)' : (scope === 'allNoOk' ? '全部条目(不含官方对照)' : '仅未人工打分的条目');
+      if (!confirm('将给「' + label + '」随机填充参与人数(50-120000)与平均用户打分(0.2-3.8),并标记为已人工打分。确认执行?')) return;
+      var body = { only: scope === 'allOk' || scope === 'allNoOk' ? 'all' : 'unscored', includeOk: scope === 'allOk' };
+      ar.disabled = true; ar.textContent = '执行中…';
+      jpost('/api/admin/items/auto-rate', body).then(function (j) {
+        ar.disabled = false; ar.textContent = '自动随机打分';
+        toast('已完成 ' + (j.done || 0) + ' 条 ✓' + ((j.skipped || 0) ? ' · 跳过 ' + j.skipped : ''));
+        renderItems();
+      }).catch(function (e) { ar.disabled = false; ar.textContent = '自动随机打分'; toast((e && e.message) || '执行失败', true); });
+    };
   }
   function wireItems() {
     document.querySelectorAll('[data-edit]').forEach(function (b) {

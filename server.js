@@ -231,6 +231,33 @@ function recomputeItem(it) {
   it.userCount = n;
 }
 
+
+function votesForScore(n, score) {
+  const dist = [0, 0, 0, 0, 0]; // [5*,4*,3*,2*,1*]
+  if (!n || n <= 0) return dist;
+  const s = Math.max(1, Math.min(5, Number(score) || 1));
+  const stars = [5, 4, 3, 2, 1];
+  const w = stars.map(function (st) { return Math.exp(-Math.pow(st - s, 2) / (2 * 0.9)); });
+  const sw = w.reduce(function (a, b) { return a + b; }, 0);
+  let used = 0;
+  for (let i = 0; i < 5; i++) { dist[i] = Math.round(n * w[i] / sw); used += dist[i]; }
+  let diff = n - used;
+  let bi = 0;
+  for (let i = 1; i < 5; i++) if (w[i] > w[bi]) bi = i;
+  dist[bi] += diff;
+  if (dist[bi] < 0) { dist[bi] = 0; let over = -diff; for (let i = 0; i < 5 && over > 0; i++) { const take = Math.min(over, dist[i]); dist[i] -= take; over -= take; } }
+  return dist;
+}
+function autoRateItem(it, ts) {
+  const count = Math.floor(50 + Math.random() * (120000 - 50 + 1));
+  const score = Math.round((0.2 + Math.random() * 3.6) * 10) / 10; // 0.2..3.8
+  it.dist = votesForScore(count, score);
+  it.userCount = count;
+  it.userScore = score;
+  it.scoredAt = it.scoredAt || ts;
+  return { count: count, score: score };
+}
+
 // ---- rate limiting (per-IP window) ----
 const hits = new Map();
 function rateLimit(req, limit, windowMs) {
@@ -902,6 +929,25 @@ function routes() {
     audit(req, 'override_rating', it.name + ' / ' + it.domain, '结果:均分 ' + it.userScore + ' · ' + it.userCount + ' 人 · dist ' + it.dist.join('/'));
     saveDB();
     send(res, 200, { ok: true, userScore: it.userScore, userCount: it.userCount, dist: it.dist });
+  };
+  // ---- 批量自动随机打分(仅管理员):人数 50-120000,均分 0.2-3.8 ----
+  r.POST['/api/admin/items/auto-rate'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const only = String(b.only || 'unscored');
+    const includeOk = !!b.includeOk;
+    const ts = Date.now();
+    let items = db.items.slice();
+    if (only === 'unscored') items = items.filter(function (x) { return !x.scoredAt; });
+    if (!includeOk) items = items.filter(function (x) { return x.status !== 'ok'; });
+    let done = 0, skip = 0;
+    for (const it of items) {
+      try { const r = autoRateItem(it, ts); done++; }
+      catch (e) { skip++; }
+    }
+    audit(req, 'auto_rate_items', 'scope=' + only + ' includeOk=' + includeOk, 'filled ' + done + ' items (random users 50-120000 / score 0.2-3.8), skipped ' + skip);
+    saveDB();
+    send(res, 200, { ok: true, done: done, skipped: skip });
   };
   r.POST['/api/admin/items/:id/delete'] = async (req, res, id) => {
     if (!adminOnly(req, res)) return;
