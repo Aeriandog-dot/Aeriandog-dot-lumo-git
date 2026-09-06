@@ -499,7 +499,7 @@ function routes() {
   r.GET['/api/admin/stats'] = (req, res) => {
     if (!adminOnly(req, res)) return;
     const items = db.items;
-    const dead = items.filter((x) => !(db.live && db.live[x.id] && db.live[x.id][0] === 1)).length;
+    const dead = items.filter((x) => db.live && db.live[x.id] && db.live[x.id][0] === 0).length;
     send(res, 200, {
       items: items.length, dead: dead, alive: items.length - dead,
       risk: items.filter((x) => x.status === 'risk').length,
