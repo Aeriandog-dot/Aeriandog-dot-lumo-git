@@ -839,7 +839,9 @@ function routes() {
     let q; try { q = decodeURIComponent(rawQ).toLowerCase(); } catch (e) { q = rawQ.toLowerCase(); }
     let list = db.items;
     if (q) list = list.filter((x) => (x.name + ' ' + x.domain + ' ' + (db.categories.find((c) => c.id === x.cat) || {}).title).toLowerCase().indexOf(q) !== -1);
-    send(res, 200, { items: list.map((x) => ({ id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: (db.categories.find((c) => c.id === x.cat) || {}).title || '', tagline: x.tagline, intro: x.intro, rating: x.rating, userScore: x.userScore, userCount: x.userCount, dist: x.dist, status: x.status, added: x.added, live: (db.live && db.live[x.id]) || [1,1,1] })) });
+    const outItems = list.map((x) => ({ id: x.id, name: x.name, domain: x.domain, cat: x.cat, catTitle: (db.categories.find((c) => c.id === x.cat) || {}).title || '', tagline: x.tagline, intro: x.intro, rating: x.rating, userScore: x.userScore, userCount: x.userCount, dist: x.dist, status: x.status, added: x.added, scoredAt: x.scoredAt || null, live: (db.live && db.live[x.id]) || [1,1,1] }));
+    outItems.sort(function (a, b) { return ((a.scoredAt ? 1 : 0) - (b.scoredAt ? 1 : 0)) || (b.added || '').localeCompare(a.added || '') || 0; });
+    send(res, 200, { items: outItems, unscoredCount: outItems.filter((x) => !x.scoredAt).length });
   };
   r.POST['/api/admin/items/:id/update'] = async (req, res, id) => {
     if (!adminOnly(req, res)) return;
@@ -875,6 +877,7 @@ function routes() {
         if (Array.isArray(b.live) && b.live.length === 3 && b.live[0] === 0 && prevLive0 !== 0) awardContrib(origin.email, 15, 'dead_flag', it.name + ' / ' + it.domain, id);
       }
     }
+    if (b.manual) it.scoredAt = it.scoredAt || Date.now();
     audit(req, 'update_item', it.name + ' / ' + it.domain, JSON.stringify({ rating: b.rating, status: b.status, name: b.name, domain: b.domain, live: b.live }));
     saveDB();
     send(res, 200, { ok: true });
@@ -894,6 +897,7 @@ function routes() {
     } else {
       return send(res, 400, { error: '需提供 dist(5 档人数)或 count+avg' });
     }
+    if (b.manual) it.scoredAt = it.scoredAt || Date.now();
     recomputeItem(it);
     audit(req, 'override_rating', it.name + ' / ' + it.domain, '结果:均分 ' + it.userScore + ' · ' + it.userCount + ' 人 · dist ' + it.dist.join('/'));
     saveDB();

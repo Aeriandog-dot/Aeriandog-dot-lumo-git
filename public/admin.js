@@ -405,6 +405,7 @@
     return '<div class="it-row" data-id="' + it.id + '">' +
       '<div class="it-top"><span class="nm">' + esc(it.name) + '</span> <span class="dm">' + esc(it.domain) + '</span>' +
       '<span class="badge ' + (it.status === 'risk' ? 'bd-risk' : (it.status === 'review' ? 'bd-review' : 'bd-ok')) + '">' + stMap[it.status] + '</span>' +
+      (it.scoredAt ? '<span class="badge" style="border-color:rgba(52,211,153,.45);color:var(--good);background:rgba(52,211,153,.08)">已人工打分</span>' : '<span class="badge" style="border-color:rgba(251,191,36,.5);color:var(--mid);background:rgba(251,191,36,.1)">未处理</span>') +
       '<span class="mt">Lumo ' + it.rating + ' · 用户 ' + it.userScore + ' (' + it.userCount + ' 人) · 收录 ' + it.added + '</span>' +
       '<button class="btn btn-ghost btn-sm" data-edit="' + it.id + '">编辑资料 / 状态</button>' +
       '<button class="btn btn-ghost btn-sm" data-rating="' + it.id + '">改人数 / 打分</button>' +
@@ -422,8 +423,15 @@
     var load = function () {
       var q = document.getElementById('itQ').value.trim();
       jget('/api/admin/items?q=' + encodeURIComponent(q)).then(function (d) {
-        document.getElementById('itList').innerHTML = (d.items || []).map(itemCard).join('');
-        document.getElementById('itCount').textContent = (d.items || []).length + ' 条';
+        var arr = d.items || [];
+        var unscored = arr.filter(function (x) { return !x.scoredAt; });
+        var scored = arr.filter(function (x) { return x.scoredAt; });
+        var html = '<div class="queue-head"><h2>未人工打分</h2><span>' + unscored.length + ' 条 · 处理完一条自动沉底到下方</span></div>' +
+          (unscored.length ? '<div>' + unscored.map(itemCard).join('') + '</div>' : '<p style="color:var(--dim)">没有未处理的条目。</p>') +
+          '<div class="queue-head" style="margin-top:26px"><h2>已人工打分</h2><span>' + scored.length + ' 条 · 自动沉底</span></div>' +
+          (scored.length ? '<div>' + scored.map(itemCard).join('') + '</div>' : '<p style="color:var(--dim)">还没有已处理的条目。</p>');
+        document.getElementById('itList').innerHTML = html;
+        document.getElementById('itCount').textContent = arr.length + ' 条 · 未处理 ' + unscored.length + ' · 已打分 ' + scored.length;
         wireItems();
       });
     };
@@ -471,6 +479,7 @@
               cat: document.getElementById('e_cat_' + id).value,
               rating: document.getElementById('e_rating_' + id).value,
               status: document.getElementById('e_status_' + id).value,
+              manual: true,
               tagline: document.getElementById('e_tag_' + id).value,
               intro: document.getElementById('e_intro_' + id).value,
               live: live
@@ -496,7 +505,8 @@
           document.querySelector('[data-saverating="' + id + '"]').onclick = function () {
             jpost('/api/admin/items/' + id + '/rating', {
               count: document.getElementById('r_cnt_' + id).value,
-              avg: document.getElementById('r_avg_' + id).value
+              avg: document.getElementById('r_avg_' + id).value,
+              manual: true
             }).then(function (j) { toast('已保存:均分 ' + j.userScore + ' · ' + j.userCount + ' 人 ✓'); renderItems(); }).catch(function (e) { toast(e.message || '保存失败', true); });
           };
         });
