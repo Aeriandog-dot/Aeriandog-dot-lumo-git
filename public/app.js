@@ -453,100 +453,199 @@
     if (it.status === 'ok') return { label: 'Official reference', cls: 'ok' };
     return { label: 'Under review', cls: 'review' };
   }
+  function wrapLines2(g, text, maxW, font, maxLines){
+    // Greedy word wrap that never lets a line exceed maxW, caps at maxLines,
+    // splits oversized single words by character and appends an ellipsis when truncated.
+    g.font = font;
+    var src = String(text == null ? '' : text).replace(/\s+/g, ' ').replace(/^ | $/g, '');
+    var words = src ? src.split(' ') : [];
+    var lines = [], cur = '', overflow = false;
+    function placeWord(w){
+      var cand = cur === '' ? w : cur + ' ' + w;
+      if (g.measureText(cand).width <= maxW) { cur = cand; return true; }
+      if (cur !== '') {
+        lines.push(cur); cur = '';
+        if (lines.length >= maxLines) { overflow = true; return false; }
+      }
+      if (g.measureText(w).width <= maxW) { cur = w; return true; }
+      // single word wider than a full line -> split by characters
+      var k = 0;
+      while (k < w.length) {
+        var best = '';
+        for (var j = k; j < w.length; j++) {
+          var c = w.slice(k, j + 1);
+          if (g.measureText(c).width > maxW) break;
+          best = c;
+        }
+        if (!best) best = w.charAt(k);
+        if (cur !== '') {
+          lines.push(cur); cur = '';
+          if (lines.length >= maxLines) { overflow = true; return false; }
+        }
+        cur = best; k += best.length;
+      }
+      return true;
+    }
+    for (var i = 0; i < words.length; i++) {
+      if (!placeWord(words[i])) break;
+    }
+    if (cur !== '') {
+      if (lines.length < maxLines) lines.push(cur);
+      else overflow = true;
+    }
+    if (overflow && lines.length) {
+      var last = lines[lines.length - 1], ell = '\u2026';
+      while (last !== '' && g.measureText(last + ell).width > maxW) last = last.slice(0, -1);
+      lines[lines.length - 1] = last === '' ? ell : last + ell;
+    }
+    return lines;
+  }
+  function fitOneLine(g, text, maxW, font){
+    g.font = font;
+    var t = String(text == null ? '' : text);
+    if (g.measureText(t).width <= maxW) return t;
+    var ell = '\u2026', a = 0, b = t.length;
+    while (a < b) {
+      var m = Math.ceil((a + b) / 2);
+      if (g.measureText(t.slice(0, m) + ell).width <= maxW) a = m;
+      else b = m - 1;
+    }
+    return t.slice(0, a) + ell;
+  }
   function drawShareCard(it){
     var cv = document.getElementById('shareCanvas');
     if (!cv) return;
-    var W=1080, H=1350;
-    cv.width=W; cv.height=H;
+    var W = 1080, H = 1350;
+    cv.width = W; cv.height = H;
     var g = cv.getContext('2d');
     var dead = liveInfo(it).key === 'off';
     var url = shareItemUrl(it);
-    // background
-    var grad = g.createLinearGradient(0,0,W,H);
-    if (dead){ grad.addColorStop(0,'#1c0e12'); grad.addColorStop(1,'#2c1318'); }
-    else { grad.addColorStop(0,'#0d0c12'); grad.addColorStop(1,'#16141f'); }
-    g.fillStyle=grad; g.fillRect(0,0,W,H);
-    // subtle glow blobs
-    g.globalAlpha=0.10; g.fillStyle='#d4af37';
-    g.beginPath(); g.arc(W-160,170,180,0,Math.PI*2); g.fill();
-    g.globalAlpha=0.07; g.fillStyle='#7c5cff';
-    g.beginPath(); g.arc(120,H-260,230,0,Math.PI*2); g.fill();
-    g.globalAlpha=1;
-    // header wordmark
-    g.fillStyle='#d4af37'; g.font='900 60px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    g.fillText('LUMO', 72, 108);
-    g.fillStyle='#8a8894'; g.font='400 28px "Segoe UI", system-ui, sans-serif';
-    g.fillText('anti-scam directory', 74, 150);
-    // status chip
     var st = cardStatusOf(it);
-    g.font='700 38px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    var chipTxt = st.label;
-    var chipW = g.measureText(chipTxt).width + 92;
-    g.fillStyle = st.cls==='risk' ? 'rgba(248,113,113,.14)' : st.cls==='dead' ? 'rgba(220,60,60,.18)' : st.cls==='ok' ? 'rgba(52,211,153,.14)' : 'rgba(251,191,36,.12)';
-    roundRect(g, 72, 196, chipW, 78, 18); g.fill();
-    g.strokeStyle = st.cls==='risk' ? '#f87171' : st.cls==='dead' ? '#e05252' : st.cls==='ok' ? '#34d399' : '#fbbf24';
-    g.lineWidth=3; g.stroke();
-    g.fillStyle = st.cls==='risk' ? '#fca5a5' : st.cls==='dead' ? '#f3a0a0' : st.cls==='ok' ? '#6ee7b7' : '#fcd34d';
-    g.textBaseline='middle'; g.fillText(chipTxt, 72+46, 196+39); g.textBaseline='alphabetic';
-    // name (up to 2 lines)
-    g.fillStyle='#f5f5f7'; g.font='700 86px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    var nameRows = wrapText2(g, it.name, 72, 392, W-144, 100, 86, 2);
-    // domain
-    g.fillStyle='#b9b7c6'; g.font='600 46px ui-monospace, Consolas, monospace';
-    g.fillText(it.domain || '', 72, 392 + nameRows*100 + 46);
-    // divider
-    var yDiv = 392 + nameRows*100 + 120;
-    g.strokeStyle='rgba(255,255,255,.08)'; g.lineWidth=2;
-    g.beginPath(); g.moveTo(72, yDiv); g.lineTo(W-72, yDiv); g.stroke();
-    // tagline (up to 3 lines)
-    g.fillStyle='#cfccd8'; g.font='400 42px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    var tag = it.tagline || '';
-    if (it.intro && tag.length < 90) tag = it.intro;
-    var yTag = yDiv + 96;
-    var tagRows = wrapText2(g, tag, 72, yTag, W-144, 58, 42, 3);
-    // scores bar
-    var yBar = yTag + tagRows*58 + 44;
-    // Lumo score (left half)
-    scoreBlock2(g, 'Lumo score', it.rating, '/10', 72, yBar, '#d4af37');
-    // divider between scores
-    g.strokeStyle='rgba(255,255,255,.07)'; g.lineWidth=2;
-    g.beginPath(); g.moveTo(W/2, yBar-8); g.lineTo(W/2, yBar+150); g.stroke();
-    // user rating (right half)
-    var us = userScoreOf(it); var uc=userCountOf(it);
-    scoreBlock2(g, 'User rating', us, '/5', W/2+56, yBar, '#f5c044');
-    // footer panel with QR
-    var yPanel = H-318; // ~1032
-    // dark panel
-    roundRect(g, 72, yPanel, W-144, 246, 26); g.fillStyle='rgba(255,255,255,.035)'; g.fill();
-    g.strokeStyle='rgba(255,255,255,.09)'; g.lineWidth=2; g.stroke();
-    // QR left inside panel
-    var qrX=112, qrY=yPanel+38, qrS=170;
-    drawQr(g, url, qrX, qrY, qrS, dead);
-    // link text right of QR
-    var tx = qrX + qrS + 46;
-    g.fillStyle='#e8e6ee'; g.font='700 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    g.fillText('Scan to open', tx, yPanel+64);
-    g.fillStyle='#9b99a6'; g.font='400 30px "Segoe UI", system-ui, sans-serif';
-    g.fillText('Share this listing link:', tx, yPanel+112);
-    // link itself (wrapped, mono)
-    g.fillStyle='#d4af37'; g.font='500 30px ui-monospace, Consolas, monospace';
-    var linkTxt = url.replace(/^https?:\/\//,'');
-    var ly = yPanel+160;
-    var availW = (W-72-tx-40); // width left in panel
-    var cur='', parts=[];
-    for (var i=0;i<linkTxt.length;i++){
-      var ch=linkTxt.charAt(i);
-      if (g.measureText(cur+ch).width > availW && cur!=='' ){ parts.push(cur); cur=ch; }
-      else cur+=ch;
+    var accent = st.cls === 'dead' ? '#ff8a8a' : st.cls === 'risk' ? '#ff9d9d' : st.cls === 'ok' ? '#67e8b0' : '#f5d06b';
+    var gold = '#e8c166';
+    var glowCol = st.cls === 'dead' ? 'rgba(210,60,70,.38)' : st.cls === 'risk' ? 'rgba(215,90,95,.3)' : st.cls === 'ok' ? 'rgba(60,210,140,.22)' : 'rgba(235,185,90,.22)';
+    var X0 = 66, CW = W - 2 * X0;
+
+    // ---- background ----
+    var grad = g.createLinearGradient(0, 0, W, H);
+    if (dead) { grad.addColorStop(0, '#2c1016'); grad.addColorStop(.5, '#190a10'); grad.addColorStop(1, '#0c0508'); }
+    else if (it.status === 'risk') { grad.addColorStop(0, '#2b1016'); grad.addColorStop(.5, '#18080c'); grad.addColorStop(1, '#0c0508'); }
+    else if (it.status === 'ok') { grad.addColorStop(0, '#0e1c15'); grad.addColorStop(.5, '#0a130f'); grad.addColorStop(1, '#060a07'); }
+    else { grad.addColorStop(0, '#1a1419'); grad.addColorStop(.5, '#120c13'); grad.addColorStop(1, '#08060c'); }
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    g.fillStyle = 'rgba(255,255,255,.05)';
+    for (var gx = 46; gx < W; gx += 74) for (var gy = 46; gy < H; gy += 74) { g.beginPath(); g.arc(gx, gy, 1.5, 0, 7); g.fill(); }
+    var orb = function (x, y, r, col) { var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+    orb(W - 120, 110, 250, glowCol); orb(70, H - 150, 290, st.cls === 'ok' ? 'rgba(70,210,150,.12)' : 'rgba(150,110,230,.12)'); orb(W - 90, H - 100, 190, 'rgba(0,0,0,.3)');
+    g.strokeStyle = 'rgba(255,255,255,.06)'; g.lineWidth = 2; roundRect(g, 22, 22, W - 44, H - 44, 28); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.03)'; g.lineWidth = 1; roundRect(g, 34, 34, W - 68, H - 68, 18); g.stroke();
+    g.fillStyle = accent; g.fillRect(40, 22, 170, 7);
+
+    // ---- header ----
+    g.fillStyle = gold; g.font = '900 54px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('LUMO', X0, 94);
+    g.fillStyle = 'rgba(255,255,255,.5)'; g.font = '600 19px "Segoe UI", system-ui, sans-serif';
+    g.fillText('A N T I - S C A M   D I R E C T O R Y', X0 + 4, 130);
+    g.font = '700 26px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var bw = g.measureText(st.label).width + 64, bx = W - X0 - bw;
+    g.fillStyle = st.cls === 'dead' ? 'rgba(220,60,70,.15)' : st.cls === 'risk' ? 'rgba(220,80,85,.13)' : st.cls === 'ok' ? 'rgba(60,200,140,.12)' : 'rgba(235,180,80,.12)';
+    roundRect(g, bx, 62, bw, 60, 16); g.fill();
+    g.strokeStyle = st.cls === 'dead' ? 'rgba(255,140,145,.6)' : st.cls === 'risk' ? 'rgba(255,140,140,.5)' : st.cls === 'ok' ? 'rgba(110,235,175,.5)' : 'rgba(240,195,110,.5)';
+    g.lineWidth = 2.5; g.stroke();
+    g.fillStyle = accent; g.textBaseline = 'middle'; g.fillText(st.label, bx + 32, 62 + 30); g.textBaseline = 'alphabetic';
+
+    // ---- measure content (top-packed from first name baseline NB) ----
+    var name = String(it.name || '').trim() || (it.domain || '');
+    var nsize = name.length > 26 ? 56 : name.length > 15 ? 66 : name.length > 8 ? 80 : 92;
+    var lineH = Math.round(nsize * 1.16);
+    var nameFont = '800 ' + nsize + 'px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var nameLines = wrapLines2(g, name, CW, nameFont, 2);
+    if (!nameLines.length) nameLines = [''];
+    var NB = 250;
+    var domFont = '600 38px ui-monospace,Consolas,monospace';
+    var domRaw = String(it.domain || '').replace(/^https?:\/\//, '');
+    var domText = fitOneLine(g, domRaw, CW - 60, domFont);
+    var domY = NB + (nameLines.length - 1) * lineH + 58;
+    var domW = Math.min(g.measureText(domText).width + 60, CW);
+    var tagY0 = domY + 64;
+    var tagFont = '400 34px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var tagSrc = it.tagline || ''; if (it.intro && tagSrc.length < 110) tagSrc = it.intro;
+    var tagLines = wrapLines2(g, tagSrc, CW, tagFont, 2);
+    var tagY1 = tagY0 + 66;
+    var scoreH = 190, panelH = 226, captionH = 46;
+    var scoreTop = tagY1 + (tagLines.length ? (tagLines.length - 1) * 46 + 102 : 102);
+    var capY = scoreTop + scoreH + 30;
+    var panelTop = scoreTop + scoreH + captionH + 76;
+    var panelBottom = panelTop + panelH;
+
+    // vertical balance: centre content block between the header zone and the footer
+    var ascent = Math.round(nsize * 0.76);
+    var contentTop = NB - ascent;
+    var TOP = 184, BOT = H - 120;
+    var avail = BOT - TOP, groupH = panelBottom - contentTop;
+    var dy = groupH < avail ? Math.round((avail - groupH) / 2) : Math.max(0, TOP - contentTop);
+
+    // ---- name ----
+    g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 14; g.shadowOffsetY = 3;
+    g.fillStyle = '#fbfafd'; g.font = nameFont;
+    for (var ni = 0; ni < nameLines.length; ni++) g.fillText(nameLines[ni], X0, NB + dy + ni * lineH);
+    g.shadowBlur = 0; g.shadowOffsetY = 0;
+    // ---- domain pill ----
+    var dY = domY + dy;
+    g.fillStyle = 'rgba(255,255,255,.05)'; roundRect(g, X0, dY - 38, domW, 62, 18); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.14)'; g.lineWidth = 1.5; roundRect(g, X0, dY - 38, domW, 62, 18); g.stroke();
+    g.fillStyle = 'rgba(226,224,240,.94)'; g.font = domFont;
+    g.fillText(domText, X0 + 30, dY);
+    // ---- divider + tagline ----
+    var tY0 = tagY0 + dy;
+    var dg2 = g.createLinearGradient(X0, 0, W - X0, 0); dg2.addColorStop(0, accent); dg2.addColorStop(.5, 'rgba(255,255,255,.2)'); dg2.addColorStop(1, 'rgba(255,255,255,0)');
+    g.strokeStyle = dg2; g.lineWidth = 2; g.beginPath(); g.moveTo(X0, tY0); g.lineTo(W - X0, tY0); g.stroke();
+    var tY1 = tagY1 + dy;
+    g.fillStyle = 'rgba(255,255,255,.6)'; g.font = tagFont;
+    for (var ti = 0; ti < tagLines.length; ti++) g.fillText(tagLines[ti], X0, tY1 + ti * 46);
+    // ---- score cards ----
+    var sTop = scoreTop + dy, pad = 40, gap = 24, cardW = (W - 2 * pad - gap) / 2;
+    function scoreCard(x, y, label, val, denom, colorTop) {
+      g.fillStyle = 'rgba(255,255,255,.045)'; roundRect(g, x, y, cardW, scoreH, 22); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 1.5; roundRect(g, x, y, cardW, scoreH, 22); g.stroke();
+      g.fillStyle = colorTop; g.fillRect(x + 30, y + 26, 46, 6);
+      g.fillStyle = 'rgba(255,255,255,.55)'; g.font = '600 22px "Segoe UI", system-ui, sans-serif';
+      g.fillText(label, x + 30, y + 64);
+      g.fillStyle = '#faf6ea'; g.font = '800 80px "Segoe UI", system-ui, sans-serif';
+      var v = String(val);
+      var vw = g.measureText(v).width;
+      g.fillText(v, x + 30, y + 150);
+      g.fillStyle = 'rgba(255,255,255,.42)'; g.font = '600 28px "Segoe UI", system-ui, sans-serif';
+      g.fillText(denom, x + 30 + vw + 18, y + 146);
     }
-    if (cur) parts.push(cur);
-    for (var pi=0; pi<parts.length && pi<3; pi++){ g.fillText(parts[pi], tx, ly); ly+=42; }
-    if (parts.length>3){ g.fillText('...', tx, ly); }
-    // bottom strip
-    g.fillStyle='rgba(255,255,255,.26)'; g.font='600 32px "Segoe UI", system-ui, sans-serif';
-    g.fillText('lumoagi.com', 72, H-40);
-    g.fillStyle='rgba(255,255,255,.4)'; g.font='400 26px "Segoe UI", system-ui, sans-serif';
-    g.fillText('For reference only - not investment advice', 340, H-42);
+    scoreCard(pad, sTop, 'LUMO SCORE', it.rating, '/10', '#e8c166');
+    scoreCard(pad + cardW + gap, sTop, 'USER RATING', userScoreOf(it), '/5', '#f0cd7a');
+    // ---- community caption ----
+    var cY = capY + dy;
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.font = '400 22px "Segoe UI", system-ui, sans-serif';
+    g.fillText(userCountOf(it) + ' community ratings', pad + cardW + gap + 30, cY);
+    // ---- QR panel ----
+    var pTop = panelTop + dy;
+    roundRect(g, X0, pTop, CW, panelH, 24); g.fillStyle = 'rgba(255,255,255,.03)'; g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.13)'; g.lineWidth = 2; roundRect(g, X0, pTop, CW, panelH, 24); g.stroke();
+    var qrS = panelH - 92, qrX = X0 + 52, qrY = pTop + (panelH - qrS) / 2;
+    drawQr(g, url, qrX, qrY, qrS, dead);
+    var tx = qrX + qrS + 50, tw = (W - X0) - tx - 44;
+    g.fillStyle = accent; g.font = '700 40px "Segoe UI", system-ui, sans-serif';
+    g.fillText('Scan to open', tx, pTop + 62);
+    g.fillStyle = 'rgba(255,255,255,.5)'; g.font = '400 24px "Segoe UI", system-ui, sans-serif';
+    g.fillText('Share this listing', tx, pTop + 104);
+    g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 1; g.beginPath(); g.moveTo(tx, pTop + 128); g.lineTo(tx + Math.min(tw, 320), pTop + 128); g.stroke();
+    var linkFont = '500 26px ui-monospace,Consolas,monospace';
+    var linkLine = fitOneLine(g, url.replace(/^https?:\/\//, ''), tw, linkFont);
+    g.fillStyle = '#eccf82'; g.font = linkFont;
+    g.fillText(linkLine, tx, pTop + 178);
+    // ---- footer (not shifted) ----
+    var yb = H - 50;
+    g.fillStyle = 'rgba(232,193,102,.9)'; g.font = '700 26px "Segoe UI", system-ui, sans-serif';
+    g.fillText('lumoagi.com', X0, yb);
+    g.fillStyle = 'rgba(255,255,255,.34)'; g.font = '400 20px "Segoe UI", system-ui, sans-serif';
+    g.fillText('For reference only - not investment advice', 330, yb);
   }
   function scoreBlock2(g, label, val, maxStr, x, y, color){
     g.fillStyle='#8a8894'; g.font='600 30px "Segoe UI", system-ui, sans-serif';
