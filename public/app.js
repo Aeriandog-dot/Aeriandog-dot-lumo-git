@@ -97,6 +97,13 @@
   '风险与运营状态仍在核实中':'Risk and operational status still under review',
   '报告问题':'Report issue',
   '建议收录':'Suggest listing',
+  '分享卡':'Share card',
+  '生成可转发给朋友的风险提示卡片':'Make a card you can forward to warn others.',
+  '下载图片':'Download image',
+  '复制图片':'Copy image',
+  '已复制':'Copied',
+  '复制失败':'Copy failed',
+  '仅作参考,不构成投资建议':'For reference only - not investment advice.',
   '访问官网':'Visit website',
   '登录查看官网':'View website',
   '查看完整域名':'view full domain',
@@ -435,6 +442,168 @@
     if (ct) ct.hidden = !state.signedIn;
   }
 
+
+  function cardStatusOf(it){
+    var dead = liveInfo(it).key === 'off';
+    if (dead) return { label: 'Offline / DEAD', cls: 'dead' };
+    if (it.status === 'risk') return { label: 'Risk warning', cls: 'risk' };
+    if (it.status === 'ok') return { label: 'Official reference', cls: 'ok' };
+    return { label: 'Under review', cls: 'review' };
+  }
+  function drawShareCard(it){
+    var cv = document.getElementById('shareCanvas');
+    if (!cv) return;
+    var W=1080, H=1350;
+    cv.width=W; cv.height=H;
+    var g = cv.getContext('2d');
+    var dead = liveInfo(it).key === 'off';
+    // background
+    var grad = g.createLinearGradient(0,0,W,H);
+    if (dead){ grad.addColorStop(0,'#1a0f12'); grad.addColorStop(1,'#2b1216'); }
+    else { grad.addColorStop(0,'#0d0c12'); grad.addColorStop(1,'#16141f'); }
+    g.fillStyle=grad; g.fillRect(0,0,W,H);
+    // subtle glow blobs
+    g.globalAlpha=0.10;
+    g.fillStyle='#d4af37';
+    g.beginPath(); g.arc(W-160,180,180,0,Math.PI*2); g.fill();
+    g.globalAlpha=0.07; g.fillStyle='#7c5cff';
+    g.beginPath(); g.arc(120,H-220,220,0,Math.PI*2); g.fill();
+    g.globalAlpha=1;
+    // header wordmark
+    g.fillStyle='#d4af37';
+    g.font='900 64px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('LUMO', 72, 118);
+    g.fillStyle='#8a8894'; g.font='400 30px "Segoe UI", system-ui, sans-serif';
+    g.fillText('anti-scam directory', 74, 162);
+    // status chip
+    var st = cardStatusOf(it);
+    g.font='700 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var chipTxt = st.label;
+    var chipW = g.measureText(chipTxt).width + 96;
+    g.fillStyle = st.cls==='risk' ? 'rgba(248,113,113,.14)' : st.cls==='dead' ? 'rgba(220,60,60,.18)' : st.cls==='ok' ? 'rgba(52,211,153,.14)' : 'rgba(251,191,36,.12)';
+    roundRect(g, 72, 214, chipW, 84, 20); g.fill();
+    g.strokeStyle = st.cls==='risk' ? '#f87171' : st.cls==='dead' ? '#e05252' : st.cls==='ok' ? '#34d399' : '#fbbf24';
+    g.lineWidth=3; g.stroke();
+    g.fillStyle = st.cls==='risk' ? '#fca5a5' : st.cls==='dead' ? '#f3a0a0' : st.cls==='ok' ? '#6ee7b7' : '#fcd34d';
+    g.textBaseline='middle';
+    g.fillText(chipTxt, 72+48, 214+42);
+    g.textBaseline='alphabetic';
+    // name
+    g.fillStyle='#f5f5f7'; g.font='700 92px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    wrapText(g, it.name, 72, 430, W-144, 108, 92);
+    // domain
+    g.fillStyle='#b9b7c6'; g.font='600 52px ui-monospace, Consolas, monospace';
+    g.fillText(it.domain || '', 72, 566);
+    // divider
+    g.strokeStyle='rgba(255,255,255,.08)'; g.lineWidth=2;
+    g.beginPath(); g.moveTo(72, 640); g.lineTo(W-72, 640); g.stroke();
+    // tagline
+    g.fillStyle='#cfccd8'; g.font='400 46px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var tag = it.tagline || '';
+    if (it.intro && tag.length < 80) tag = it.intro;
+    wrapText(g, tag, 72, 760, W-144, 66, 46, false);
+    var lines = countLines(g, tag, W-144, 46);
+    // scores block
+    var yS = 760 + lines*66 + 70;
+    scoreBlock(g, 'Lumo', it.rating, '/10', 72, yS, '#d4af37');
+    var us = userScoreOf(it); var uc=userCountOf(it);
+    scoreBlock(g, 'Users', us, '/5', 600, yS, '#f5c044');
+    g.fillStyle='#8a8894'; g.font='400 34px "Segoe UI", system-ui, sans-serif';
+    g.fillText('community ratings: ' + uc, 600, yS+150);
+    // footer
+    g.fillStyle='rgba(255,255,255,.28)';
+    g.font='600 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('lumoagi.com', 72, H-84);
+    g.fillStyle='rgba(255,255,255,.38)'; g.font='400 30px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('For reference only — not investment advice', 380, H-80);
+  }
+  function scoreBlock(g, label, val, maxStr, x, y, color){
+    g.fillStyle='#8a8894'; g.font='600 38px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText(label.toUpperCase(), x, y);
+    g.fillStyle='#f5f5f7'; g.font='700 116px "Segoe UI", system-ui, sans-serif';
+    g.fillText(String(val), x, y+128);
+    g.fillStyle='#6f6d7a'; g.font='500 44px "Segoe UI", system-ui, sans-serif';
+    g.fillText(maxStr, x+ (String(val).length>=2?150:110), y+104);
+    g.fillStyle=color; g.fillRect(x, y+164, 170, 10);
+  }
+  function roundRect(g,x,y,w,h,r){
+    g.beginPath();
+    g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+    g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+  }
+  function countLines(g, text, maxW, size){
+    g.font = '400 ' + size + 'px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var words=String(text||'').split(/(\s+)/), line='', n=1;
+    for (var i=0;i<words.length;i++){ var test=line+words[i]; if (g.measureText(test).width>maxW && line!==''){ line=words[i]; n++; if(n>=4) return n; } else line=test; }
+    return n;
+  }
+  function wrapText(g, text, x, y, maxW, lineH, size, countOnly){
+    var words = String(text||'').split(/(\s+)/), line='', n=0, linesArr=[];
+    for (var i=0;i<words.length;i++){
+      var test=line+words[i];
+      if (g.measureText(test).width>maxW && line!==''){
+        if (!countOnly) g.fillText(line, x, y); else linesArr.push(line);
+        line=words[i]; y+=lineH; n++;
+        if (!countOnly && n>=3) { g.fillText((String(text).length>line.length?'…':''), x, y); return n+1; }
+        if (countOnly && n>=3) { linesArr.push('…'); return linesArr.length; }
+      } else line=test;
+    }
+    if (!countOnly) g.fillText(line, x, y);
+    else if (line) linesArr.push(line);
+    return countOnly ? linesArr.length : n+1;
+  }
+  function openShareCard(id){
+    var it = id ? itemById(id) : null;
+    if (!it) return;
+    state.currentItemId = it.id;
+    var m = document.getElementById('shareModal');
+    if (m) m.hidden = false;
+    var h = document.getElementById('shareHint'); if (h) h.textContent='';
+    drawShareCard(it);
+    var cv = document.getElementById('shareCanvas');
+    if (cv) cv.dataset.item = it.id;
+  }
+  function shareCanvasBlob(){
+    return new Promise(function(res, rej){
+      var cv = document.getElementById('shareCanvas');
+      if (!cv) return rej(new Error('no canvas'));
+      if (cv.toBlob) cv.toBlob(function(b){ b?res(b):rej(new Error('blob empty')); }, 'image/png');
+      else { var url=cv.toDataURL('image/png'); res(dataURLToBlob(url)); }
+    });
+  }
+  function dataURLToBlob(durl){
+    var parts=durl.split(','); var mime=parts[0].match(/:(.*?);/)[1];
+    var bin=atob(parts[1]); var arr=new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return new Blob([arr],{type:mime});
+  }
+  function downloadShareCard(){
+    shareCanvasBlob().then(function(blob){
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      var it=itemById(state.currentItemId)||{};
+      a.download='lumo-'+(it.domain||'card').replace(/[^a-z0-9.-]+/gi,'-')+'.png';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      var h=document.getElementById('shareHint'); if(h) h.textContent='Saved as PNG';
+    }).catch(function(e){ var h=document.getElementById('shareHint'); if(h) h.textContent='Download failed'; });
+  }
+  function copyShareCard(){
+    shareCanvasBlob().then(function(blob){
+      if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem){
+        return navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function(){
+          var h=document.getElementById('shareHint'); if(h) h.textContent='Copied — paste in chat';
+        });
+      }
+      var url=document.getElementById('shareCanvas').toDataURL('image/png');
+      var ta=document.createElement('textarea');
+      ta.value=url; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); var h=document.getElementById('shareHint'); if(h) h.textContent='Copied (data URL)'; }
+      catch(e){ var h2=document.getElementById('shareHint'); if(h2) h2.textContent='Copy failed — use Download'; }
+      ta.remove();
+    }).catch(function(){ var h=document.getElementById('shareHint'); if(h) h.textContent='Copy failed — use Download'; });
+  }
+
   function openAuth(subText) {
     var sub = document.getElementById('authSub');
     if (sub) sub.textContent = subText || 'Sign in to rate sites, submit entries and report issues.';
@@ -734,6 +903,7 @@
           '<div class="detail-tags">' + badge(it.status) + (liveInfo(it).key === 'off' ? '<span class="badge dead">DEAD</span>' : liveBadge(it)) + '<span class="tag comb">综合 ' + combinedScore(it) + '</span><span class="tag">' + esc(c.title) + '</span><span class="tag">收录于 ' + esc(it.added) + '</span></div>' +
         '</div>' +
         '<div class="detail-actions">' + officialBtn +
+          '<button class="btn btn-ghost" type="button" data-share>分享卡</button>' +
           '<button class="btn btn-ghost" type="button" data-report>报告问题</button>' +
           '<a class="btn btn-ghost" href="#/submit">建议收录</a>' +
         '</div>' +
@@ -1304,6 +1474,9 @@
   document.addEventListener('click', function (e) {
     var t = e.target;
 
+    var shareBtn = t.closest('[data-share]');
+    if (shareBtn) { e.preventDefault(); openShareCard(state.currentItemId); return; }
+
     var report = t.closest('[data-report]');
     if (report) {
       e.preventDefault();
@@ -1401,6 +1574,9 @@
       menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
       return;
     }
+
+    if (t.closest('[data-share-download]')) { e.preventDefault(); downloadShareCard(); return; }
+    if (t.closest('[data-share-copy]')) { e.preventDefault(); copyShareCard(); return; }
 
     if (t.closest('[data-close-modal]')) { closeModals(); return; }
     if (t.classList && t.classList.contains('modal-backdrop')) { closeModals(); return; }

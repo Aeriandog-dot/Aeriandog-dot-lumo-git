@@ -5,8 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lumo — Find what you are looking for</title>
 <meta name="description" content="Lumo — a directory of websites and platforms with scores and user reviews.">
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="styles.css">
+<meta property="og:site_name" content="Lumo">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lumo — Find what you are looking for">
+<meta property="og:description" content="Lumo — a directory of websites and platforms with scores and user reviews.">
+<meta property="og:url" content="https://www.lumoagi.com/">
+<meta property="og:image" content="https://www.lumoagi.com/assets/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lumo — Find what you are looking for">
+<meta name="twitter:description" content="Lumo — a directory of websites and platforms with scores and user reviews.">
+<meta name="twitter:image" content="https://www.lumoagi.com/assets/og-default.png">
+<link rel="canonical" href="https://www.lumoagi.com/">
+<!--OGSLOT-->
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 <canvas class="lumo-blob" id="blobCanvas" aria-hidden="true"></canvas>
@@ -14,8 +26,8 @@
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a class="brand" href="#/" aria-label="Lumo Home">
-      <img class="brand-mark" src="assets/lumo-mark-light.png" alt="">
-      <img class="brand-word" src="assets/lumo-word-light.png" alt="Lumo">
+      <img class="brand-mark" src="/assets/lumo-mark-light.png" alt="">
+      <img class="brand-word" src="/assets/lumo-word-light.png" alt="Lumo">
     </a>
     <nav class="site-nav" id="siteNav" aria-label="Primary">
       <a href="#/" data-route>Home</a>
@@ -39,8 +51,8 @@
   <div class="container footer-grid">
     <div class="footer-brand">
       <a class="brand" href="#/" aria-label="Lumo Home">
-        <img class="brand-mark" src="assets/lumo-mark-light.png" alt="">
-        <img class="brand-word" src="assets/lumo-word-light.png" alt="Lumo" style="height:20px">
+        <img class="brand-mark" src="/assets/lumo-mark-light.png" alt="">
+        <img class="brand-word" src="/assets/lumo-word-light.png" alt="Lumo" style="height:20px">
       </a>
       <p class="footer-blurb">Lumo aggregates public information and community feedback so you can quickly see what a site is, whether it looks trustworthy, and what people say about it. Scores are for reference only.</p>
     </div>
@@ -143,10 +155,26 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="shareModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shareTitle" style="max-width:560px">
+    <button class="modal-x" data-close-modal aria-label="Close">&times;</button>
+    <h3 id="shareTitle">Share card</h3>
+    <p class="modal-sub">Download or copy this card to warn others in groups or chat.</p>
+    <div id="shareCardWrap" style="display:flex;justify-content:center;margin:10px 0 4px;border:1px solid var(--line);border-radius:12px;background:#0b0a0e;padding:10px;overflow:auto;max-height:60vh">
+      <canvas id="shareCanvas" width="1080" height="1350" style="width:100%;max-width:420px;height:auto;border-radius:10px;display:block"></canvas>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" type="button" data-share-download>Download PNG</button>
+      <button class="btn btn-ghost" type="button" data-share-copy>Copy image</button>
+      <span class="mini" style="margin-left:auto;align-self:center;color:var(--dim)" id="shareHint"></span>
+    </div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
-<script src="boot.js"></script>
-<script src="app.js"></script>
+<script src="/boot.js"></script>
+<script src="/app.js"></script>
 
 <script>
 (function () {

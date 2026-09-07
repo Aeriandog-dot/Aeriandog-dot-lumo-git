@@ -272,6 +272,71 @@ function rateLimit(req, limit, windowMs) {
 
 // ---- static ----
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain; charset=utf-8' };
+function htmlEscape(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+const ogScript = "<script>try{if(!location.hash){var p=location.pathname.replace(/^\\/+/, '');var m=p.match(/^(item|cat)\\/(.+)$/i);if(m){history.replaceState(null,'','#/'+m[1]+'/'+m[2]);}else if(p==='contributors'){history.replaceState(null,'','#/contributors');}else if(p==='about'){history.replaceState(null,'','#/about');}else if(p==='submit'){history.replaceState(null,'','#/submit');}}}catch(e){}</script>";
+function serveMetaPage(req, res, urlPath) {
+  // /item/:idOrDomain , /cat/:cat , /contributors , /about , /submit
+  const seg = urlPath.split('?')[0].split('/').filter(Boolean); // e.g. ['item','metawaretoken']
+  if (!seg.length || seg[0] === 'index.html') return false;
+  const pub = path.resolve(PUBLIC);
+  const file = path.join(PUBLIC, 'index.html');
+  let html;
+  try { html = fs.readFileSync(file, 'utf8'); } catch (e) { return false; }
+  let title = 'Lumo — Find what you are looking for';
+  let desc = 'Lumo — a directory of websites and platforms with scores and user reviews.';
+  let url = 'https://www.lumoagi.com/';
+  let image = 'https://www.lumoagi.com/assets/og-default.png';
+  let rel = seg[0];
+  let ok = true;
+  if (rel === 'item' && seg[1]) {
+    const key = decodeURIComponent(seg[1]).toLowerCase();
+    const it = db.items.find(x => x.id === key || (x.domain||'').toLowerCase() === key);
+    if (!it) return false;
+    const dead = !!(db.live && db.live[it.id] && db.live[it.id][0] === 0);
+    const statusLabel = dead ? 'DEAD' : (it.status === 'risk' ? 'Risk warning' : (it.status === 'ok' ? 'Official reference' : 'Under review'));
+    const catTitle = (db.categories.find(c => c.id === it.cat) || {}).title || it.cat;
+    title = it.name + ' — ' + (it.domain||'') + ' | Lumo';
+    const catEn = (db.categories.find(c => c.id === it.cat) || {}).en || catTitle;
+    desc = (((it.tagline || '') + ' ') + (dead ? 'Offline.' : '') + ' Category: ' + catEn + ' · Lumo score ' + it.rating + ' · ' + statusLabel).trim().slice(0,220);
+    url = 'https://www.lumoagi.com/item/' + encodeURIComponent(it.domain || it.id);
+    if (dead) image = 'https://www.lumoagi.com/assets/og-dead.png';
+  } else if (rel === 'cat' && seg[1]) {
+    const c = db.categories.find(x => x.id === seg[1] || (x.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-') === seg[1].toLowerCase());
+    if (!c) return false;
+    title = c.title + ' — Lumo';
+    desc = 'Browsing ' + c.title + ' (' + (c.en||'') + ') on Lumo — sites with scores and reviews.';
+    url = 'https://www.lumoagi.com/cat/' + encodeURIComponent(seg[1]);
+  } else if (rel === 'contributors') {
+    title = 'Top contributors — Lumo';
+    desc = 'Community members who keep Lumo accurate by submitting sites and flagging scams.';
+    url = 'https://www.lumoagi.com/contributors';
+  } else if (rel === 'about') {
+    title = 'About Lumo';
+    desc = 'How Lumo works, how sites are listed and how scoring is done.';
+    url = 'https://www.lumoagi.com/about';
+  } else if (rel === 'submit') {
+    title = 'Submit a site — Lumo';
+    desc = 'Suggest a website or platform for review.';
+    url = 'https://www.lumoagi.com/submit';
+  } else { ok = false; }
+  if (!ok) return false;
+  const esc = htmlEscape;
+  html = html
+    .replace(/<title>[\s\S]*?<\/title>/i, '<title>' + esc(title) + '</title>')
+    .replace(/<meta name="description" content="[^"]*">/i, '<meta name="description" content="' + esc(desc) + '">')
+    .replace(/<meta property="og:title" content="[^"]*">/i, '<meta property="og:title" content="' + esc(title) + '">')
+    .replace(/<meta property="og:description" content="[^"]*">/i, '<meta property="og:description" content="' + esc(desc) + '">')
+    .replace(/<meta property="og:url" content="[^"]*">/i, '<meta property="og:url" content="' + esc(url) + '">')
+    .replace(/<meta property="og:image" content="[^"]*">/i, '<meta property="og:image" content="' + esc(image) + '">')
+    .replace(/<meta name="twitter:title" content="[^"]*">/i, '<meta name="twitter:title" content="' + esc(title) + '">')
+    .replace(/<meta name="twitter:description" content="[^"]*">/i, '<meta name="twitter:description" content="' + esc(desc) + '">')
+    .replace(/<meta name="twitter:image" content="[^"]*">/i, '<meta name="twitter:image" content="' + esc(image) + '">')
+    .replace(/<link rel="canonical" href="[^"]*">/i, '<link rel="canonical" href="' + esc(url) + '">')
+    .replace('<!--OGSLOT-->', ogScript);
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'no-referrer' });
+  res.end(html);
+  return true;
+}
 function serveStatic(req, res, urlPath) {
   let rel = decodeURIComponent(urlPath.split('?')[0]);
   if (rel === '/' || rel === '') rel = '/index.html';
@@ -1211,6 +1276,7 @@ const server = http.createServer(async (req, res) => {
       if (R.GET[p]) return R.GET[p](req, res);
       const dm = matchDynamic(R.GET);
       if (dm) return R.GET[dm.key](req, res, ...dm.args);
+      if (serveMetaPage(req, res, p)) return;
     }
     if (method === 'POST') {
       if (R.POST[p]) return await R.POST[p](req, res);
