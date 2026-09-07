@@ -606,7 +606,7 @@
 
   function openAuth(subText) {
     var sub = document.getElementById('authSub');
-    if (sub) sub.textContent = subText || 'Sign in to rate sites, submit entries and report issues.';
+    if (sub) sub.textContent = enHtml(subText) || 'Sign in to rate sites, submit entries and report issues.';
     var em = document.getElementById('authEmailForm');
     var cs = document.getElementById('authStepCode');
     var hint = document.getElementById('authHint');

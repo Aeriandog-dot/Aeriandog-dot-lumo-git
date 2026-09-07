@@ -4,7 +4,7 @@
   xhr.open('GET', '/api/bootstrap', false);
   xhr.send();
   if (xhr.status !== 200) {
-    window.BOOT_ERROR = 'API 不可用,请通过 node server.js 启动 Lumo 服务。';
+    window.BOOT_ERROR = 'Lumo API unavailable — start it with: node server.js';
     return;
   }
   var d = JSON.parse(xhr.responseText);
