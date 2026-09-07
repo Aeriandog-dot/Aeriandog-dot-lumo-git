@@ -98,6 +98,8 @@
   '报告问题':'Report issue',
   '建议收录':'Suggest listing',
   '分享卡':'Share card',
+  '复制链接':'Copy link',
+  '链接已复制':'Link copied',
   '生成可转发给朋友的风险提示卡片':'Make a card you can forward to warn others.',
   '下载图片':'Download image',
   '复制图片':'Copy image',
@@ -552,6 +554,24 @@
     else if (line) linesArr.push(line);
     return countOnly ? linesArr.length : n+1;
   }
+  function shareItemUrl(it){
+    var dom = (it && it.domain) ? it.domain : '';
+    return location.origin + '/item/' + encodeURIComponent(dom);
+  }
+  function copyShareLink(){
+    var it = itemById(state.currentItemId) || {};
+    var url = shareItemUrl(it);
+    function done(msg){ var hx=document.getElementById('shareHint'); if(hx) hx.textContent = msg; }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ done('Link copied'); }).catch(function(){ fallbackCopy(url, done); });
+    } else fallbackCopy(url, done);
+  }
+  function fallbackCopy(text, done){
+    var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done('Link copied'); } catch(e){ done('Copy failed - select manually'); }
+    ta.remove();
+  }
   function openShareCard(id){
     var it = id ? itemById(id) : null;
     if (!it) return;
@@ -904,6 +924,7 @@
         '</div>' +
         '<div class="detail-actions">' + officialBtn +
           '<button class="btn btn-ghost" type="button" data-share>分享卡</button>' +
+          '<button class="btn btn-ghost" type="button" data-copylink title="Copy share link">复制链接</button>' +
           '<button class="btn btn-ghost" type="button" data-report>报告问题</button>' +
           '<a class="btn btn-ghost" href="#/submit">建议收录</a>' +
         '</div>' +
@@ -1474,6 +1495,8 @@
   document.addEventListener('click', function (e) {
     var t = e.target;
 
+    var copyLinkBtn = t.closest('[data-copylink]');
+    if (copyLinkBtn) { e.preventDefault(); copyShareLink(); return; }
     var shareBtn = t.closest('[data-share]');
     if (shareBtn) { e.preventDefault(); openShareCard(state.currentItemId); return; }
 
@@ -1576,6 +1599,7 @@
     }
 
     if (t.closest('[data-share-download]')) { e.preventDefault(); downloadShareCard(); return; }
+    if (t.closest('[data-share-link]')) { e.preventDefault(); copyShareLink(); return; }
     if (t.closest('[data-share-copy]')) { e.preventDefault(); copyShareCard(); return; }
 
     if (t.closest('[data-close-modal]')) { closeModals(); return; }
