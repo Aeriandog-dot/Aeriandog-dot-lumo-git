@@ -261,7 +261,9 @@
   '免责声明.Score基于公开信息与用户反馈,仅供参考,不构成投资、交易或任何决策建议。请自行核实并谨慎判断。':'Disclaimer. Scores are based on public information and user feedback — for reference only. Verify independently.',
   '按综合分排序':'sorted by combined score',
   'excluding the Dead list。':'excluding the Dead list.',
-  '个 active listings':' active listings'
+  '个 active listings':' active listings',
+  '输入网址或名称,如 shark-trades.com':'Enter a website or name, e.g. shark-trades.com',
+  '请输入网址或名称':'Please enter a website or name'
 };
 
 
