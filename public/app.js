@@ -98,10 +98,9 @@
   '报告问题':'Report issue',
   '建议收录':'Suggest listing',
   '访问官网':'Visit website',
-  '登录查看官网':'Sign in to view website',
+  '登录查看官网':'View website',
   '查看完整域名':'view full domain',
-  '登录后即可查看完整域名与访问官网。':'Sign in to see full domains and open official sites.',
-  '登录后即可查看完整域名。':'Sign in to view the full domain.',
+  '登录后即可访问官网。':'Sign in to visit official sites.',
   '登录后即可为该网站打分。':'Sign in to rate this site.',
   '登录后即可提交收录。':'Sign in to submit.',
   '请输入有效邮箱':'Enter a valid email',
@@ -438,7 +437,7 @@
 
   function openAuth(subText) {
     var sub = document.getElementById('authSub');
-    if (sub) sub.textContent = subText || 'Sign in to see full domains, rate sites and submit entries.';
+    if (sub) sub.textContent = subText || 'Sign in to rate sites, submit entries and report issues.';
     var em = document.getElementById('authEmailForm');
     var cs = document.getElementById('authStepCode');
     var hint = document.getElementById('authHint');
@@ -500,16 +499,10 @@
   function loadSession() { /* 会话由后端 cookie 管理 */ }
   function saveSession() { /* 数据持久化由后端完成 */ }
   function isAdmin() { return state.signedIn && state.user === 'admin@lumo.local'; }
-  function maskDomain(d) {
-    var s = String(d || '');
-    if (s.length <= 4) return '••••';
-    var dot = s.lastIndexOf('.');
-    var tld = dot > 1 ? s.slice(dot) : '';
-    return s.slice(0, 3) + '••••••' + tld;
-  }
+
   function domainMarkup(it, dead) {
-    if (dead) return state.signedIn ? '<span class="item-domain dead-link">' + esc(it.domain) + '</span>' : '<span class="item-domain dead-link" title="登录后查看完整域名">' + esc(maskDomain(it.domain)) + '</span>';
-    if (!state.signedIn) return '<span class="mask-domain" data-need-login title="登录后查看完整域名">' + esc(maskDomain(it.domain)) + '</span>';
+    if (dead) return '<span class="item-domain dead-link">' + esc(it.domain) + '</span>';
+
     var extra = it.status === 'risk' ? ' data-risk-external="1"' : '';
     return '<a class="item-domain" href="https://' + esc(it.domain) + '" target="_blank" rel="noopener nofollow"' + (it.status === 'risk' ? ' title="风险网站,访问需谨慎"' : '') + extra + '>' + esc(it.domain) + ' <span class="ext">&#8599;</span></a>';
   }
@@ -588,7 +581,7 @@
   
   function deadPanelHTML(dead) {
     var lines = dead.map(function (it) {
-      var dom = state.signedIn ? it.domain : maskDomain(it.domain);
+      var dom = esc(it.domain);
       var c = catById(it.cat);
       return '<div class="dead-line" data-item="' + it.id + '" role="link" tabindex="0">' +
         '<span class="badge dead">DEAD</span>' +
@@ -606,7 +599,7 @@
   }
 
   function deadLineHTML(it) {
-    var dom = state.signedIn ? it.domain : maskDomain(it.domain);
+    var dom = esc(it.domain);
     var c = catById(it.cat);
     return '<div class="dead-line" data-item="' + it.id + '" role="link" tabindex="0">' +
       '<span class="badge dead">DEAD</span>' +
@@ -663,8 +656,7 @@
     var deadIt = liveInfo(it).key === 'off';
     var officialBtn = '';
     if (!deadIt) {
-      if (!state.signedIn) officialBtn = '<button class="btn btn-primary" type="button" data-need-login>登录查看官网</button>';
-      else officialBtn = '<a class="btn btn-primary" href="https://' + esc(it.domain) + '" target="_blank" rel="noopener nofollow"' + (it.status === 'risk' ? ' data-risk-external="1"' : '') + '>访问官网</a>';
+      officialBtn = '<a class="btn btn-primary" href="https://' + esc(it.domain) + '" target="_blank" rel="noopener nofollow"' + (it.status === 'risk' ? ' data-risk-external="1"' : '') + '>访问官网</a>';
     }
     var lv = level(it.rating);
     var us = userScoreOf(it);
@@ -737,7 +729,7 @@
       '<section class="detail-head"><div class="item-detail-head' + (deadIt ? ' detail-dead-wrap' : '') + '">' + (deadIt ? '<span class="dead-stamp">DEAD</span>' : '') +
         '<div class="detail-score">' + ringHTML(it.rating, true) + '<span class="score-label ' + lv.c + '">Lumo 评分 · ' + lv.label + '</span></div>' +
         '<div class="detail-titles" style="flex:1;min-width:240px">' +
-          '<h1>' + esc(it.name) + '<span class="tkr" style="font-family:var(--font);font-weight:400">' + esc(state.signedIn ? it.domain : maskDomain(it.domain)) + '</span></h1>' +
+          '<h1>' + esc(it.name) + '<span class="tkr" style="font-family:var(--font);font-weight:400">' + esc(it.domain) + '</span></h1>' +
           '<p class="detail-tagline">' + esc(it.tagline) + '</p>' +
           '<div class="detail-tags">' + badge(it.status) + (liveInfo(it).key === 'off' ? '<span class="badge dead">DEAD</span>' : liveBadge(it)) + '<span class="tag comb">综合 ' + combinedScore(it) + '</span><span class="tag">' + esc(c.title) + '</span><span class="tag">收录于 ' + esc(it.added) + '</span></div>' +
         '</div>' +
@@ -1370,7 +1362,7 @@
     }
 
     var need = t.closest('[data-need-login]');
-    if (need) { e.preventDefault(); openAuth('Sign in to see full domains and open official sites.'); return; }
+    if (need) { e.preventDefault(); openAuth('Sign in to rate, submit or report.'); return; }
 
     var back = t.closest('[data-auth-back]');
     if (back) {
