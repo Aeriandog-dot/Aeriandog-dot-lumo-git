@@ -331,7 +331,8 @@
   }
 
   function itemById(id) {
-    for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i];
+    if (!id) return null;
+    for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id || (ITEMS[i].domain||'').toLowerCase() === String(id).toLowerCase()) return ITEMS[i];
     return null;
   }
 
