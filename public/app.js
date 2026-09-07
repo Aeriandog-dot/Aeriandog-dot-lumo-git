@@ -459,65 +459,132 @@
     cv.width=W; cv.height=H;
     var g = cv.getContext('2d');
     var dead = liveInfo(it).key === 'off';
+    var url = shareItemUrl(it);
     // background
     var grad = g.createLinearGradient(0,0,W,H);
-    if (dead){ grad.addColorStop(0,'#1a0f12'); grad.addColorStop(1,'#2b1216'); }
+    if (dead){ grad.addColorStop(0,'#1c0e12'); grad.addColorStop(1,'#2c1318'); }
     else { grad.addColorStop(0,'#0d0c12'); grad.addColorStop(1,'#16141f'); }
     g.fillStyle=grad; g.fillRect(0,0,W,H);
     // subtle glow blobs
-    g.globalAlpha=0.10;
-    g.fillStyle='#d4af37';
-    g.beginPath(); g.arc(W-160,180,180,0,Math.PI*2); g.fill();
+    g.globalAlpha=0.10; g.fillStyle='#d4af37';
+    g.beginPath(); g.arc(W-160,170,180,0,Math.PI*2); g.fill();
     g.globalAlpha=0.07; g.fillStyle='#7c5cff';
-    g.beginPath(); g.arc(120,H-220,220,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(120,H-260,230,0,Math.PI*2); g.fill();
     g.globalAlpha=1;
     // header wordmark
-    g.fillStyle='#d4af37';
-    g.font='900 64px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    g.fillText('LUMO', 72, 118);
-    g.fillStyle='#8a8894'; g.font='400 30px "Segoe UI", system-ui, sans-serif';
-    g.fillText('anti-scam directory', 74, 162);
+    g.fillStyle='#d4af37'; g.font='900 60px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('LUMO', 72, 108);
+    g.fillStyle='#8a8894'; g.font='400 28px "Segoe UI", system-ui, sans-serif';
+    g.fillText('anti-scam directory', 74, 150);
     // status chip
     var st = cardStatusOf(it);
-    g.font='700 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.font='700 38px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
     var chipTxt = st.label;
-    var chipW = g.measureText(chipTxt).width + 96;
+    var chipW = g.measureText(chipTxt).width + 92;
     g.fillStyle = st.cls==='risk' ? 'rgba(248,113,113,.14)' : st.cls==='dead' ? 'rgba(220,60,60,.18)' : st.cls==='ok' ? 'rgba(52,211,153,.14)' : 'rgba(251,191,36,.12)';
-    roundRect(g, 72, 214, chipW, 84, 20); g.fill();
+    roundRect(g, 72, 196, chipW, 78, 18); g.fill();
     g.strokeStyle = st.cls==='risk' ? '#f87171' : st.cls==='dead' ? '#e05252' : st.cls==='ok' ? '#34d399' : '#fbbf24';
     g.lineWidth=3; g.stroke();
     g.fillStyle = st.cls==='risk' ? '#fca5a5' : st.cls==='dead' ? '#f3a0a0' : st.cls==='ok' ? '#6ee7b7' : '#fcd34d';
-    g.textBaseline='middle';
-    g.fillText(chipTxt, 72+48, 214+42);
-    g.textBaseline='alphabetic';
-    // name
-    g.fillStyle='#f5f5f7'; g.font='700 92px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    wrapText(g, it.name, 72, 430, W-144, 108, 92);
+    g.textBaseline='middle'; g.fillText(chipTxt, 72+46, 196+39); g.textBaseline='alphabetic';
+    // name (up to 2 lines)
+    g.fillStyle='#f5f5f7'; g.font='700 86px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    var nameRows = wrapText2(g, it.name, 72, 392, W-144, 100, 86, 2);
     // domain
-    g.fillStyle='#b9b7c6'; g.font='600 52px ui-monospace, Consolas, monospace';
-    g.fillText(it.domain || '', 72, 566);
+    g.fillStyle='#b9b7c6'; g.font='600 46px ui-monospace, Consolas, monospace';
+    g.fillText(it.domain || '', 72, 392 + nameRows*100 + 46);
     // divider
+    var yDiv = 392 + nameRows*100 + 120;
     g.strokeStyle='rgba(255,255,255,.08)'; g.lineWidth=2;
-    g.beginPath(); g.moveTo(72, 640); g.lineTo(W-72, 640); g.stroke();
-    // tagline
-    g.fillStyle='#cfccd8'; g.font='400 46px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.beginPath(); g.moveTo(72, yDiv); g.lineTo(W-72, yDiv); g.stroke();
+    // tagline (up to 3 lines)
+    g.fillStyle='#cfccd8'; g.font='400 42px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
     var tag = it.tagline || '';
-    if (it.intro && tag.length < 80) tag = it.intro;
-    wrapText(g, tag, 72, 760, W-144, 66, 46, false);
-    var lines = countLines(g, tag, W-144, 46);
-    // scores block
-    var yS = 760 + lines*66 + 70;
-    scoreBlock(g, 'Lumo', it.rating, '/10', 72, yS, '#d4af37');
+    if (it.intro && tag.length < 90) tag = it.intro;
+    var yTag = yDiv + 96;
+    var tagRows = wrapText2(g, tag, 72, yTag, W-144, 58, 42, 3);
+    // scores bar
+    var yBar = yTag + tagRows*58 + 44;
+    // Lumo score (left half)
+    scoreBlock2(g, 'Lumo score', it.rating, '/10', 72, yBar, '#d4af37');
+    // divider between scores
+    g.strokeStyle='rgba(255,255,255,.07)'; g.lineWidth=2;
+    g.beginPath(); g.moveTo(W/2, yBar-8); g.lineTo(W/2, yBar+150); g.stroke();
+    // user rating (right half)
     var us = userScoreOf(it); var uc=userCountOf(it);
-    scoreBlock(g, 'Users', us, '/5', 600, yS, '#f5c044');
-    g.fillStyle='#8a8894'; g.font='400 34px "Segoe UI", system-ui, sans-serif';
-    g.fillText('community ratings: ' + uc, 600, yS+150);
-    // footer
-    g.fillStyle='rgba(255,255,255,.28)';
-    g.font='600 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    g.fillText('lumoagi.com', 72, H-84);
-    g.fillStyle='rgba(255,255,255,.38)'; g.font='400 30px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
-    g.fillText('For reference only — not investment advice', 380, H-80);
+    scoreBlock2(g, 'User rating', us, '/5', W/2+56, yBar, '#f5c044');
+    // footer panel with QR
+    var yPanel = H-318; // ~1032
+    // dark panel
+    roundRect(g, 72, yPanel, W-144, 246, 26); g.fillStyle='rgba(255,255,255,.035)'; g.fill();
+    g.strokeStyle='rgba(255,255,255,.09)'; g.lineWidth=2; g.stroke();
+    // QR left inside panel
+    var qrX=112, qrY=yPanel+38, qrS=170;
+    drawQr(g, url, qrX, qrY, qrS, dead);
+    // link text right of QR
+    var tx = qrX + qrS + 46;
+    g.fillStyle='#e8e6ee'; g.font='700 40px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
+    g.fillText('Scan to open', tx, yPanel+64);
+    g.fillStyle='#9b99a6'; g.font='400 30px "Segoe UI", system-ui, sans-serif';
+    g.fillText('Share this listing link:', tx, yPanel+112);
+    // link itself (wrapped, mono)
+    g.fillStyle='#d4af37'; g.font='500 30px ui-monospace, Consolas, monospace';
+    var linkTxt = url.replace(/^https?:\/\//,'');
+    var ly = yPanel+160;
+    var availW = (W-72-tx-40); // width left in panel
+    var cur='', parts=[];
+    for (var i=0;i<linkTxt.length;i++){
+      var ch=linkTxt.charAt(i);
+      if (g.measureText(cur+ch).width > availW && cur!=='' ){ parts.push(cur); cur=ch; }
+      else cur+=ch;
+    }
+    if (cur) parts.push(cur);
+    for (var pi=0; pi<parts.length && pi<3; pi++){ g.fillText(parts[pi], tx, ly); ly+=42; }
+    if (parts.length>3){ g.fillText('...', tx, ly); }
+    // bottom strip
+    g.fillStyle='rgba(255,255,255,.26)'; g.font='600 32px "Segoe UI", system-ui, sans-serif';
+    g.fillText('lumoagi.com', 72, H-40);
+    g.fillStyle='rgba(255,255,255,.4)'; g.font='400 26px "Segoe UI", system-ui, sans-serif';
+    g.fillText('For reference only - not investment advice', 340, H-42);
+  }
+  function scoreBlock2(g, label, val, maxStr, x, y, color){
+    g.fillStyle='#8a8894'; g.font='600 30px "Segoe UI", system-ui, sans-serif';
+    g.fillText(label.toUpperCase(), x, y);
+    g.fillStyle='#f5f5f7'; g.font='700 92px "Segoe UI", system-ui, sans-serif';
+    var v = String(val);
+    g.fillText(v, x, y+104);
+    g.fillStyle='#6f6d7a'; g.font='500 36px "Segoe UI", system-ui, sans-serif';
+    g.fillText(maxStr, x+ (v.length>=2?118:88), y+86);
+    g.fillStyle=color; g.fillRect(x, y+128, 150, 8);
+  }
+  function wrapText2(g, text, x, y, maxW, lineH, size, maxLines){
+    var words = String(text||'').split(/(\s+)/), line='', n=0;
+    for (var i=0;i<words.length;i++){
+      var test=line+words[i];
+      if (g.measureText(test).width>maxW && line!==''){
+        g.fillText(line, x, y); line=words[i]; y+=lineH; n++;
+        if (n>=maxLines-1){ break; }
+      } else line=test;
+    }
+    if (n<maxLines){ g.fillText(line, x, y); }
+    return Math.min(n+1, maxLines);
+  }
+  function drawQr(g, text, x, y, size, dead){
+    if (!window.qrcode) return;
+    var qr;
+    try { qr = qrcode(0, 'M'); qr.addData(text); qr.make(); } catch(e){ return; }
+    var n = qr.getModuleCount();
+    var quiet = 2;               // quiet zone in modules
+    var cell = Math.floor(size / (n + quiet*2));
+    var offX = x + Math.floor((size - cell*(n+quiet*2))/2);
+    var offY = y + Math.floor((size - cell*(n+quiet*2))/2);
+    // white rounded bg
+    g.fillStyle='#ffffff';
+    roundRect(g, x-14, y-14, size+28, size+28, 16); g.fill();
+    g.fillStyle = dead ? '#151015' : '#101018';
+    for (var r=0; r<n; r++) for (var c=0; c<n; c++){
+      if (qr.isDark(r,c)) g.fillRect(offX+(c+quiet)*cell, offY+(r+quiet)*cell, cell+0.5, cell+0.5);
+    }
   }
   function scoreBlock(g, label, val, maxStr, x, y, color){
     g.fillStyle='#8a8894'; g.font='600 38px "Segoe UI", system-ui, "Microsoft YaHei", sans-serif';
