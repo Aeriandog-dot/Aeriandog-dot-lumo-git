@@ -1019,11 +1019,22 @@
     if (ss) ss.value = state.sort;
   }
 
-  function renderItem(id) {
+  function renderItem(id, noHistory) {
     var it = itemById(id);
     if (!it) { location.hash = '#/'; return; }
+    if (!it.facts && !it.__full) {
+      view.innerHTML = '<div class="page-head"><div class="crumb"><a href="#/">Home</a></div></div><div class="empty"><div class="big">&#8987;</div><h3>Loading listing…</h3></div>';
+      fetch('/api/items/' + encodeURIComponent(id)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        if (!j || !j.item) return;
+        j.item.__full = true;
+        for (var k = 0; k < ITEMS.length; k++) { if (ITEMS[k].id === j.item.id) { ITEMS[k] = j.item; break; } }
+        if (window.LIVE && j.live) window.LIVE[j.item.id] = j.live;
+        if ((location.hash || '').indexOf('/item/' + j.item.id) !== -1) renderItem(j.item.id, true);
+      }).catch(function () {});
+      return;
+    }
     var c = catById(it.cat);
-    pushHistory(id);
+    if (!noHistory) pushHistory(id);
     var deadIt = liveInfo(it).key === 'off';
     var officialBtn = '';
     if (!deadIt) {

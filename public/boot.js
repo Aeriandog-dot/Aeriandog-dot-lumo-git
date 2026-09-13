@@ -1,7 +1,7 @@
 /* boot.js — 从后端加载真实数据(同步,确保 app.js 渲染前就绪) */
 (function () {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/api/bootstrap', false);
+  xhr.open('GET', '/api/bootstrap?lite=1', false);
   xhr.send();
   if (xhr.status !== 200) {
     window.BOOT_ERROR = 'Lumo API unavailable — start it with: node server.js';

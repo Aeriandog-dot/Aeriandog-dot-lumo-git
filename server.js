@@ -6,6 +6,7 @@ const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const zlib = require('zlib');
 const dns = require('dns');
 
 const ROOT = __dirname;
@@ -149,9 +150,24 @@ function saveDB() {
   fs.renameSync(tmp, DB_FILE);
 }
 
+function liteItem(x) {
+  return { id: x.id, name: x.name, domain: x.domain, cat: x.cat, tagline: x.tagline, rating: x.rating, userScore: x.userScore, userCount: x.userCount, dist: x.dist, status: x.status, added: x.added, scoredAt: x.scoredAt || null, creditName: x.creditName || null };
+}
 function send(res, code, obj) {
   const body = JSON.stringify(obj);
-  res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+  const ae = String((res.req && res.req.headers && res.req.headers['accept-encoding']) || '');
+  const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  if (body.length > 1024 && /\bgzip\b/.test(ae)) {
+    zlib.gzip(body, (err, buf) => {
+      if (err) { res.writeHead(code, headers); return res.end(body); }
+      headers['Content-Encoding'] = 'gzip';
+      headers['Vary'] = 'Accept-Encoding';
+      res.writeHead(code, headers);
+      res.end(buf);
+    });
+    return;
+  }
+  res.writeHead(code, headers);
   res.end(body);
 }
 function readBody(req) {
@@ -419,7 +435,8 @@ function routes() {
   r.GET['/api/bootstrap'] = (req, res) => {
     const me = sessionUser(req);
     const myRates = me ? (userOf(me.email).rates || {}) : {};
-    send(res, 200, { categories: db.categories, items: db.items, live: db.live, checked: db.checked, myRates: myRates, user: me ? me.email : null, contact: process.env.LUMO_CONTACT || '', checks: db.checks || {} });
+    const lite = /[?&]lite=1/.test(req.url || '');
+    send(res, 200, { categories: db.categories, items: lite ? db.items.map(liteItem) : db.items, live: db.live, checked: db.checked, myRates: myRates, user: me ? me.email : null, contact: process.env.LUMO_CONTACT || '', checks: db.checks || {} });
   };
 
   // ---- 贡献者积分 / 排行榜(公开读 + 本人写)----
@@ -555,6 +572,11 @@ function routes() {
   };
   r.GET['/api/categories'] = (req, res) => send(res, 200, { categories: db.categories });
   r.GET['/api/items'] = (req, res) => send(res, 200, { items: db.items });
+  r.GET['/api/items/:id'] = (req, res, id) => {
+    const it = db.items.find((x) => x.id === id);
+    if (!it) return send(res, 404, { error: '条目不存在' });
+    send(res, 200, { item: it, live: (db.live && db.live[id]) || [1, 1, 1] });
+  };
 
   r.GET['/api/submissions/mine'] = (req, res) => {
     const me = sessionUser(req);
