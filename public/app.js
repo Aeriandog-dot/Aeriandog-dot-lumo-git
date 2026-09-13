@@ -966,6 +966,19 @@
       '<span class="dl-note">已下线 · 点击查看归档详情</span>' +
       '<span class="stamp-mini">DEAD</span></div>';
   }
+  var LIST_PAGE = 80;
+  var pendingByList = {};
+  function renderProgressive(items, renderFn, listId, dead, cssClass) {
+    var rows = items.map(function (i) { return renderFn(i, dead); });
+    pendingByList[listId] = rows.slice(LIST_PAGE);
+    var cls = cssClass || 'proj-list';
+    var html = '<div class="' + cls + '" id="' + listId + '">' + rows.slice(0, LIST_PAGE).join('') + '</div>';
+    if (pendingByList[listId].length) {
+      html += '<div class="loadmore-wrap"><button type="button" class="btn btn-ghost" data-loadmore="' + listId + '">Load more (' + pendingByList[listId].length + ' left)</button></div>';
+    }
+    return html;
+  }
+
   function renderCat(id) {
     var c = catById(id);
     if (!c) { location.hash = '#/'; return; }
@@ -975,13 +988,13 @@
     var st = catStats(id);
     var liveSec = '<div class="live-sec-title"><h2>Live listings</h2><span class="cnt">' + alive.length + ' active — reachable, registrable, still promoted</span></div>';
     var liveList = alive.length
-      ? '<div class="proj-list" id="itemList">' + alive.map(function (i) { return rowItemHTML(i); }).join('') + '</div>'
+      ? renderProgressive(alive, rowItemHTML, 'itemList', false)
       : '<div class="empty"><div class="big">&#128269;</div><h3>该分类暂无运营中的网站</h3></div>';
     var deadSec = dead.length
       ? '<section class="dead-sec">' +
         '<div class="dead-sec-head"><span class="dead-badge">DEAD</span><h2>Dead list</h2>' +
         '<span class="dead-note">已确认无法打开 / 停止运营 · ' + dead.length + ' archived — not ranked</span></div>' +
-        '<div class="dead-cardlist">' + dead.map(function (it) { return rowItemHTML(it, true); }).join('') + '</div>' +
+        renderProgressive(dead, rowItemHTML, 'deadList', true, 'dead-cardlist') +
         '</section>'
       : '';
     view.innerHTML =
@@ -1168,7 +1181,7 @@
     var body = '';
     if (list.length) {
       body = '<div class="toolbar"><span class="result-count">' + list.length + (list.length === 1 ? ' result' : ' results') + ' · sorted by combined score</span></div>' +
-        '<div class="proj-list">' + list.map(function (i) { return rowItemHTML(i); }).join('') + '</div>';
+        renderProgressive(list, rowItemHTML, 'resultList', false);
     } else if (deadNames.length) {
       body = '<div class="empty-state"><div style="font-size:34px">&#128477;</div><h3>Only in the Dead list</h3>' +
         '<p>These sites are confirmed offline or shut down: ' + esc(deadNames.join(', ')) + '. See the DEAD archive in their category.</p>' +
@@ -1692,6 +1705,19 @@
     }
     var extA = t.closest('a.item-domain');
     if (extA) { return; }
+
+    var lm = t.closest('[data-loadmore]');
+    if (lm) {
+      e.preventDefault();
+      var lid = lm.getAttribute('data-loadmore');
+      var cont = document.getElementById(lid);
+      var rest = pendingByList[lid] || [];
+      var next = rest.splice(0, LIST_PAGE);
+      if (cont && next.length) cont.insertAdjacentHTML('beforeend', next.join(''));
+      if (rest.length) { lm.textContent = 'Load more (' + rest.length + ' left)'; }
+      else if (lm.parentNode) { lm.parentNode.removeChild(lm); }
+      return;
+    }
 
     var item = t.closest('[data-item]');
     if (item) {
