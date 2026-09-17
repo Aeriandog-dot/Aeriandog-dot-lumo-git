@@ -996,6 +996,25 @@ function routes() {
     saveDB();
     send(res, 200, { ok: true });
   };
+  // ---- 批量更新条目文案(仅管理员):一次请求多条目,仅落盘一次 ----
+  r.POST['/api/admin/items/bulk-update'] = async (req, res) => {
+    if (!adminOnly(req, res)) return;
+    const b = JSON.parse((await readBody(req)) || '{}');
+    const list = Array.isArray(b.updates) ? b.updates : [];
+    let applied = 0, missing = [];
+    for (const u of list) {
+      const it = db.items.find((x) => x.id === u.id);
+      if (!it) { missing.push(u.id); continue; }
+      if (u.tagline != null) it.tagline = String(u.tagline).slice(0, 160);
+      if (u.intro != null) it.intro = String(u.intro);
+      if (Array.isArray(u.reasons)) it.reasons = u.reasons;
+      applied++;
+    }
+    audit(req, 'bulk_update_items', String(applied), 'batch size ' + list.length);
+    saveDB();
+    send(res, 200, { ok: true, applied: applied, missing: missing.slice(0, 20) });
+  };
+
   r.POST['/api/admin/items/:id/rating'] = async (req, res, id) => {
     if (!adminOnly(req, res)) return;
     const it = db.items.find((x) => x.id === id);
