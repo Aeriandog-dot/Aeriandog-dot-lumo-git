@@ -1008,6 +1008,7 @@ function routes() {
       if (u.tagline != null) it.tagline = String(u.tagline).slice(0, 160);
       if (u.intro != null) it.intro = String(u.intro);
       if (Array.isArray(u.reasons)) it.reasons = u.reasons;
+      if (Array.isArray(u.facts)) it.facts = u.facts;
       applied++;
     }
     audit(req, 'bulk_update_items', String(applied), 'batch size ' + list.length);
